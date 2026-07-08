@@ -1,4 +1,5 @@
 import Image from "next/image";
+import heroBanner from "../assets/hero/hero-banner.jpg";
 
 export default function Home() {
   return (
