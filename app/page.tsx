@@ -6,10 +6,10 @@ export default function Home() {
     <main className="min-h-screen bg-black">
       <section className="relative w-full h-[70vh] min-h-[500px]">
         <Image
-          
+          src={heroBanner}
           alt="FAFO Nation"
           fill
-  src={heroBanner}        priority
+          priority
           className="object-cover object-center"
         />
       </section>
