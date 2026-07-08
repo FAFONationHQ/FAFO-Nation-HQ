@@ -7,7 +7,7 @@ export default function Home() {
       <section className="relative w-full h-[70vh] min-h-[500px]">
         <Image
           src={heroBanner}
-          alt="FAFO Nation"
+          alt="FAFO Nation" 
           fill
           priority
           className="object-cover object-center"
