@@ -28,8 +28,8 @@ body {
 }
 
 /* ==========================================
-   FAFO NATION LOADING SCREEN
-   ENTRY + DROP + SPIN + IMPACT + SMOKE + FADE
+   FAFO NATION CINEMATIC LOADING SCREEN
+   ENTRY -> DROP -> SPIN -> IMPACT -> HOLD -> FADE
    ========================================== */
 
 .loading-screen {
@@ -48,70 +48,68 @@ body {
   background: #000000;
 }
 
-/* ===== ENTRY SCREEN ===== */
+/* ===== ENTRY ===== */
 
 .loading-entry {
+  position: absolute;
+  inset: 0;
+
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
 
-  width: min(88vw, 620px);
+  opacity: 1;
 
-  animation: fafo-entry-appear 0.7s ease-out both;
+  animation: fafo-entry-appear 0.55s ease-out both;
+
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    filter 180ms ease;
 }
 
-.loading-entry-crest {
-  display: block;
+.loading-entry-leaving {
+  opacity: 0;
+  transform: scale(1.04);
+  filter: blur(3px);
 
-  width: clamp(180px, 42vw, 330px);
-  height: auto;
-
-  object-fit: contain;
-
-  filter: drop-shadow(0 0 24px rgba(150, 20, 20, 0.3));
+  pointer-events: none;
 }
+
+/*
+  Invisible semantic button.
+  The transparent official graphic is the visual target.
+*/
 
 .loading-enter-button {
-  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: min(78vw, 540px);
+
+  margin: 0;
   padding: 0;
 
-  width: min(88vw, 560px);
+  border: 0;
+  outline: 0;
 
-  border: 1px solid rgba(150, 20, 20, 0.65);
-  border-radius: 6px;
+  background: transparent;
 
-  background: rgba(10, 10, 10, 0.95);
+  appearance: none;
+  -webkit-appearance: none;
 
   cursor: pointer;
 
-  overflow: hidden;
-
-  box-shadow:
-    0 0 14px rgba(150, 20, 20, 0.18),
-    inset 0 0 18px rgba(150, 20, 20, 0.08);
+  -webkit-tap-highlight-color: transparent;
 
   transition:
     transform 160ms ease,
-    border-color 160ms ease,
-    box-shadow 160ms ease;
+    filter 160ms ease;
 }
 
-.loading-enter-button:hover,
-.loading-enter-button:focus-visible {
-  transform: scale(1.025);
-
-  border-color: rgba(220, 35, 35, 0.95);
-
-  box-shadow:
-    0 0 22px rgba(190, 25, 25, 0.35),
-    inset 0 0 20px rgba(190, 25, 25, 0.12);
-
-  outline: none;
-}
-
-.loading-enter-button:active {
-  transform: scale(0.985);
+.loading-enter-button:disabled {
+  cursor: default;
 }
 
 .loading-enter-graphic {
@@ -121,6 +119,37 @@ body {
   height: auto;
 
   object-fit: contain;
+
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+
+  filter:
+    drop-shadow(0 0 8px rgba(190, 20, 20, 0.25))
+    drop-shadow(0 0 20px rgba(190, 20, 20, 0.12));
+
+  transition:
+    transform 160ms ease,
+    filter 160ms ease,
+    opacity 160ms ease;
+}
+
+.loading-enter-button:hover .loading-enter-graphic {
+  transform: scale(1.035);
+
+  filter:
+    drop-shadow(0 0 12px rgba(225, 25, 25, 0.45))
+    drop-shadow(0 0 28px rgba(225, 25, 25, 0.2));
+}
+
+.loading-enter-button:focus-visible {
+  outline: 2px solid rgba(200, 30, 30, 0.75);
+  outline-offset: 12px;
+}
+
+.loading-enter-button:active .loading-enter-graphic {
+  transform: scale(0.97);
+  opacity: 0.88;
 }
 
 /* ===== STARTED SCREEN FADE ===== */
@@ -161,7 +190,7 @@ body {
   object-fit: contain;
 
   animation:
-    fafo-crest-spin 1.43s linear forwards,
+    fafo-crest-spin 2.2s linear forwards,
     fafo-crest-hold-fade 2.65s ease forwards 2.2s;
 
   will-change: transform, opacity;
@@ -198,7 +227,7 @@ body {
   filter: blur(18px);
 
   animation:
-    fafo-smoke-fall 1.43s ease-out forwards,
+    fafo-smoke-fall 2.2s ease-out forwards,
     fafo-smoke-settle 2.65s ease forwards 2.2s;
 
   will-change: transform, opacity;
@@ -279,7 +308,7 @@ body {
   }
 }
 
-/* ===== CONTINUOUS SPIN ===== */
+/* ===== SMOOTH CONTINUOUS SPIN ===== */
 
 @keyframes fafo-crest-spin {
   from {
