@@ -1,4 +1,6 @@
 import Image from "next/image";
+import LoadingScreen from "./LoadingScreen";return (<>
+  <LoadingScreen />
 import heroBanner from "../assets/hero/hero-banner.jpg";
 
 export default function Home() {
@@ -13,6 +15,6 @@ export default function Home() {
           className="object-cover object-center"
         />
       </section>
-    </main>
+    </main> </>
   );
 }
