@@ -1,20 +1,23 @@
 import Image from "next/image";
-import LoadingScreen from "./LoadingScreen";return (<>
-  <LoadingScreen />
+import LoadingScreen from "./LoadingScreen";
 import heroBanner from "../assets/hero/hero-banner.jpg";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-black">
-      <section className="relative w-full h-[70vh] min-h-[500px]">
-        <Image
-          src={heroBanner}
-          alt="FAFO Nation" 
-          fill
-          priority
-          className="object-cover object-center"
-        />
-      </section>
-    </main> </>
+    <>
+      <LoadingScreen />
+
+      <main className="min-h-screen bg-black">
+        <section className="relative w-full h-[70vh] min-h-[500px]">
+          <Image
+            src={heroBanner}
+            alt="FAFO Nation"
+            fill
+            priority
+            className="object-cover object-center"
+          />
+        </section>
+      </main>
+    </>
   );
 }
