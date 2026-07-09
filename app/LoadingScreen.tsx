@@ -10,15 +10,20 @@ export default function LoadingScreen() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    const impactTimer = window.setTimeout(() => {
-      const audio = audioRef.current;
+    const audio = audioRef.current;
 
+    // Prepare the impact sound as early as possible.
+    if (audio) {
+      audio.load();
+    }
+
+    const impactTimer = window.setTimeout(() => {
       if (audio) {
         audio.currentTime = 0;
 
         audio.play().catch(() => {
-          // Mobile browsers may block autoplay audio.
-          // The visual sequence continues normally.
+          // Some mobile browsers may block autoplay audio.
+          // The loading animation will continue normally.
         });
       }
     }, IMPACT_TIME_MS);
@@ -30,8 +35,6 @@ export default function LoadingScreen() {
     return () => {
       window.clearTimeout(impactTimer);
       window.clearTimeout(removeTimer);
-
-      const audio = audioRef.current;
 
       if (audio) {
         audio.pause();
