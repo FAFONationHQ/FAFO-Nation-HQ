@@ -29,7 +29,7 @@ body {
 
 /* ==========================================
    FAFO NATION LOADING SCREEN
-   DROP + SPIN + IMPACT + SMOKE + HOLD + FADE
+   ENTRY + DROP + SPIN + IMPACT + SMOKE + FADE
    ========================================== */
 
 .loading-screen {
@@ -46,12 +46,91 @@ body {
 
   overflow: hidden;
   background: #000000;
+}
 
+/* ===== ENTRY SCREEN ===== */
+
+.loading-entry {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  width: min(88vw, 620px);
+
+  animation: fafo-entry-appear 0.7s ease-out both;
+}
+
+.loading-entry-crest {
+  display: block;
+
+  width: clamp(180px, 42vw, 330px);
+  height: auto;
+
+  object-fit: contain;
+
+  filter: drop-shadow(0 0 24px rgba(150, 20, 20, 0.3));
+}
+
+.loading-enter-button {
+  margin-top: 24px;
+  padding: 0;
+
+  width: min(88vw, 560px);
+
+  border: 1px solid rgba(150, 20, 20, 0.65);
+  border-radius: 6px;
+
+  background: rgba(10, 10, 10, 0.95);
+
+  cursor: pointer;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 0 14px rgba(150, 20, 20, 0.18),
+    inset 0 0 18px rgba(150, 20, 20, 0.08);
+
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.loading-enter-button:hover,
+.loading-enter-button:focus-visible {
+  transform: scale(1.025);
+
+  border-color: rgba(220, 35, 35, 0.95);
+
+  box-shadow:
+    0 0 22px rgba(190, 25, 25, 0.35),
+    inset 0 0 20px rgba(190, 25, 25, 0.12);
+
+  outline: none;
+}
+
+.loading-enter-button:active {
+  transform: scale(0.985);
+}
+
+.loading-enter-graphic {
+  display: block;
+
+  width: 100%;
+  height: auto;
+
+  object-fit: contain;
+}
+
+/* ===== STARTED SCREEN FADE ===== */
+
+.loading-screen-started {
   animation: fafo-screen-fade 0.65s ease forwards;
   animation-delay: 4.2s;
-
-  will-change: opacity;
 }
+
+/* ===== CREST STAGE ===== */
 
 .loading-crest-stage {
   position: relative;
@@ -88,7 +167,7 @@ body {
   will-change: transform, opacity;
 }
 
-/* ===== SMOKE LAYERS ===== */
+/* ===== SMOKE ===== */
 
 .loading-smoke,
 .loading-smoke::before,
@@ -153,6 +232,20 @@ body {
   animation: fafo-smoke-drift-right 1.7s ease-in-out infinite alternate;
 }
 
+/* ===== ENTRY APPEAR ===== */
+
+@keyframes fafo-entry-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 /* ===== DROP / IMPACT / SETTLE ===== */
 
 @keyframes fafo-stage-drop {
@@ -214,7 +307,7 @@ body {
   }
 }
 
-/* ===== SMOKE DURING FALL ===== */
+/* ===== SMOKE FALL ===== */
 
 @keyframes fafo-smoke-fall {
   0% {
@@ -236,7 +329,7 @@ body {
   }
 }
 
-/* ===== SMOKE SETTLE + FADE ===== */
+/* ===== SMOKE SETTLE ===== */
 
 @keyframes fafo-smoke-settle {
   0% {
@@ -291,10 +384,11 @@ body {
   }
 }
 
-/* ===== REDUCED MOTION ACCESSIBILITY ===== */
+/* ===== REDUCED MOTION ===== */
 
 @media (prefers-reduced-motion: reduce) {
-  .loading-screen,
+  .loading-entry,
+  .loading-screen-started,
   .loading-crest-stage,
   .loading-logo,
   .loading-smoke,
@@ -303,4 +397,3 @@ body {
     animation: none;
   }
 }
-   
