@@ -1,8 +1,27 @@
 @import "tailwindcss";
 
+/* ==========================================
+   FAFO NATION FONT SYSTEM
+   Temporary fallback until official WOFF2 ships
+   ========================================== */
+
+@font-face {
+  font-family: "FAFO Nation Display";
+  src: url("/fonts/FAFONation-Display.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --background: #000000;
   --foreground: #ededed;
+
+  --font-fafo-display:
+    "FAFO Nation Display",
+    "Arial Black",
+    Impact,
+    sans-serif;
 }
 
 @theme inline {
@@ -25,6 +44,20 @@ body {
 
 body {
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ==========================================
+   FAFO NATION TYPOGRAPHY UTILITIES
+   ========================================== */
+
+.font-fafo-display {
+  font-family: var(--font-fafo-display);
+}
+
+.fafo-heading {
+  font-family: var(--font-fafo-display);
+  font-weight: 400;
+  text-transform: uppercase;
 }
 
 /* ==========================================
@@ -379,50 +412,4 @@ body {
 
 /* ===== SMOKE DRIFT ===== */
 
-@keyframes fafo-smoke-drift-left {
-  from {
-    transform: translate(-5px, 3px) scale(0.95);
-  }
-
-  to {
-    transform: translate(10px, -7px) scale(1.08);
-  }
-}
-
-@keyframes fafo-smoke-drift-right {
-  from {
-    transform: translate(6px, -4px) scale(1);
-  }
-
-  to {
-    transform: translate(-11px, 8px) scale(1.12);
-  }
-}
-
-/* ===== SCREEN FADE ===== */
-
-@keyframes fafo-screen-fade {
-  from {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  to {
-    opacity: 0;
-    visibility: hidden;
-  }
-}
-
-/* ===== REDUCED MOTION ===== */
-
-@media (prefers-reduced-motion: reduce) {
-  .loading-entry,
-  .loading-screen-started,
-  .loading-crest-stage,
-  .loading-logo,
-  .loading-smoke,
-  .loading-smoke::before,
-  .loading-smoke::after {
-    animation: none;
-  }
-}
+@key
