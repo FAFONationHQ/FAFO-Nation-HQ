@@ -9,6 +9,27 @@ const WELCOME_AUDIO = "/assets/audio/fafo-nation-welcome-friend.mp3";
 const PRIMARY_LOGO =
   "/assets/branding/logos/fafo-nation-primary-logo-master.png";
 
+const PILLARS = [
+  {
+    number: "01",
+    title: "Community",
+    description:
+      "Built by people who show up, stand together, and understand that a strong community is earned through loyalty, contribution, and action.",
+  },
+  {
+    number: "02",
+    title: "Purpose",
+    description:
+      "FAFO Nation exists to build something bigger than a name—supporting our community, recognizing those who contribute, and turning shared values into real impact.",
+  },
+  {
+    number: "03",
+    title: "Consequences",
+    description:
+      "Actions matter. Choices matter. FAFO Nation stands for accountability, resilience, and owning the consequences of the path you choose.",
+  },
+];
+
 export default function Home() {
   const welcomeAudioRef = useRef<HTMLAudioElement | null>(null);
   const [welcomeActive, setWelcomeActive] = useState(false);
@@ -57,6 +78,7 @@ export default function Home() {
       <LoadingScreen />
 
       <main className="min-h-screen bg-black text-white">
+        {/* HERO */}
         <section className="relative flex min-h-[600px] h-[100dvh] w-full items-center overflow-hidden">
           {/* HERO BACKGROUND */}
           <Image
@@ -124,18 +146,16 @@ export default function Home() {
           </div>
         </section>
 
-        {/*
-          Temporary scroll destination.
-
-          When we build the next real homepage section,
-          this id moves onto that section and this placeholder is removed.
-        */}
+        {/* WHAT IS FAFO NATION */}
         <section
           id="home-content"
-          aria-label="FAFO Nation homepage content"
-          className="min-h-screen bg-black"
-        />
-      </main>
-    </>
-  );
-}
+          aria-labelledby="what-is-fafo-heading"
+          className="relative overflow-hidden border-t border-white/10 bg-black px-5 py-24 sm:px-10 sm:py-32 lg:px-16 lg:py-40"
+        >
+          {/* SUBTLE BACKGROUND ATMOSPHERE */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute left-1/2 top-0 h-[500px] w-[900px] max-w-full -translate-x-1/2 bg-[radial-gradient(circle,rgba(127,29,29,0.20)_0%,rgba(0,0,0,0)_68%)]"
+          />
+
+          <div className="relative z-
