@@ -92,8 +92,14 @@ export default function Home() {
               </div>
 
               {/* TAGLINE */}
-              <p className="mt-3 text-sm font-black uppercase tracking-[0.24em] text-white sm:mt-4 sm:text-base lg:text-lg">
-                More Than a Name. A Warning.
+              <p className="mt-3 flex flex-col items-start text-sm font-black uppercase leading-[1.35] tracking-[0.24em] text-white sm:mt-4 sm:text-base lg:text-lg">
+                <span className="whitespace-nowrap">
+                  More Than a Name
+                </span>
+
+                <span className="whitespace-nowrap">
+                  A Warning
+                </span>
               </p>
 
               {/* SINGLE HERO ACTION */}
@@ -132,4 +138,4 @@ export default function Home() {
       </main>
     </>
   );
-} 
+}
