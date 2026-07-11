@@ -89,12 +89,6 @@ const DEPLOYMENT_ROTATION_MS = 4500;
 
 /*
   VERIFIED FAFO GEAR SALES REGIONS
-
-  These locations are used by the homepage hero ticker.
-  Only verified general geographic regions are displayed.
-
-  Never expose customer names, addresses, order values,
-  revenue, profit, margins, or per-order financial data.
 */
 const VERIFIED_GEAR_DEPLOYMENTS = [
   "British Columbia, Canada",
@@ -218,12 +212,10 @@ export default function Home() {
       new Audio(WELCOME_AUDIO);
 
     welcomeAudioRef.current = audio;
-
     audio.currentTime = 0;
 
     audio.play().catch(() => {
-      // Continue the welcome interaction if audio
-      // playback is unavailable.
+      // Continue interaction if playback is unavailable.
     });
 
     window.setTimeout(() => {
@@ -388,6 +380,8 @@ export default function Home() {
 
         </section>
 
+{/* END SECTION 1 OF 3 */}{/* START SECTION 2 OF 3 */}
+
         {/* WHAT IS FAFO NATION */}
         <section
           id="home-content"
@@ -408,4 +402,342 @@ export default function Home() {
 
               <p className="text-xs font-black uppercase tracking-[0.32em] text-red-600 sm:text-sm">
                 The Nation
-              </p
+              </p>
+
+              <h2
+                id="what-is-fafo-heading"
+                className="mt-5 text-4xl font-black uppercase leading-[0.95] tracking-[-0.04em] text-white sm:text-6xl lg:text-8xl"
+              >
+                What Is
+
+                <span className="block text-white/35">
+                  FAFO Nation?
+                </span>
+
+              </h2>
+
+              <div className="mt-8 h-px w-20 bg-red-600 sm:mt-10" />
+
+              <p className="mt-8 max-w-3xl text-base font-medium leading-8 text-white/65 sm:text-lg sm:leading-9">
+                FAFO Nation is a community built around accountability,
+                resilience, loyalty, and action. It is a place for people who
+                believe words mean something, actions have consequences, and
+                strong communities are built by those willing to contribute.
+              </p>
+
+            </div>
+
+            {/* PILLARS */}
+            <div className="mt-16 grid border-t border-white/15 sm:mt-24 lg:grid-cols-3">
+
+              {PILLARS.map((pillar) => (
+
+                <article
+                  key={pillar.number}
+                  className="group relative border-b border-white/15 py-10 transition-colors duration-300 hover:bg-white/[0.03] lg:border-b-0 lg:border-r lg:px-8 lg:py-14 lg:first:pl-0 lg:last:border-r-0 lg:last:pr-0"
+                >
+
+                  <div className="flex items-center justify-between">
+
+                    <span className="text-xs font-black tracking-[0.24em] text-red-600">
+                      {pillar.number}
+                    </span>
+
+                    <span
+                      aria-hidden="true"
+                      className="text-xl text-white/20 transition-all duration-300 group-hover:translate-x-1 group-hover:text-red-600"
+                    >
+                      +
+                    </span>
+
+                  </div>
+
+                  <h3 className="mt-8 text-2xl font-black uppercase tracking-[-0.02em] text-white sm:text-3xl">
+                    {pillar.title}
+                  </h3>
+
+                  <p className="mt-5 max-w-md text-sm leading-7 text-white/55 sm:text-base">
+                    {pillar.description}
+                  </p>
+
+                  <div className="mt-8 h-px w-0 bg-red-600 transition-all duration-500 group-hover:w-full" />
+
+                </article>
+
+              ))}
+
+            </div>
+
+            {/* CLOSING STATEMENT */}
+            <div className="mt-20 border-l-2 border-red-600 pl-6 sm:mt-28 sm:pl-8">
+
+              <p className="max-w-4xl text-xl font-black uppercase leading-tight tracking-[-0.02em] text-white sm:text-3xl lg:text-4xl">
+
+                Different backgrounds. Different stories.
+
+                <span className="block text-white/40">
+                  One Nation built by those who show up.
+                </span>
+
+              </p>
+
+            </div>
+
+          </div>
+
+        </section>
+
+        {/* RECENTLY DEPLOYED */}
+        <section
+          aria-labelledby="recently-deployed-heading"
+          className="relative overflow-hidden border-t border-white/10 bg-[#050505] px-5 py-24 sm:px-10 sm:py-32 lg:px-16 lg:py-36"
+        >
+
+          {/* BACKGROUND GRID */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 opacity-[0.035] [background-image:linear-gradient(rgba(255,255,255,0.6)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.6)_1px,transparent_1px)] [background-size:48px_48px]"
+          />
+
+          {/* RED ATMOSPHERE */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute right-0 top-0 h-[500px] w-[700px] bg-[radial-gradient(circle_at_top_right,rgba(127,29,29,0.18),transparent_65%)]"
+          />
+
+          <div className="relative z-10 mx-auto w-full max-w-7xl">
+
+            {/* SECTION HEADER */}
+            <div className="flex flex-col gap-8 border-b border-white/15 pb-10 md:flex-row md:items-end md:justify-between">
+
+              <div>
+
+                <div className="flex items-center gap-3">
+
+                  <span
+                    aria-hidden="true"
+                    className="relative flex h-2.5 w-2.5"
+                  >
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-600 opacity-60 motion-reduce:animate-none" />
+
+                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-600" />
+                  </span>
+
+                  <p className="text-xs font-black uppercase tracking-[0.32em] text-red-600 sm:text-sm">
+                    Nation Activity
+                  </p>
+
+                </div>
+
+                <h2
+                  id="recently-deployed-heading"
+                  className="mt-5 text-4xl font-black uppercase leading-[0.95] tracking-[-0.04em] text-white sm:text-6xl lg:text-7xl"
+                >
+                  Recently
+                  <span className="block text-white/35">
+                    Deployed
+                  </span>
+                </h2>
+
+              </div>
+
+              <p className="max-w-xl text-sm leading-7 text-white/50 sm:text-base">
+                FAFO Nation is growing beyond borders. Gear deployments and
+                World Map activity represent supporters showing up from across
+                the Nation.
+              </p>
+
+            </div>
+
+            {/* ACTIVE DEPLOYMENT */}
+            <div className="mt-12 grid gap-10 lg:grid-cols-[1fr_360px] lg:gap-16">
+
+              <div
+                aria-live="polite"
+                aria-atomic="true"
+                className="relative flex min-h-[330px] flex-col justify-between overflow-hidden border border-white/15 bg-black/60 p-6 sm:min-h-[380px] sm:p-10 lg:p-12"
+              >
+
+                {/* TOP STATUS */}
+                <div className="flex flex-wrap items-center justify-between gap-5">
+
+                  <span className="text-[10px] font-black uppercase tracking-[0.28em] text-red-600 sm:text-xs">
+                    {currentDeployment.type}
+                  </span>
+
+                  <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/30 sm:text-xs">
+                    Deployment Logged
+                  </span>
+
+                </div>
+
+                {/* MAIN ACTIVITY */}
+                <div className="my-14">
+
+                  <p className="text-3xl font-black uppercase leading-[0.95] tracking-[-0.04em] text-white sm:text-5xl lg:text-6xl">
+                    {currentDeployment.message}
+                  </p>
+
+                  <div className="mt-7 flex items-center gap-4">
+
+                    <span
+                      aria-hidden="true"
+                      className="h-px w-10 bg-red-600"
+                    />
+
+                    <p className="text-sm font-black uppercase tracking-[0.16em] text-white/55 sm:text-base">
+                      {currentDeployment.location}
+                    </p>
+
+                  </div>
+
+                </div>
+
+{/* END SECTION 2 OF 3 */}{/* START SECTION 3 OF 3 */}
+
+                {/* ACTIVITY INDEX */}
+                <div className="flex items-end justify-between gap-6">
+
+                  <p className="max-w-lg text-xs leading-6 text-white/35 sm:text-sm">
+                    Public activity displays general regional information only.
+                    Personal customer and financial information is never shown.
+                  </p>
+
+                  <span className="text-xs font-black tabular-nums tracking-[0.18em] text-white/25">
+                    {String(activeDeployment + 1).padStart(2, "0")}
+                    {" / "}
+                    {String(DEPLOYMENT_ACTIVITY.length).padStart(2, "0")}
+                  </span>
+
+                </div>
+
+                {/* DECORATIVE CORNERS */}
+                <span
+                  aria-hidden="true"
+                  className="absolute left-0 top-0 h-10 w-px bg-red-600"
+                />
+
+                <span
+                  aria-hidden="true"
+                  className="absolute left-0 top-0 h-px w-10 bg-red-600"
+                />
+
+                <span
+                  aria-hidden="true"
+                  className="absolute bottom-0 right-0 h-10 w-px bg-red-600"
+                />
+
+                <span
+                  aria-hidden="true"
+                  className="absolute bottom-0 right-0 h-px w-10 bg-red-600"
+                />
+
+              </div>
+
+              {/* DEPLOYMENT SELECTOR */}
+              <div>
+
+                <p className="text-[10px] font-black uppercase tracking-[0.28em] text-white/35 sm:text-xs">
+                  Activity Log
+                </p>
+
+                <div className="mt-5 border-t border-white/15">
+
+                  {DEPLOYMENT_ACTIVITY.map(
+                    (deployment, index) => {
+
+                      const isActive =
+                        index === activeDeployment;
+
+                      return (
+                        <button
+                          key={deployment.id}
+                          type="button"
+                          onClick={() =>
+                            setActiveDeployment(index)
+                          }
+                          aria-label={`Show activity from ${deployment.location}`}
+                          aria-pressed={isActive}
+                          className={`group flex w-full items-center gap-4 border-b px-1 py-5 text-left transition ${
+                            isActive
+                              ? "border-red-600/60"
+                              : "border-white/10 hover:border-white/25"
+                          }`}
+                        >
+
+                          <span
+                            className={`text-[10px] font-black tabular-nums tracking-[0.2em] transition ${
+                              isActive
+                                ? "text-red-600"
+                                : "text-white/25 group-hover:text-white/50"
+                            }`}
+                          >
+                            {String(index + 1).padStart(
+                              2,
+                              "0",
+                            )}
+                          </span>
+
+                          <span className="min-w-0 flex-1">
+
+                            <span
+                              className={`block truncate text-xs font-black uppercase tracking-[0.12em] transition sm:text-sm ${
+                                isActive
+                                  ? "text-white"
+                                  : "text-white/45 group-hover:text-white/70"
+                              }`}
+                            >
+                              {deployment.location}
+                            </span>
+
+                            <span className="mt-1 block text-[10px] uppercase tracking-[0.16em] text-white/25">
+                              {deployment.type}
+                            </span>
+
+                          </span>
+
+                          <span
+                            aria-hidden="true"
+                            className={`text-sm transition ${
+                              isActive
+                                ? "translate-x-0 text-red-600"
+                                : "-translate-x-1 text-white/20 group-hover:translate-x-0 group-hover:text-white/50"
+                            }`}
+                          >
+                            →
+                          </span>
+
+                        </button>
+                      );
+                    },
+                  )}
+
+                </div>
+
+              </div>
+
+            </div>
+
+            {/* SECTION FOOTER */}
+            <div className="mt-14 flex flex-col gap-5 border-t border-white/10 pt-8 sm:flex-row sm:items-center sm:justify-between">
+
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/30">
+                One Nation. Growing Worldwide.
+              </p>
+
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-red-600">
+                More deployments incoming.
+              </p>
+
+            </div>
+
+          </div>
+
+        </section>
+
+      </main>
+    </>
+  );
+}
+
+/* END SECTION 3 OF 3 */
