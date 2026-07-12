@@ -261,4 +261,86 @@ export default function Home() {
                     </span>
                   </div>
 
-                  <h3 className="mt
+                  <h3 className="mt-8 text-2xl font-black uppercase tracking-[-0.02em] text-white sm:text-3xl">
+                    {pillar.title}
+                  </h3>
+
+                  <p className="mt-5 max-w-md text-sm leading-7 text-white/55 sm:text-base">
+                    {pillar.description}
+                  </p>
+
+                  <div className="mt-8 h-px w-0 bg-red-600 transition-all duration-500 group-hover:w-full" />
+                </article>
+              ))}
+            </div>
+
+            {/* CLOSING STATEMENT */}
+            <div className="mt-20 border-l-2 border-red-600 pl-6 sm:mt-28 sm:pl-8">
+              <p className="max-w-4xl text-xl font-black uppercase leading-tight tracking-[-0.02em] text-white sm:text-3xl lg:text-4xl">
+                Different backgrounds. Different stories.
+
+                <span className="block text-white/40">
+                  One Nation built by those who show up.
+                </span>
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* TICKER + CTA ANIMATIONS */}
+      <style jsx global>{`
+        @keyframes fafo-deployment-scroll {
+          from {
+            transform: translateX(0);
+          }
+
+          to {
+            transform: translateX(-50%);
+          }
+        }
+
+        @keyframes fafo-red-cta-pulse {
+          0%,
+          100% {
+            border-color: rgba(220, 38, 38, 0.8);
+            box-shadow:
+              0 0 8px rgba(220, 38, 38, 0.55),
+              0 0 16px rgba(220, 38, 38, 0.25);
+          }
+
+          50% {
+            border-color: rgba(239, 68, 68, 1);
+            box-shadow:
+              0 0 16px rgba(220, 38, 38, 1),
+              0 0 30px rgba(220, 38, 38, 0.55);
+          }
+        }
+
+        .fafo-deployment-marquee {
+          animation: fafo-deployment-scroll 32s linear infinite;
+          will-change: transform;
+        }
+
+        .fafo-deployment-marquee:hover {
+          animation-play-state: paused;
+        }
+
+        .fafo-welcome-cta {
+          animation: fafo-red-cta-pulse 1.8s ease-in-out infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .fafo-deployment-marquee,
+          .fafo-welcome-cta {
+            animation: none;
+          }
+
+          .fafo-deployment-marquee {
+            transform: none;
+          }
+        }
+      `}</style>
+    </>
+  );
+}
