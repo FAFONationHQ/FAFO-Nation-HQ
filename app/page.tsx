@@ -77,11 +77,9 @@ export default function Home() {
       setWelcomeActive(false);
     };
 
-    audio.addEventListener(
-      "ended",
-      unlockButton,
-      { once: true },
-    );
+    audio.addEventListener("ended", unlockButton, {
+      once: true,
+    });
 
     window.setTimeout(() => {
       setWelcomeActive(false);
@@ -96,16 +94,16 @@ export default function Home() {
         {/* RECENTLY DEPLOYED TOP TICKER */}
         <section
           aria-label="Recently Deployed activity"
-          className="relative z-50 flex h-14 w-full overflow-hidden border-b border-red-600/40 bg-black"
+          className="relative z-50 flex h-10 w-full overflow-hidden border-b border-red-600/40 bg-black sm:h-11"
         >
           {/* FIXED TICKER LABEL */}
-          <div className="relative z-20 flex shrink-0 items-center border-r border-red-600/50 bg-black px-4 sm:px-6">
+          <div className="relative z-20 flex shrink-0 items-center border-r border-red-600/50 bg-black px-3 sm:px-5">
             <span
               aria-hidden="true"
-              className="mr-3 h-2 w-2 shrink-0 rounded-full bg-red-600"
+              className="mr-2 h-2 w-2 shrink-0 rounded-full bg-red-600"
             />
 
-            <span className="whitespace-nowrap text-[10px] font-black uppercase tracking-[0.2em] text-red-600 sm:text-xs">
+            <span className="whitespace-nowrap text-[10px] font-black uppercase tracking-[0.18em] text-[#D4AF37] sm:text-xs">
               Recently Deployed
             </span>
           </div>
@@ -121,15 +119,15 @@ export default function Home() {
                   key={`${item}-${index}`}
                   className="flex shrink-0 items-center"
                 >
-                  <span className="px-6 text-[10px] font-black uppercase tracking-[0.16em] text-[#D4AF37] sm:px-8 sm:text-xs">
+                  <span className="px-5 text-[10px] font-black uppercase tracking-[0.16em] text-[#D4AF37] sm:px-7 sm:text-xs">
                     {item}
                   </span>
 
                   <span
                     aria-hidden="true"
-                    className="text-red-600"
+                    className="text-base font-black text-red-600"
                   >
-                    ★
+                    *
                   </span>
                 </span>
               ))}
@@ -141,7 +139,7 @@ export default function Home() {
         <Header />
 
         {/* HERO */}
-        <section className="relative flex h-[100dvh] min-h-[600px] w-full items-center overflow-hidden">
+        <section className="relative flex min-h-[calc(100dvh-84px)] w-full items-center overflow-hidden">
           {/* HERO BACKGROUND */}
           <Image
             src={heroBanner}
@@ -175,15 +173,9 @@ export default function Home() {
                 />
               </div>
 
-              {/* TAGLINE */}
-              <p className="mt-3 flex flex-col items-start text-sm font-black uppercase leading-[1.35] tracking-[0.24em] text-white sm:mt-4 sm:text-base lg:text-lg">
-                <span className="whitespace-nowrap">
-                  More Than a Name
-                </span>
-
-                <span className="whitespace-nowrap">
-                  A Warning
-                </span>
+              {/* LOCKED TAGLINE */}
+              <p className="mt-3 whitespace-nowrap text-sm font-black uppercase leading-[1.35] tracking-[0.18em] text-white sm:mt-4 sm:text-base sm:tracking-[0.24em] lg:text-lg">
+                More Than a Name. A Warning.
               </p>
 
               {/* SINGLE HERO ACTION */}
@@ -214,14 +206,12 @@ export default function Home() {
           aria-labelledby="what-is-fafo-heading"
           className="relative overflow-hidden border-t border-white/10 bg-black px-5 py-24 sm:px-10 sm:py-32 lg:px-16 lg:py-40"
         >
-          {/* SUBTLE BACKGROUND ATMOSPHERE */}
           <div
             aria-hidden="true"
             className="pointer-events-none absolute left-1/2 top-0 h-[500px] w-[900px] max-w-full -translate-x-1/2 bg-[radial-gradient(circle,rgba(127,29,29,0.20)_0%,rgba(0,0,0,0)_68%)]"
           />
 
           <div className="relative z-10 mx-auto w-full max-w-7xl">
-            {/* SECTION INTRO */}
             <div className="max-w-4xl">
               <p className="text-xs font-black uppercase tracking-[0.32em] text-red-600 sm:text-sm">
                 The Nation
@@ -245,9 +235,9 @@ export default function Home() {
                 resilience, loyalty, and action. It is a place for people who
                 believe words mean something, actions have consequences, and
                 strong communities are built by those willing to contribute.
-              </p>            </div>
+              </p>
+            </div>
 
-            {/* PILLARS */}
             <div className="mt-16 grid border-t border-white/15 sm:mt-24 lg:grid-cols-3">
               {PILLARS.map((pillar) => (
                 <article
@@ -280,7 +270,6 @@ export default function Home() {
               ))}
             </div>
 
-            {/* CLOSING STATEMENT */}
             <div className="mt-20 border-l-2 border-red-600 pl-6 sm:mt-28 sm:pl-8">
               <p className="max-w-4xl text-xl font-black uppercase leading-tight tracking-[-0.02em] text-white sm:text-3xl lg:text-4xl">
                 Different backgrounds. Different stories.
