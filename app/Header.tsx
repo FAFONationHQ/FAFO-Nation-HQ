@@ -329,4 +329,104 @@ export default function Header() {
             aria-expanded={mobileMenuOpen}
             aria-label="Toggle main navigation"
             className="flex min-h-10 min-w-10 items-center justify-center border border-red-600/60 text-xl text-[#D4AF37]"
+
+          >
+            <span aria-hidden="true">
+              {mobileMenuOpen ? "✕" : "☰"}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {/* MOBILE NAVIGATION PANEL */}
+      {mobileMenuOpen && (
+        <nav
+          aria-label="Mobile navigation"
+          className="border-t border-white/10 bg-black lg:hidden"
+        >
+          <div className="mx-auto w-full max-w-7xl px-5 py-4 sm:px-10">
+            {NAV_ITEMS.map((item) => {
+              if (item.children) {
+                const isOpen = openMobileMenu === item.label;
+
+                return (
+                  <div
+                    key={item.label}
+                    className="border-b border-white/10"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => toggleMobileMenu(item.label)}
+                      aria-expanded={isOpen}
+                      className={`flex w-full items-center justify-between py-4 text-left text-xs font-black uppercase tracking-[0.14em] ${
+                        item.cares
+                          ? "text-red-600"
+                          : "text-[#D4AF37]"
+                      }`}
+                    >
+                      <span className="flex items-center gap-2">
+                        {renderNavLabel(item)}
+                      </span>
+
+                      <span
+                        aria-hidden="true"
+                        className={`text-[9px] transition-transform ${
+                          isOpen ? "rotate-180" : ""
+                        }`}
+                      >
+                        ▼
+                      </span>
+                    </button>
+
+                    {isOpen && (
+                      <div className="pb-3">
+                        {item.children.map((child) => (
+                          <Link
+                            key={child.href}
+                            href={child.href}
+                            onClick={closeNavigation}
+                            className="group block border-l border-white/15 py-3 pl-5"
+                          >
+                            <span
+                              className={`block text-xs font-black uppercase tracking-[0.12em] ${
+                                item.cares
+                                  ? "text-red-600"
+                                  : "text-[#D4AF37]"
+                              }`}
+                            >
+                              {child.label}
+                            </span>
+
+                            <span className="mt-1 block text-xs leading-5 text-white/40">
+                              {child.description}
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href ?? "/"}
+                  onClick={closeNavigation}
+                  className={
+                    item.highlight
+                      ? "my-4 flex w-full items-center justify-center border border-red-600 px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-[#D4AF37] shadow-[0_0_10px_rgba(220,38,38,0.65)]"
+                      : "block border-b border-white/10 py-4 text-xs font-black uppercase tracking-[0.14em] text-[#D4AF37]"
+                  }
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+      )}
+    </header>
+  );
+}
          
