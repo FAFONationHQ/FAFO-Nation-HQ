@@ -100,11 +100,10 @@ export default function Home() {
               className="mr-2 h-2 w-2 shrink-0 rounded-full bg-red-600"
             />
 
-            <span
-              className="whitespace-nowrap text-[10px] font-black uppercase tracking-[0.18em] sm:text-xs"
-              style={{ color: "#DC2626" }}
-            >
-              Recently Deployed
+            <span className="whitespace-nowrap text-[10px] font-black uppercase tracking-[0.18em] sm:text-xs">
+              <span style={{ color: "#DC2626" }}>
+                Recently Deployed
+              </span>
             </span>
           </div>
 
@@ -119,11 +118,10 @@ export default function Home() {
                   key={`${item}-${index}`}
                   className="flex shrink-0 items-center"
                 >
-                  <span
-                    className="px-5 text-[10px] font-black uppercase tracking-[0.16em] sm:px-7 sm:text-xs"
-                    style={{ color: "#D4AF37" }}
-                  >
-                    {item}
+                  <span className="px-5 text-[10px] font-black uppercase tracking-[0.16em] sm:px-7 sm:text-xs">
+                    <span style={{ color: "#D4AF37" }}>
+                      {item}
+                    </span>
                   </span>
 
                   <span
@@ -162,16 +160,17 @@ export default function Home() {
           <div className="relative z-10 mx-auto flex w-full max-w-7xl px-5 sm:px-10 lg:px-16">
             <div className="flex w-full max-w-4xl translate-y-16 flex-col items-start sm:translate-y-20 lg:translate-y-24">
               {/* LOCKED TWO-LINE TAGLINE */}
-              <div
-                className="font-black uppercase"
-                style={{ color: "#D4AF37" }}
-              >
-                <p className="whitespace-nowrap text-[1.75rem] leading-none tracking-[0.12em] sm:text-[2rem] sm:tracking-[0.18em] lg:text-[2.25rem]">
-                  MORE THAN A NAME
+              <div className="font-black uppercase">
+                <p className="whitespace-nowrap text-[1.3125rem] leading-none tracking-[0.12em] sm:text-[1.5rem] sm:tracking-[0.18em] lg:text-[1.6875rem]">
+                  <span style={{ color: "#D4AF37" }}>
+                    MORE THAN A NAME
+                  </span>
                 </p>
 
                 <p className="mt-3 whitespace-nowrap text-[2.45rem] leading-none tracking-[0.10em] sm:text-[2.8rem] sm:tracking-[0.16em] lg:text-[3.15rem]">
-                  A WARNING...
+                  <span style={{ color: "#D4AF37" }}>
+                    A WARNING...
+                  </span>
                 </p>
               </div>
 
@@ -181,9 +180,10 @@ export default function Home() {
                 onClick={handleWelcome}
                 disabled={welcomeActive}
                 className="fafo-welcome-cta mt-8 inline-flex min-h-14 items-center justify-center border border-red-600 bg-black/65 px-7 py-4 text-xs font-black uppercase tracking-[0.16em] shadow-[0_0_14px_rgba(220,38,38,0.85)] backdrop-blur-sm transition hover:border-red-500 hover:bg-red-700/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-600 disabled:cursor-default disabled:opacity-80 sm:px-9 sm:text-sm sm:tracking-[0.18em]"
-                style={{ color: "#D4AF37" }}
               >
-                Welcome to FAFO, Friend
+                <span style={{ color: "#D4AF37" }}>
+                  Welcome to FAFO, Friend
+                </span>
               </button>
             </div>
           </div>          {/* SCROLL INDICATOR */}
