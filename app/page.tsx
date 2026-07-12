@@ -11,32 +11,12 @@ const WELCOME_AUDIO =
 const PRIMARY_LOGO =
   "/assets/branding/logos/fafo-nation-primary-logo-master.png";
 
-/*
-  RECENTLY DEPLOYED TICKER
-
-  Public activity displays regional information only.
-
-  Never display:
-  - Customer names
-  - Street addresses
-  - Email addresses
-  - Revenue
-  - Profit
-  - Margins
-  - Per-order financial information
-
-  Gold Star FAFO remains reserved for eligible
-  custom gear orders.
-*/
 const DEPLOYMENT_TICKER_ITEMS = [
   "FAFO GEAR DEPLOYED • BRITISH COLUMBIA, CANADA",
   "FAFO GEAR DEPLOYED • ONTARIO, CANADA",
   "FAFO GEAR DEPLOYED • UTAH, USA",
 ];
 
-/*
-  HOMEPAGE PILLARS
-*/
 const PILLARS = [
   {
     number: "01",
@@ -58,12 +38,44 @@ const PILLARS = [
   },
 ];
 
+const FAFO_WORLD_FILTERS = [
+  {
+    id: "gear",
+    label: "Gear Deployments",
+    shortLabel: "Sales",
+    marker: "●",
+  },
+  {
+    id: "custom",
+    label: "Custom Deployments",
+    shortLabel: "Gold Star FAFO",
+    marker: "★",
+  },
+  {
+    id: "traffic",
+    label: "Live Traffic",
+    shortLabel: "Visitor Activity",
+    marker: "◉",
+  },
+  {
+    id: "members",
+    label: "Deployed Members",
+    shortLabel: "Member Locations",
+    marker: "◆",
+  },
+];
+
 export default function Home() {
   const welcomeAudioRef =
     useRef<HTMLAudioElement | null>(null);
 
   const [welcomeActive, setWelcomeActive] =
     useState(false);
+
+  const [activeWorldFilters, setActiveWorldFilters] =
+    useState<string[]>(
+      FAFO_WORLD_FILTERS.map((filter) => filter.id),
+    );
 
   const handleWelcome = () => {
     if (welcomeActive) {
@@ -77,12 +89,10 @@ export default function Home() {
       new Audio(WELCOME_AUDIO);
 
     welcomeAudioRef.current = audio;
-
     audio.currentTime = 0;
 
     audio.play().catch(() => {
-      // Continue the welcome interaction
-      // if browser audio playback is unavailable.
+      // Continue if browser audio playback is unavailable.
     });
 
     window.setTimeout(() => {
@@ -109,6 +119,23 @@ export default function Home() {
     }, 5000);
   };
 
+  const toggleWorldFilter = (filterId: string) => {
+    setActiveWorldFilters((currentFilters) =>
+      currentFilters.includes(filterId)
+        ? currentFilters.filter((id) => id !== filterId)
+        : [...currentFilters, filterId],
+    );
+  };
+
+  const showAllWorldFilters = () => {
+    setActiveWorldFilters(
+      FAFO_WORLD_FILTERS.map((filter) => filter.id),
+    );
+  };
+
+  const allWorldFiltersActive =
+    activeWorldFilters.length === FAFO_WORLD_FILTERS.length;
+
   return (
     <>
       <LoadingScreen />
@@ -119,7 +146,6 @@ export default function Home() {
           aria-label="Recently Deployed activity"
           className="relative z-50 flex h-14 w-full overflow-hidden border-b border-red-600/40 bg-black"
         >
-          {/* FIXED LABEL */}
           <div className="relative z-20 flex shrink-0 items-center border-r border-red-600/50 bg-black px-4 sm:px-6">
             <span
               aria-hidden="true"
@@ -131,7 +157,6 @@ export default function Home() {
             </span>
           </div>
 
-          {/* SCROLLING ACTIVITY */}
           <div className="relative flex min-w-0 flex-1 items-center overflow-hidden">
             <div className="fafo-deployment-marquee flex w-max shrink-0 items-center whitespace-nowrap">
               {[
@@ -160,7 +185,6 @@ export default function Home() {
 
         {/* HERO */}
         <section className="relative flex h-[100dvh] min-h-[600px] w-full items-center overflow-hidden">
-          {/* HERO BACKGROUND */}
           <Image
             src={heroBanner}
             alt=""
@@ -170,17 +194,12 @@ export default function Home() {
             className="object-cover object-center"
           />
 
-          {/* CINEMATIC READABILITY LAYERS */}
           <div className="absolute inset-0 bg-black/25" />
-
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/35 to-transparent" />
-
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/15" />
 
-          {/* HERO CONTENT */}
           <div className="relative z-10 mx-auto flex w-full max-w-7xl px-5 sm:px-10 lg:px-16">
             <div className="flex w-full max-w-3xl flex-col items-start">
-              {/* PRIMARY LOGO MASTER */}
               <div className="relative w-[min(88vw,680px)]">
                 <Image
                   src={PRIMARY_LOGO}
@@ -193,7 +212,6 @@ export default function Home() {
                 />
               </div>
 
-              {/* TAGLINE */}
               <p className="mt-3 flex flex-col items-start text-sm font-black uppercase leading-[1.35] tracking-[0.24em] text-white sm:mt-4 sm:text-base lg:text-lg">
                 <span className="whitespace-nowrap">
                   More Than a Name
@@ -204,7 +222,6 @@ export default function Home() {
                 </span>
               </p>
 
-              {/* SINGLE HERO ACTION */}
               <button
                 type="button"
                 onClick={handleWelcome}
@@ -216,11 +233,9 @@ export default function Home() {
             </div>
           </div>
 
-          {/* SCROLL INDICATOR */}
           <div className="absolute bottom-7 left-1/2 z-10 -translate-x-1/2">
             <div className="flex flex-col items-center gap-2 text-[10px] font-bold uppercase tracking-[0.28em] text-white/60">
               <span>Explore</span>
-
               <span className="h-8 w-px bg-gradient-to-b from-white/70 to-transparent" />
             </div>
           </div>
@@ -232,14 +247,12 @@ export default function Home() {
           aria-labelledby="what-is-fafo-heading"
           className="relative overflow-hidden border-t border-white/10 bg-black px-5 py-24 sm:px-10 sm:py-32 lg:px-16 lg:py-40"
         >
-          {/* SUBTLE BACKGROUND ATMOSPHERE */}
           <div
             aria-hidden="true"
             className="pointer-events-none absolute left-1/2 top-0 h-[500px] w-[900px] max-w-full -translate-x-1/2 bg-[radial-gradient(circle,rgba(127,29,29,0.20)_0%,rgba(0,0,0,0)_68%)]"
           />
 
           <div className="relative z-10 mx-auto w-full max-w-7xl">
-            {/* SECTION INTRO */}
             <div className="max-w-4xl">
               <p className="text-xs font-black uppercase tracking-[0.32em] text-red-600 sm:text-sm">
                 The Nation
@@ -250,7 +263,6 @@ export default function Home() {
                 className="mt-5 text-4xl font-black uppercase leading-[0.95] tracking-[-0.04em] text-white sm:text-6xl lg:text-8xl"
               >
                 What Is
-
                 <span className="block text-white/35">
                   FAFO Nation?
                 </span>
@@ -263,9 +275,9 @@ export default function Home() {
                 resilience, loyalty, and action. It is a place for people who
                 believe words mean something, actions have consequences, and
                 strong communities are built by those willing to contribute.
-              </p>            </div>
+              </p>
+            </div>
 
-            {/* PILLARS */}
             <div className="mt-16 grid border-t border-white/15 sm:mt-24 lg:grid-cols-3">
               {PILLARS.map((pillar) => (
                 <article
@@ -283,9 +295,7 @@ export default function Home() {
                     >
                       +
                     </span>
-                  </div>
-
-                  <h3 className="mt-8 text-2xl font-black uppercase tracking-[-0.02em] text-white sm:text-3xl">
+                  </div>                  <h3 className="mt-8 text-2xl font-black uppercase tracking-[-0.02em] text-white sm:text-3xl">
                     {pillar.title}
                   </h3>
 
@@ -298,7 +308,6 @@ export default function Home() {
               ))}
             </div>
 
-            {/* CLOSING STATEMENT */}
             <div className="mt-20 border-l-2 border-red-600 pl-6 sm:mt-28 sm:pl-8">
               <p className="max-w-4xl text-xl font-black uppercase leading-tight tracking-[-0.02em] text-white sm:text-3xl lg:text-4xl">
                 Different backgrounds. Different stories.
@@ -307,6 +316,205 @@ export default function Home() {
                   One Nation built by those who show up.
                 </span>
               </p>
+            </div>
+          </div>
+        </section>
+
+        {/* FAFO WORLD */}
+        <section
+          id="fafo-world"
+          aria-labelledby="fafo-world-heading"
+          className="relative overflow-hidden border-t border-white/10 bg-neutral-950 px-5 py-24 sm:px-10 sm:py-32 lg:px-16 lg:py-40"
+        >
+          <div className="relative z-10 mx-auto w-full max-w-7xl">
+            {/* SECTION HEADER */}
+            <div className="grid gap-10 lg:grid-cols-[1fr_420px] lg:items-end">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.32em] text-red-600 sm:text-sm">
+                  Global Operations
+                </p>
+
+                <h2
+                  id="fafo-world-heading"
+                  className="mt-5 text-5xl font-black uppercase leading-[0.9] tracking-[-0.04em] text-white sm:text-7xl lg:text-9xl"
+                >
+                  FAFO
+                  <span className="block text-white/35">
+                    World
+                  </span>
+                </h2>
+
+                <div className="mt-8 h-px w-20 bg-red-600" />
+
+                <p className="mt-8 text-sm font-black uppercase tracking-[0.2em] text-[#D4AF37] sm:text-base">
+                  The Nation, Deployed Worldwide.
+                </p>
+              </div>
+
+              <p className="max-w-xl text-sm leading-7 text-white/55 sm:text-base">
+                Explore the worldwide reach of FAFO Nation. Filter public,
+                privacy-safe activity by gear deployments, eligible custom
+                deployments, aggregated visitor activity, and members who
+                choose to deploy their public profile to FAFO World.
+              </p>
+            </div>
+
+            {/* MAP INTEL FILTERS */}
+            <div className="mt-16 border border-white/15 bg-black sm:mt-20">
+              <div className="flex flex-col border-b border-white/15 lg:flex-row lg:items-center lg:justify-between">
+                <div className="px-5 py-5 sm:px-7">
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-red-600 sm:text-xs">
+                    Map Intel / Filters
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={showAllWorldFilters}
+                  aria-pressed={allWorldFiltersActive}
+                  className="border-t border-white/15 px-5 py-4 text-left text-[10px] font-black uppercase tracking-[0.22em] text-white/55 transition hover:text-white lg:border-l lg:border-t-0 lg:px-7"
+                >
+                  All Activity
+                  <span className="ml-3 text-[#D4AF37]">
+                    {allWorldFiltersActive ? "ACTIVE" : "SHOW ALL"}
+                  </span>
+                </button>
+              </div>
+
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4">
+                {FAFO_WORLD_FILTERS.map((filter) => {
+                  const isActive =
+                    activeWorldFilters.includes(filter.id);
+
+                  return (
+                    <button
+                      key={filter.id}
+                      type="button"
+                      onClick={() => toggleWorldFilter(filter.id)}
+                      aria-pressed={isActive}
+                      className={`flex min-h-28 items-center gap-4 border-b border-white/15 px-5 py-6 text-left transition sm:px-7 lg:border-b-0 lg:border-r lg:last:border-r-0 ${
+                        isActive
+                          ? "bg-neutral-900 text-white"
+                          : "bg-black text-white/40 hover:bg-neutral-950 hover:text-white/70"
+                      }`}
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={`text-xl ${
+                          filter.id === "custom"
+                            ? "text-[#D4AF37]"
+                            : filter.id === "gear"
+                              ? "text-red-600"
+                              : "text-white/55"
+                        }`}
+                      >
+                        {filter.marker}
+                      </span>
+
+                      <span>
+                        <span className="block text-xs font-black uppercase tracking-[0.14em]">
+                          {filter.label}
+                        </span>
+
+                        <span className="mt-2 block text-[10px] uppercase tracking-[0.14em] text-white/30">
+                          {filter.shortLabel}
+                        </span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* MAP STAGING AREA */}
+            <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
+              <div className="relative flex min-h-[460px] items-center justify-center overflow-hidden border border-white/15 bg-black sm:min-h-[560px]">
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 opacity-40 [background-image:linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)] [background-size:48px_48px]"
+                />
+
+                <div className="relative z-10 max-w-xl px-8 text-center">
+                  <p className="text-xs font-black uppercase tracking-[0.3em] text-red-600">
+                    Global Map System
+                  </p>
+
+                  <p className="mt-6 text-3xl font-black uppercase tracking-[-0.03em] text-white sm:text-5xl">
+                    Map Deployment
+                    <span className="block text-white/35">
+                      Incoming
+                    </span>
+                  </p>
+
+                  <p className="mx-auto mt-6 max-w-md text-sm leading-7 text-white/45">
+                    The interactive FAFO World map engine and verified data
+                    layers will be connected in the next controlled deployment.
+                  </p>
+                </div>
+              </div>
+
+              {/* LEGEND AND PRIVACY */}
+              <aside className="border border-white/15 bg-black">
+                <div className="border-b border-white/15 p-6">
+                  <p className="text-xs font-black uppercase tracking-[0.25em] text-white">
+                    Map Legend
+                  </p>
+
+                  <div className="mt-6 space-y-5">
+                    {FAFO_WORLD_FILTERS.map((filter) => (
+                      <div
+                        key={filter.id}
+                        className="flex items-center gap-4"
+                      >
+                        <span
+                          aria-hidden="true"
+                          className={`w-5 text-center text-lg ${
+                            filter.id === "custom"
+                              ? "text-[#D4AF37]"
+                              : filter.id === "gear"
+                                ? "text-red-600"
+                                : "text-white/55"
+                          }`}
+                        >
+                          {filter.marker}
+                        </span>
+
+                        <span className="text-xs font-bold uppercase tracking-[0.12em] text-white/60">
+                          {filter.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="border-b border-white/15 p-6">
+                  <p className="text-xs font-black uppercase tracking-[0.25em] text-[#D4AF37]">
+                    Deployed Members
+                  </p>
+
+                  <p className="mt-4 text-sm leading-7 text-white/50">
+                    Members appear only after making an explicit profile choice
+                    to deploy to FAFO World. No option is preselected.
+                  </p>
+
+                  <p className="mt-4 text-sm leading-7 text-white/50">
+                    Members choose country, province/state, or city visibility
+                    and may remove themselves from the map later.
+                  </p>
+                </div>
+
+                <div className="p-6">
+                  <p className="text-xs font-black uppercase tracking-[0.25em] text-red-600">
+                    Privacy Standard
+                  </p>
+
+                  <p className="mt-4 text-sm leading-7 text-white/50">
+                    No street addresses, automatic GPS publication, customer
+                    names, emails, legal names, revenue, profit, margins, or
+                    per-order financial information are displayed publicly.
+                  </p>
+                </div>
+              </aside>
             </div>
           </div>
         </section>
