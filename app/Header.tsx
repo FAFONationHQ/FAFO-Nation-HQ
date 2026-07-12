@@ -1,304 +1,486 @@
 "use client";
 
-import Image from "next/image";
-import { useRef, useState } from "react";
-import Header from "./Header";
-import LoadingScreen from "./LoadingScreen";
-import heroBanner from "../assets/hero/hero-banner.jpg";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 
-const WELCOME_AUDIO =
-  "/assets/audio/fafo-nation-welcome-friend.mp3";
+type NavItem = {
+  label: string;
+  href?: string;
+  highlight?: boolean;
+  cares?: boolean;
+  children?: {
+    label: string;
+    href: string;
+    description: string;
+  }[];
+};
 
-const DEPLOYMENT_TICKER_ITEMS = [
-  "FAFO GEAR DEPLOYED • BRITISH COLUMBIA, CANADA",
-  "FAFO GEAR DEPLOYED • ONTARIO, CANADA",
-  "FAFO GEAR DEPLOYED • UTAH, USA",
+const NAV_ITEMS: NavItem[] = [
+  {
+    label: "Home",
+    href: "/",
+  },
+  {
+    label: "Join the Nation",
+    href: "/join",
+    highlight: true,
+  },
+  {
+    label: "Store",
+    children: [
+      {
+        label: "Shop All Gear",
+        href: "/store",
+        description: "Explore the full FAFO Nation gear lineup.",
+      },
+      {
+        label: "Featured Deployments",
+        href: "/store/featured",
+        description: "Highlighted gear and current featured releases.",
+      },
+      {
+        label: "Collections",
+        href: "/store/collections",
+        description: "Browse FAFO Nation gear by collection.",
+      },
+      {
+        label: "FAFO Cares",
+        href: "/store/fafo-cares",
+        description: "Shop merchandise supporting FAFO Cares campaigns.",
+      },
+    ],
+  },
+  {
+    label: "Community",
+    children: [
+      {
+        label: "FAFO Family",
+        href: "/community",
+        description: "The people and community behind FAFO Nation.",
+      },
+      {
+        label: "Deployed Members",
+        href: "/community/deployed-members",
+        description: "Discover members who choose to deploy publicly.",
+      },
+      {
+        label: "Community Activity",
+        href: "/community/activity",
+        description: "See what is happening across the Nation.",
+      },
+      {
+        label: "Events & Contests",
+        href: "/community/events",
+        description: "Community events, competitions, and contests.",
+      },
+    ],
+  },
+  {
+    label: "Global Operations",
+    children: [
+      {
+        label: "FAFO World",
+        href: "/fafo-world",
+        description: "Explore the Nation, deployed worldwide.",
+      },
+      {
+        label: "Recently Deployed",
+        href: "/recently-deployed",
+        description: "View verified public deployment activity.",
+      },
+    ],
+  },
+  {
+    label: "FAFO Cares",
+    cares: true,
+    children: [
+      {
+        label: "FAFO Cares",
+        href: "/fafo-cares",
+        description: "Learn about the mission behind FAFO Cares.",
+      },
+      {
+        label: "Current Campaigns",
+        href: "/fafo-cares/campaigns",
+        description: "See active FAFO Cares campaigns and initiatives.",
+      },
+      {
+        label: "Support & Crisis Resources",
+        href: "/fafo-cares/support",
+        description: "Find support resources and crisis-help information.",
+      },
+    ],
+  },
+  {
+    label: "About",
+    children: [
+      {
+        label: "Our Story",
+        href: "/about",
+        description: "Learn how FAFO Nation began and what it stands for.",
+      },
+      {
+        label: "Sgt Swagger",
+        href: "/about/sgt-swagger",
+        description: "Meet the official FAFO Nation Brand Ambassador.",
+      },
+      {
+        label: "Contact",
+        href: "/contact",
+        description: "Contact FAFO Nation.",
+      },
+    ],
+  },
 ];
 
-const PILLARS = [
-  {
-    number: "01",
-    title: "Community",
-    description:
-      "Built by people who show up, stand together, and understand that a strong community is earned through loyalty, contribution, and action.",
-  },
-  {
-    number: "02",
-    title: "Purpose",
-    description:
-      "FAFO Nation exists to build something bigger than a name—supporting our community, recognizing those who contribute, and turning shared values into real impact.",
-  },
-  {
-    number: "03",
-    title: "Consequences",
-    description:
-      "Actions matter. Choices matter. FAFO Nation stands for accountability, resilience, and owning the consequences of the path you choose.",
-  },
-];
+export default function Header() {
+  const headerRef = useRef<HTMLElement | null>(null);
 
-export default function Home() {
-  const welcomeAudioRef =
-    useRef<HTMLAudioElement | null>(null);
+  const [openDesktopMenu, setOpenDesktopMenu] =
+    useState<string | null>(null);
 
-  const [welcomeActive, setWelcomeActive] =
+  const [mobileMenuOpen, setMobileMenuOpen] =
     useState(false);
 
-  const handleWelcome = () => {
-    if (welcomeActive) {
-      return;
-    }
+  const [openMobileMenu, setOpenMobileMenu] =
+    useState<string | null>(null);
 
-    setWelcomeActive(true);
-
-    const audio =
-      welcomeAudioRef.current ??
-      new Audio(WELCOME_AUDIO);
-
-    welcomeAudioRef.current = audio;
-    audio.currentTime = 0;
-
-    audio.play().catch(() => {
-      // Continue if browser audio playback is unavailable.
-    });
-
-    window.setTimeout(() => {
-      document
-        .getElementById("home-content")
-        ?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-    }, 400);
-
-    const unlockButton = () => {
-      setWelcomeActive(false);
+  useEffect(() => {
+    const handlePointerDown = (event: PointerEvent) => {
+      if (
+        headerRef.current &&
+        !headerRef.current.contains(event.target as Node)
+      ) {
+        setOpenDesktopMenu(null);
+        setMobileMenuOpen(false);
+        setOpenMobileMenu(null);
+      }
     };
 
-    audio.addEventListener("ended", unlockButton, {
-      once: true,
-    });
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpenDesktopMenu(null);
+        setMobileMenuOpen(false);
+        setOpenMobileMenu(null);
+      }
+    };
 
-    window.setTimeout(() => {
-      setWelcomeActive(false);
-    }, 5000);
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener(
+        "pointerdown",
+        handlePointerDown,
+      );
+
+      document.removeEventListener(
+        "keydown",
+        handleEscape,
+      );
+    };
+  }, []);
+
+  const closeNavigation = () => {
+    setOpenDesktopMenu(null);
+    setMobileMenuOpen(false);
+    setOpenMobileMenu(null);
+  };
+
+  const toggleDesktopMenu = (label: string) => {
+    setOpenDesktopMenu((current) =>
+      current === label ? null : label,
+    );
+  };
+
+  const toggleMobileMenu = (label: string) => {
+    setOpenMobileMenu((current) =>
+      current === label ? null : label,
+    );
+  };
+
+  const renderNavLabel = (item: NavItem) => {
+    if (!item.cares) {
+      return item.label;
+    }
+
+    return (
+      <>
+        <span>{item.label}</span>
+
+        <span
+          aria-hidden="true"
+          className="fafo-cares-heart inline-block"
+        >
+          ❤️
+        </span>
+      </>
+    );
   };
 
   return (
-    <>
-      <LoadingScreen />
-
-      <main className="min-h-screen bg-black text-white">
-        {/* RECENTLY DEPLOYED TOP TICKER */}
-        <section
-          aria-label="Recently Deployed activity"
-          className="relative z-50 flex h-10 w-full overflow-hidden border-b border-red-600/40 bg-black sm:h-11"
+    <header
+      ref={headerRef}
+      className="relative z-40 w-full border-b border-white/10 bg-black"
+    >
+      <div className="mx-auto flex h-12 w-full max-w-7xl items-center justify-between px-5 sm:px-10 lg:px-16">
+        {/* DESKTOP NAVIGATION */}
+        <nav
+          aria-label="Main navigation"
+          className="hidden h-full items-center lg:flex"
         >
-          {/* FIXED TICKER LABEL */}
-          <div className="relative z-20 flex shrink-0 items-center border-r border-red-600/50 bg-black px-3 sm:px-5">
-            <span
-              aria-hidden="true"
-              className="mr-2 h-2 w-2 shrink-0 rounded-full bg-red-600"
-            />
+          {NAV_ITEMS.map((item) => {
+            if (item.children) {
+              const isOpen =
+                openDesktopMenu === item.label;
 
-            <span className="whitespace-nowrap text-[10px] font-black uppercase tracking-[0.18em] text-[#D4AF37] sm:text-xs">
-              Recently Deployed
-            </span>
-          </div>
-
-          {/* SCROLLING TICKER ACTIVITY */}
-          <div className="relative flex min-w-0 flex-1 items-center overflow-hidden">
-            <div className="fafo-deployment-marquee flex w-max shrink-0 items-center whitespace-nowrap">
-              {[
-                ...DEPLOYMENT_TICKER_ITEMS,
-                ...DEPLOYMENT_TICKER_ITEMS,
-              ].map((item, index) => (
-                <span
-                  key={`${item}-${index}`}
-                  className="flex shrink-0 items-center"
+              return (
+                <div
+                  key={item.label}
+                  className="relative flex h-full items-center"
                 >
-                  <span className="px-5 text-[10px] font-black uppercase tracking-[0.16em] text-[#D4AF37] sm:px-7 sm:text-xs">
-                    {item}
-                  </span>
-
-                  <span
-                    aria-hidden="true"
-                    className="text-base font-black text-red-600"
+                  <button
+                    type="button"
+                    onClick={() =>
+                      toggleDesktopMenu(item.label)
+                    }
+                    aria-expanded={isOpen}
+                    className={`flex h-full items-center gap-2 px-3 text-[10px] font-black uppercase tracking-[0.14em] transition xl:px-4 xl:text-xs ${
+                      item.cares
+                        ? "text-red-600 hover:text-red-500"
+                        : "text-[#D4AF37] hover:text-[#F1D36A]"
+                    }`}
                   >
-                    *
-                  </span>
-                </span>
-              ))}
-            </div>
-          </div>
-        </section>
+                    {renderNavLabel(item)}
 
-        {/* SITE HEADER / NAVIGATION */}
-        <Header />
+                    <span
+                      aria-hidden="true"
+                      className={`text-[9px] transition-transform ${
+                        isOpen ? "rotate-180" : ""
+                      }`}
+                    >
+                      ▼
+                    </span>
+                  </button>
 
-        {/* HERO */}
-        <section className="relative flex min-h-[calc(100dvh-92px)] w-full items-center overflow-hidden">
-          {/* HERO BACKGROUND */}
-          <Image
-            src={heroBanner}
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-center"
-          />
+                  {isOpen && (
+                    <div className="absolute left-0 top-full z-50 w-80 border border-white/15 bg-black shadow-2xl">
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          onClick={closeNavigation}
+                          className="group block border-b border-white/10 px-6 py-5 transition last:border-b-0 hover:bg-neutral-950"
+                        >
+                          <span
+                            className={`block text-xs font-black uppercase tracking-[0.14em] transition ${
+                              item.cares
+                                ? "text-red-600 group-hover:text-red-500"
+                                : "text-[#D4AF37] group-hover:text-[#F1D36A]"
+                            }`}
+                          >
+                            {child.label}
+                          </span>
 
-          {/* CINEMATIC READABILITY LAYERS */}
-          <div className="absolute inset-0 bg-black/25" />
+                          <span className="mt-2 block text-xs leading-5 text-white/40">
+                            {child.description}
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            }
 
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/35 to-transparent" />
-
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/15" />
-
-          {/* HERO CONTENT */}
-          <div className="relative z-10 mx-auto flex w-full max-w-7xl px-5 sm:px-10 lg:px-16">
-            <div className="flex w-full max-w-3xl flex-col items-start">
-              {/* LOCKED TAGLINE */}
-              <p className="whitespace-nowrap text-sm font-black uppercase leading-[1.35] tracking-[0.18em] text-white sm:text-base sm:tracking-[0.24em] lg:text-lg">
-                More Than a Name. A Warning.
-              </p>
-
-              {/* SINGLE HERO ACTION */}
-              <button
-                type="button"
-                onClick={handleWelcome}
-                disabled={welcomeActive}
-                className="mt-7 inline-flex min-h-14 items-center justify-center border border-red-600/80 bg-black/65 px-7 py-4 text-xs font-black uppercase tracking-[0.16em] text-white backdrop-blur-sm transition hover:border-red-500 hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-600 disabled:cursor-default disabled:opacity-80 sm:px-9 sm:text-sm sm:tracking-[0.18em]"
+            return (
+              <Link
+                key={item.label}
+                href={item.href ?? "/"}
+                onClick={closeNavigation}
+                className={
+                  item.highlight
+                    ? "fafo-join-pulse mx-3 border border-red-600 px-4 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-[#D4AF37] transition hover:bg-red-700/30 xl:text-xs"
+                    : "px-3 text-[10px] font-black uppercase tracking-[0.14em] text-[#D4AF37] transition hover:text-[#F1D36A] xl:px-4 xl:text-xs"
+                }
               >
-                Welcome to FAFO, Friend
-              </button>
-            </div>
-          </div>
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
 
-          {/* SCROLL INDICATOR */}
-          <div className="absolute bottom-7 left-1/2 z-10 -translate-x-1/2">
-            <div className="flex flex-col items-center gap-2 text-[10px] font-bold uppercase tracking-[0.28em] text-white/60">
-              <span>Explore</span>
+        {/* MOBILE HEADER */}
+        <div className="flex w-full items-center justify-between lg:hidden">
+          <Link
+            href="/"
+            onClick={closeNavigation}
+            className="text-sm font-black uppercase tracking-[0.2em] text-[#D4AF37]"
+          >
+            FAFO Nation
+          </Link>
 
-              <span className="h-8 w-px bg-gradient-to-b from-white/70 to-transparent" />
-            </div>
-          </div>
-        </section>
+          <button
+            type="button"
+            onClick={() => {
+              setMobileMenuOpen((current) => !current);
+              setOpenMobileMenu(null);
+            }}
+            aria-expanded={mobileMenuOpen}
+            aria-label="Toggle main navigation"
+            className="flex min-h-10 min-w-10 items-center justify-center border border-red-600/60 text-xl text-[#D4AF37]"
+          >
+            {mobileMenuOpen ? "×" : "☰"}
+          </button>
+        </div>
+      </div>
 
-        {/* WHAT IS FAFO NATION */}
-        <section
-          id="home-content"
-          aria-labelledby="what-is-fafo-heading"
-          className="relative overflow-hidden border-t border-white/10 bg-black px-5 py-24 sm:px-10 sm:py-32 lg:px-16 lg:py-40"
+      {/* MOBILE NAVIGATION PANEL */}
+      {mobileMenuOpen && (
+        <nav
+          aria-label="Mobile navigation"
+          className="absolute left-0 top-full z-50 max-h-[calc(100dvh-6rem)] w-full overflow-y-auto border-t border-white/10 bg-black lg:hidden"
         >
-          {/* SUBTLE BACKGROUND ATMOSPHERE */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute left-1/2 top-0 h-[500px] w-[900px] max-w-full -translate-x-1/2 bg-[radial-gradient(circle,rgba(127,29,29,0.20)_0%,rgba(0,0,0,0)_68%)]"
-          />
+          {NAV_ITEMS.map((item) => {
+            if (item.children) {
+              const isOpen =
+                openMobileMenu === item.label;
 
-          <div className="relative z-10 mx-auto w-full max-w-7xl">
-            {/* SECTION INTRO */}
-            <div className="max-w-4xl">
-              <p className="text-xs font-black uppercase tracking-[0.32em] text-red-600 sm:text-sm">
-                The Nation
-              </p>
-
-              <h2
-                id="what-is-fafo-heading"
-                className="mt-5 text-4xl font-black uppercase leading-[0.95] tracking-[-0.04em] text-white sm:text-6xl lg:text-8xl"
-              >
-                What Is
-
-                <span className="block text-white/35">
-                  FAFO Nation?
-                </span>
-              </h2>
-
-              <div className="mt-8 h-px w-20 bg-red-600 sm:mt-10" />
-
-              <p className="mt-8 max-w-3xl text-base font-medium leading-8 text-white/65 sm:text-lg sm:leading-9">
-                FAFO Nation is a community built around accountability,
-                resilience, loyalty, and action. It is a place for people who
-                believe words mean something, actions have consequences, and
-                strong communities are built by those willing to contribute.
-              </p>
-            </div>
-
-            {/* PILLARS */}
-            <div className="mt-16 grid border-t border-white/15 sm:mt-24 lg:grid-cols-3">
-              {PILLARS.map((pillar) => (
-                <article
-                  key={pillar.number}
-                  className="group relative border-b border-white/15 py-10 transition-colors duration-300 hover:bg-neutral-950 lg:border-b-0 lg:border-r lg:px-8 lg:py-14 lg:first:pl-0 lg:last:border-r-0 lg:last:pr-0"
+              return (
+                <div
+                  key={item.label}
+                  className="border-b border-white/10"
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-black tracking-[0.24em] text-red-600">
-                      {pillar.number}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      toggleMobileMenu(item.label)
+                    }
+                    aria-expanded={isOpen}
+                    className={`flex w-full items-center justify-between px-5 py-4 text-left text-xs font-black uppercase tracking-[0.16em] ${
+                      item.cares
+                        ? "text-red-600"
+                        : "text-[#D4AF37]"
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      {renderNavLabel(item)}
                     </span>
 
                     <span
                       aria-hidden="true"
-                      className="text-xl text-white/20 transition-all duration-300 group-hover:translate-x-1 group-hover:text-red-600"
+                      className={`transition-transform ${
+                        isOpen ? "rotate-180" : ""
+                      }`}
                     >
-                      +
+                      ▼
                     </span>
-                  </div>
+                  </button>
 
-                  <h3 className="mt-8 text-2xl font-black uppercase tracking-[-0.02em] text-white sm:text-3xl">
-                    {pillar.title}
-                  </h3>
+                  {isOpen && (
+                    <div className="border-t border-white/10 bg-neutral-950">
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          onClick={closeNavigation}
+                          className="block border-b border-white/10 px-8 py-5 last:border-b-0"
+                        >
+                          <span
+                            className={`block text-xs font-black uppercase tracking-[0.14em] ${
+                              item.cares
+                                ? "text-red-600"
+                                : "text-[#D4AF37]"
+                            }`}
+                          >
+                            {child.label}
+                          </span>
 
-                  <p className="mt-5 max-w-md text-sm leading-7 text-white/55 sm:text-base">
-                    {pillar.description}
-                  </p>
+                          <span className="mt-2 block text-xs leading-5 text-white/40">
+                            {child.description}
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            }
 
-                  <div className="mt-8 h-px w-0 bg-red-600 transition-all duration-500 group-hover:w-full" />
-                </article>
-              ))}
-            </div>
+            return (
+              <Link
+                key={item.label}
+                href={item.href ?? "/"}
+                onClick={closeNavigation}
+                className={
+                  item.highlight
+                    ? "fafo-join-pulse m-4 block border border-red-600 px-5 py-3 text-xs font-black uppercase tracking-[0.16em] text-[#D4AF37]"
+                    : "block border-b border-white/10 px-5 py-4 text-xs font-black uppercase tracking-[0.16em] text-[#D4AF37]"
+                }
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+      )}
 
-            {/* CLOSING STATEMENT */}
-            <div className="mt-20 border-l-2 border-red-600 pl-6 sm:mt-28 sm:pl-8">
-              <p className="max-w-4xl text-xl font-black uppercase leading-tight tracking-[-0.02em] text-white sm:text-3xl lg:text-4xl">
-                Different backgrounds. Different stories.
-
-                <span className="block text-white/40">
-                  One Nation built by those who show up.
-                </span>
-              </p>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      {/* TICKER ANIMATION */}
       <style jsx global>{`
-        @keyframes fafo-deployment-scroll {
-          from {
-            transform: translateX(0);
+        @keyframes fafo-join-border-pulse {
+          0%,
+          100% {
+            border-color: rgba(220, 38, 38, 0.65);
+            box-shadow: 0 0 0 rgba(220, 38, 38, 0);
           }
 
-          to {
-            transform: translateX(-50%);
+          50% {
+            border-color: rgba(239, 68, 68, 1);
+            box-shadow:
+              0 0 8px rgba(220, 38, 38, 0.9),
+              0 0 16px rgba(220, 38, 38, 0.4);
           }
         }
 
-        .fafo-deployment-marquee {
-          animation: fafo-deployment-scroll 32s linear infinite;
+        @keyframes fafo-heartbeat {
+          0%,
+          100% {
+            transform: scale(1);
+          }
+
+          14% {
+            transform: scale(1.3);
+          }
+
+          28% {
+            transform: scale(1);
+          }
+
+          42% {
+            transform: scale(1.22);
+          }
+
+          56% {
+            transform: scale(1);
+          }
+        }
+
+        .fafo-join-pulse {
+          animation: fafo-join-border-pulse 1.8s ease-in-out infinite;
+        }
+
+        .fafo-cares-heart {
+          transform-origin: center;
+          animation: fafo-heartbeat 1.35s ease-in-out infinite;
           will-change: transform;
         }
 
-        .fafo-deployment-marquee:hover {
-          animation-play-state: paused;
-        }
-
         @media (prefers-reduced-motion: reduce) {
-          .fafo-deployment-marquee {
+          .fafo-join-pulse,
+          .fafo-cares-heart {
             animation: none;
-            transform: none;
           }
         }
       `}</style>
-    </>
+    </header>
   );
 }
