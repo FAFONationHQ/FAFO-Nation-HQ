@@ -100,7 +100,7 @@ export default function Home() {
               className="mr-2 h-2 w-2 shrink-0 rounded-full bg-red-600"
             />
 
-            <span className="whitespace-nowrap text-[10px] font-black uppercase tracking-[0.18em] text-[#D4AF37] sm:text-xs">
+            <span className="whitespace-nowrap text-[10px] font-black uppercase tracking-[0.18em] text-red-600 sm:text-xs">
               Recently Deployed
             </span>
           </div>
@@ -122,9 +122,9 @@ export default function Home() {
 
                   <span
                     aria-hidden="true"
-                    className="text-base font-black text-red-600"
+                    className="text-base"
                   >
-                    *
+                    🍁
                   </span>
                 </span>
               ))}
@@ -157,17 +157,23 @@ export default function Home() {
           {/* HERO CONTENT */}
           <div className="relative z-10 mx-auto flex w-full max-w-7xl px-5 sm:px-10 lg:px-16">
             <div className="flex w-full max-w-3xl flex-col items-start">
-              {/* LOCKED TAGLINE */}
-              <p className="whitespace-nowrap text-sm font-black uppercase leading-[1.35] tracking-[0.18em] text-white sm:text-base sm:tracking-[0.24em] lg:text-lg">
-                More Than a Name. A Warning.
-              </p>
+              {/* LOCKED TWO-LINE TAGLINE */}
+              <div className="font-black uppercase text-[#D4AF37]">
+                <p className="whitespace-nowrap text-sm leading-none tracking-[0.18em] sm:text-base sm:tracking-[0.24em] lg:text-lg">
+                  MORE THAN A NAME
+                </p>
+
+                <p className="mt-2 whitespace-nowrap text-[1.225rem] leading-none tracking-[0.18em] sm:text-[1.4rem] sm:tracking-[0.24em] lg:text-[1.575rem]">
+                  A WARNING...
+                </p>
+              </div>
 
               {/* SINGLE HERO ACTION */}
               <button
                 type="button"
                 onClick={handleWelcome}
                 disabled={welcomeActive}
-                className="mt-7 inline-flex min-h-14 items-center justify-center border border-red-600/80 bg-black/65 px-7 py-4 text-xs font-black uppercase tracking-[0.16em] text-white backdrop-blur-sm transition hover:border-red-500 hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-600 disabled:cursor-default disabled:opacity-80 sm:px-9 sm:text-sm sm:tracking-[0.18em]"
+                className="fafo-welcome-cta mt-7 inline-flex min-h-14 items-center justify-center border border-red-600 bg-black/65 px-7 py-4 text-xs font-black uppercase tracking-[0.16em] text-white shadow-[0_0_14px_rgba(220,38,38,0.85)] backdrop-blur-sm transition hover:border-red-500 hover:bg-red-700/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-600 disabled:cursor-default disabled:opacity-80 sm:px-9 sm:text-sm sm:tracking-[0.18em]"
               >
                 Welcome to FAFO, Friend
               </button>
@@ -214,91 +220,4 @@ export default function Home() {
                 </span>
               </h2>
 
-              <div className="mt-8 h-px w-20 bg-red-600 sm:mt-10" />
-
-              <p className="mt-8 max-w-3xl text-base font-medium leading-8 text-white/65 sm:text-lg sm:leading-9">
-                FAFO Nation is a community built around accountability,
-                resilience, loyalty, and action. It is a place for people who
-                believe words mean something, actions have consequences, and
-                strong communities are built by those willing to contribute.
-              </p>
-            </div>
-
-            {/* PILLARS */}
-            <div className="mt-16 grid border-t border-white/15 sm:mt-24 lg:grid-cols-3">
-              {PILLARS.map((pillar) => (
-                <article
-                  key={pillar.number}
-                  className="group relative border-b border-white/15 py-10 transition-colors duration-300 hover:bg-neutral-950 lg:border-b-0 lg:border-r lg:px-8 lg:py-14 lg:first:pl-0 lg:last:border-r-0 lg:last:pr-0"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-black tracking-[0.24em] text-red-600">
-                      {pillar.number}
-                    </span>
-
-                    <span
-                      aria-hidden="true"
-                      className="text-xl text-white/20 transition-all duration-300 group-hover:translate-x-1 group-hover:text-red-600"
-                    >
-                      +
-                    </span>
-                  </div>
-
-                  <h3 className="mt-8 text-2xl font-black uppercase tracking-[-0.02em] text-white sm:text-3xl">
-                    {pillar.title}
-                  </h3>
-
-                  <p className="mt-5 max-w-md text-sm leading-7 text-white/55 sm:text-base">
-                    {pillar.description}
-                  </p>
-
-                  <div className="mt-8 h-px w-0 bg-red-600 transition-all duration-500 group-hover:w-full" />
-                </article>
-              ))}
-            </div>
-
-            {/* CLOSING STATEMENT */}
-            <div className="mt-20 border-l-2 border-red-600 pl-6 sm:mt-28 sm:pl-8">
-              <p className="max-w-4xl text-xl font-black uppercase leading-tight tracking-[-0.02em] text-white sm:text-3xl lg:text-4xl">
-                Different backgrounds. Different stories.
-
-                <span className="block text-white/40">
-                  One Nation built by those who show up.
-                </span>
-              </p>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      {/* TICKER ANIMATION */}
-      <style jsx global>{`
-        @keyframes fafo-deployment-scroll {
-          from {
-            transform: translateX(0);
-          }
-
-          to {
-            transform: translateX(-50%);
-          }
-        }
-
-        .fafo-deployment-marquee {
-          animation: fafo-deployment-scroll 32s linear infinite;
-          will-change: transform;
-        }
-
-        .fafo-deployment-marquee:hover {
-          animation-play-state: paused;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .fafo-deployment-marquee {
-            animation: none;
-            transform: none;
-          }
-        }
-      `}</style>
-    </>
-  );
-}
+             
