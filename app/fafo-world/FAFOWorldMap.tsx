@@ -166,7 +166,6 @@ export default function FAFOWorldMap() {
       zoom: INITIAL_ZOOM,
       minZoom: 1.5,
       maxZoom: 16,
-      attributionControl: true,
     });
 
     mapRef.current = map;
