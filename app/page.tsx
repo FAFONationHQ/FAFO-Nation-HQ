@@ -9,9 +9,6 @@ import heroBanner from "../assets/hero/hero-banner.jpg";
 const WELCOME_AUDIO =
   "/assets/audio/fafo-nation-welcome-friend.mp3";
 
-const PRIMARY_LOGO =
-  "/assets/branding/logos/fafo-nation-primary-logo-master.png";
-
 const DEPLOYMENT_TICKER_ITEMS = [
   "FAFO GEAR DEPLOYED • BRITISH COLUMBIA, CANADA",
   "FAFO GEAR DEPLOYED • ONTARIO, CANADA",
@@ -139,7 +136,7 @@ export default function Home() {
         <Header />
 
         {/* HERO */}
-        <section className="relative flex min-h-[calc(100dvh-84px)] w-full items-center overflow-hidden">
+        <section className="relative flex min-h-[calc(100dvh-92px)] w-full items-center overflow-hidden">
           {/* HERO BACKGROUND */}
           <Image
             src={heroBanner}
@@ -160,21 +157,8 @@ export default function Home() {
           {/* HERO CONTENT */}
           <div className="relative z-10 mx-auto flex w-full max-w-7xl px-5 sm:px-10 lg:px-16">
             <div className="flex w-full max-w-3xl flex-col items-start">
-              {/* PRIMARY LOGO MASTER */}
-              <div className="relative w-[min(88vw,680px)]">
-                <Image
-                  src={PRIMARY_LOGO}
-                  alt="FAFO Nation"
-                  width={1536}
-                  height={1024}
-                  priority
-                  sizes="(max-width: 640px) 88vw, 680px"
-                  className="h-auto w-full object-contain"
-                />
-              </div>
-
               {/* LOCKED TAGLINE */}
-              <p className="mt-3 whitespace-nowrap text-sm font-black uppercase leading-[1.35] tracking-[0.18em] text-white sm:mt-4 sm:text-base sm:tracking-[0.24em] lg:text-lg">
+              <p className="whitespace-nowrap text-sm font-black uppercase leading-[1.35] tracking-[0.18em] text-white sm:text-base sm:tracking-[0.24em] lg:text-lg">
                 More Than a Name. A Warning.
               </p>
 
@@ -206,12 +190,14 @@ export default function Home() {
           aria-labelledby="what-is-fafo-heading"
           className="relative overflow-hidden border-t border-white/10 bg-black px-5 py-24 sm:px-10 sm:py-32 lg:px-16 lg:py-40"
         >
+          {/* SUBTLE BACKGROUND ATMOSPHERE */}
           <div
             aria-hidden="true"
             className="pointer-events-none absolute left-1/2 top-0 h-[500px] w-[900px] max-w-full -translate-x-1/2 bg-[radial-gradient(circle,rgba(127,29,29,0.20)_0%,rgba(0,0,0,0)_68%)]"
           />
 
           <div className="relative z-10 mx-auto w-full max-w-7xl">
+            {/* SECTION INTRO */}
             <div className="max-w-4xl">
               <p className="text-xs font-black uppercase tracking-[0.32em] text-red-600 sm:text-sm">
                 The Nation
@@ -238,6 +224,7 @@ export default function Home() {
               </p>
             </div>
 
+            {/* PILLARS */}
             <div className="mt-16 grid border-t border-white/15 sm:mt-24 lg:grid-cols-3">
               {PILLARS.map((pillar) => (
                 <article
@@ -270,6 +257,7 @@ export default function Home() {
               ))}
             </div>
 
+            {/* CLOSING STATEMENT */}
             <div className="mt-20 border-l-2 border-red-600 pl-6 sm:mt-28 sm:pl-8">
               <p className="max-w-4xl text-xl font-black uppercase leading-tight tracking-[-0.02em] text-white sm:text-3xl lg:text-4xl">
                 Different backgrounds. Different stories.
