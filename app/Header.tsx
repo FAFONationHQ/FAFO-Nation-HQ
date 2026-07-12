@@ -7,6 +7,7 @@ type NavItem = {
   label: string;
   href?: string;
   highlight?: boolean;
+  cares?: boolean;
   children?: {
     label: string;
     href: string;
@@ -90,7 +91,8 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
-    label: "FAFO Cares ❤️",
+    label: "FAFO Cares",
+    cares: true,
     children: [
       {
         label: "FAFO Cares",
@@ -197,12 +199,30 @@ export default function Header() {
     );
   };
 
+  const renderLabel = (item: NavItem) => {
+    if (!item.cares) {
+      return item.label;
+    }
+
+    return (
+      <>
+        <span>{item.label}</span>
+        <span
+          aria-hidden="true"
+          className="fafo-cares-heart inline-block"
+        >
+          ❤️
+        </span>
+      </>
+    );
+  };
+
   return (
     <header
       ref={headerRef}
       className="relative z-40 w-full border-b border-white/10 bg-black"
     >
-      <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-5 sm:px-10 lg:px-16">
+      <div className="mx-auto flex h-12 w-full max-w-7xl items-center justify-between px-5 sm:px-10 lg:px-16">
         {/* DESKTOP NAVIGATION */}
         <nav
           aria-label="Main navigation"
@@ -210,7 +230,8 @@ export default function Header() {
         >
           {NAV_ITEMS.map((item) => {
             if (item.children) {
-              const isOpen = openDesktopMenu === item.label;
+              const isOpen =
+                openDesktopMenu === item.label;
 
               return (
                 <div
@@ -223,9 +244,13 @@ export default function Header() {
                       toggleDesktopMenu(item.label)
                     }
                     aria-expanded={isOpen}
-                    className="flex h-full items-center gap-2 px-3 text-[10px] font-black uppercase tracking-[0.14em] text-white/65 transition hover:text-white xl:px-4 xl:text-xs"
+                    className={`flex h-full items-center gap-2 px-3 text-[10px] font-black uppercase tracking-[0.14em] transition xl:px-4 xl:text-xs ${
+                      item.cares
+                        ? "text-red-600 hover:text-red-500"
+                        : "text-[#D4AF37] hover:text-[#F1D36A]"
+                    }`}
                   >
-                    {item.label}
+                    {renderLabel(item)}
 
                     <span
                       aria-hidden="true"
@@ -246,7 +271,13 @@ export default function Header() {
                           onClick={closeNavigation}
                           className="group block border-b border-white/10 px-6 py-5 transition last:border-b-0 hover:bg-neutral-950"
                         >
-                          <span className="block text-xs font-black uppercase tracking-[0.14em] text-white transition group-hover:text-[#D4AF37]">
+                          <span
+                            className={`block text-xs font-black uppercase tracking-[0.14em] transition ${
+                              item.cares
+                                ? "text-red-600 group-hover:text-red-500"
+                                : "text-[#D4AF37] group-hover:text-[#F1D36A]"
+                            }`}
+                          >
                             {child.label}
                           </span>
 
@@ -268,8 +299,8 @@ export default function Header() {
                 onClick={closeNavigation}
                 className={
                   item.highlight
-                    ? "mx-3 border border-red-600/70 px-4 py-3 text-[10px] font-black uppercase tracking-[0.14em] text-red-500 transition hover:bg-red-700 hover:text-white xl:text-xs"
-                    : "px-3 text-[10px] font-black uppercase tracking-[0.14em] text-white/65 transition hover:text-white xl:px-4 xl:text-xs"
+                    ? "fafo-join-pulse mx-3 border border-red-600 px-4 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-[#D4AF37] transition hover:bg-red-700/30 xl:text-xs"
+                    : "px-3 text-[10px] font-black uppercase tracking-[0.14em] text-[#D4AF37] transition hover:text-[#F1D36A] xl:px-4 xl:text-xs"
                 }
               >
                 {item.label}
@@ -283,7 +314,7 @@ export default function Header() {
           <Link
             href="/"
             onClick={closeNavigation}
-            className="text-sm font-black uppercase tracking-[0.2em] text-white"
+            className="text-sm font-black uppercase tracking-[0.2em] text-[#D4AF37]"
           >
             FAFO Nation
           </Link>
@@ -296,7 +327,7 @@ export default function Header() {
             }}
             aria-expanded={mobileMenuOpen}
             aria-label="Toggle main navigation"
-            className="flex min-h-12 min-w-12 items-center justify-center border border-white/15 text-xl text-white"
+            className="flex min-h-10 min-w-10 items-center justify-center border border-red-600/60 text-xl text-[#D4AF37]"
           >
             {mobileMenuOpen ? "×" : "☰"}
           </button>
@@ -307,11 +338,12 @@ export default function Header() {
       {mobileMenuOpen && (
         <nav
           aria-label="Mobile navigation"
-          className="absolute left-0 top-full z-50 max-h-[calc(100dvh-8rem)] w-full overflow-y-auto border-t border-white/10 bg-black lg:hidden"
+          className="absolute left-0 top-full z-50 max-h-[calc(100dvh-6rem)] w-full overflow-y-auto border-t border-white/10 bg-black lg:hidden"
         >
           {NAV_ITEMS.map((item) => {
             if (item.children) {
-              const isOpen = openMobileMenu === item.label;
+              const isOpen =
+                openMobileMenu === item.label;
 
               return (
                 <div
@@ -324,9 +356,15 @@ export default function Header() {
                       toggleMobileMenu(item.label)
                     }
                     aria-expanded={isOpen}
-                    className="flex w-full items-center justify-between px-5 py-5 text-left text-xs font-black uppercase tracking-[0.16em] text-white/75"
+                    className={`flex w-full items-center justify-between px-5 py-4 text-left text-xs font-black uppercase tracking-[0.16em] ${
+                      item.cares
+                        ? "text-red-600"
+                        : "text-[#D4AF37]"
+                    }`}
                   >
-                    {item.label}
+                    <span className="flex items-center gap-2">
+                      {renderLabel(item)}
+                    </span>
 
                     <span
                       aria-hidden="true"
@@ -347,38 +385,12 @@ export default function Header() {
                           onClick={closeNavigation}
                           className="block border-b border-white/10 px-8 py-5 last:border-b-0"
                         >
-                          <span className="block text-xs font-black uppercase tracking-[0.14em] text-[#D4AF37]">
+                          <span
+                            className={`block text-xs font-black uppercase tracking-[0.14em] ${
+                              item.cares
+                                ? "text-red-600"
+                                : "text-[#D4AF37]"
+                            }`}
+                          >
                             {child.label}
-                          </span>
-
-                          <span className="mt-2 block text-xs leading-5 text-white/40">
-                            {child.description}
-                          </span>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            }
-
-            return (
-              <Link
-                key={item.label}
-                href={item.href ?? "/"}
-                onClick={closeNavigation}
-                className={
-                  item.highlight
-                    ? "block border-b border-red-600/30 px-5 py-5 text-xs font-black uppercase tracking-[0.16em] text-red-500"
-                    : "block border-b border-white/10 px-5 py-5 text-xs font-black uppercase tracking-[0.16em] text-white/75"
-                }
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-      )}
-    </header>
-  );
-}
+                         
