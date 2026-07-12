@@ -210,7 +210,7 @@ export default function Header() {
 
         <span
           aria-hidden="true"
-          className="fafo-cares-heart inline-block"
+          className="inline-block origin-center animate-[pulse_1.1s_ease-in-out_infinite]"
         >
           ❤️
         </span>
@@ -300,7 +300,7 @@ export default function Header() {
                 onClick={closeNavigation}
                 className={
                   item.highlight
-                    ? "fafo-join-pulse mx-3 border border-red-600 px-4 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-[#D4AF37] transition hover:bg-red-700/30 xl:text-xs"
+                    ? "mx-3 animate-[pulse_1.8s_ease-in-out_infinite] border border-red-600 px-4 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-[#D4AF37] shadow-[0_0_10px_rgba(220,38,38,0.65)] transition hover:bg-red-700/30 xl:text-xs"
                     : "px-3 text-[10px] font-black uppercase tracking-[0.14em] text-[#D4AF37] transition hover:text-[#F1D36A] xl:px-4 xl:text-xs"
                 }
               >
@@ -329,158 +329,4 @@ export default function Header() {
             aria-expanded={mobileMenuOpen}
             aria-label="Toggle main navigation"
             className="flex min-h-10 min-w-10 items-center justify-center border border-red-600/60 text-xl text-[#D4AF37]"
-          >
-            {mobileMenuOpen ? "×" : "☰"}
-          </button>
-        </div>
-      </div>
-
-      {/* MOBILE NAVIGATION PANEL */}
-      {mobileMenuOpen && (
-        <nav
-          aria-label="Mobile navigation"
-          className="absolute left-0 top-full z-50 max-h-[calc(100dvh-6rem)] w-full overflow-y-auto border-t border-white/10 bg-black lg:hidden"
-        >
-          {NAV_ITEMS.map((item) => {
-            if (item.children) {
-              const isOpen =
-                openMobileMenu === item.label;
-
-              return (
-                <div
-                  key={item.label}
-                  className="border-b border-white/10"
-                >
-                  <button
-                    type="button"
-                    onClick={() =>
-                      toggleMobileMenu(item.label)
-                    }
-                    aria-expanded={isOpen}
-                    className={`flex w-full items-center justify-between px-5 py-4 text-left text-xs font-black uppercase tracking-[0.16em] ${
-                      item.cares
-                        ? "text-red-600"
-                        : "text-[#D4AF37]"
-                    }`}
-                  >
-                    <span className="flex items-center gap-2">
-                      {renderNavLabel(item)}
-                    </span>
-
-                    <span
-                      aria-hidden="true"
-                      className={`transition-transform ${
-                        isOpen ? "rotate-180" : ""
-                      }`}
-                    >
-                      ▼
-                    </span>
-                  </button>
-
-                  {isOpen && (
-                    <div className="border-t border-white/10 bg-neutral-950">
-                      {item.children.map((child) => (
-                        <Link
-                          key={child.href}
-                          href={child.href}
-                          onClick={closeNavigation}
-                          className="block border-b border-white/10 px-8 py-5 last:border-b-0"
-                        >
-                          <span
-                            className={`block text-xs font-black uppercase tracking-[0.14em] ${
-                              item.cares
-                                ? "text-red-600"
-                                : "text-[#D4AF37]"
-                            }`}
-                          >
-                            {child.label}
-                          </span>
-
-                          <span className="mt-2 block text-xs leading-5 text-white/40">
-                            {child.description}
-                          </span>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            }
-
-            return (
-              <Link
-                key={item.label}
-                href={item.href ?? "/"}
-                onClick={closeNavigation}
-                className={
-                  item.highlight
-                    ? "fafo-join-pulse m-4 block border border-red-600 px-5 py-3 text-xs font-black uppercase tracking-[0.16em] text-[#D4AF37]"
-                    : "block border-b border-white/10 px-5 py-4 text-xs font-black uppercase tracking-[0.16em] text-[#D4AF37]"
-                }
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-      )}
-
-      <style jsx global>{`
-        @keyframes fafo-join-border-pulse {
-          0%,
-          100% {
-            border-color: rgba(220, 38, 38, 0.65);
-            box-shadow: 0 0 0 rgba(220, 38, 38, 0);
-          }
-
-          50% {
-            border-color: rgba(239, 68, 68, 1);
-            box-shadow:
-              0 0 8px rgba(220, 38, 38, 0.9),
-              0 0 16px rgba(220, 38, 38, 0.4);
-          }
-        }
-
-        @keyframes fafo-heartbeat {
-          0%,
-          100% {
-            transform: scale(1);
-          }
-
-          14% {
-            transform: scale(1.3);
-          }
-
-          28% {
-            transform: scale(1);
-          }
-
-          42% {
-            transform: scale(1.22);
-          }
-
-          56% {
-            transform: scale(1);
-          }
-        }
-
-        .fafo-join-pulse {
-          animation: fafo-join-border-pulse 1.8s ease-in-out infinite;
-        }
-
-        .fafo-cares-heart {
-          transform-origin: center;
-          animation: fafo-heartbeat 1.35s ease-in-out infinite;
-          will-change: transform;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .fafo-join-pulse,
-          .fafo-cares-heart {
-            animation: none;
-          }
-        }
-      `}</style>
-    </header>
-  );
-}
+         
