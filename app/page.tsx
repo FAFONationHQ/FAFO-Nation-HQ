@@ -100,7 +100,10 @@ export default function Home() {
               className="mr-2 h-2 w-2 shrink-0 rounded-full bg-red-600"
             />
 
-            <span className="whitespace-nowrap text-[10px] font-black uppercase tracking-[0.18em] text-red-600 sm:text-xs">
+            <span
+              className="whitespace-nowrap text-[10px] font-black uppercase tracking-[0.18em] sm:text-xs"
+              style={{ color: "#DC2626" }}
+            >
               Recently Deployed
             </span>
           </div>
@@ -116,7 +119,10 @@ export default function Home() {
                   key={`${item}-${index}`}
                   className="flex shrink-0 items-center"
                 >
-                  <span className="px-5 text-[10px] font-black uppercase tracking-[0.16em] text-[#D4AF37] sm:px-7 sm:text-xs">
+                  <span
+                    className="px-5 text-[10px] font-black uppercase tracking-[0.16em] sm:px-7 sm:text-xs"
+                    style={{ color: "#D4AF37" }}
+                  >
                     {item}
                   </span>
 
@@ -137,7 +143,6 @@ export default function Home() {
 
         {/* HERO */}
         <section className="relative flex min-h-[calc(100dvh-92px)] w-full items-center overflow-hidden">
-          {/* HERO BACKGROUND */}
           <Image
             src={heroBanner}
             alt=""
@@ -147,7 +152,6 @@ export default function Home() {
             className="object-cover object-center"
           />
 
-          {/* CINEMATIC READABILITY LAYERS */}
           <div className="absolute inset-0 bg-black/25" />
 
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/35 to-transparent" />
@@ -156,29 +160,33 @@ export default function Home() {
 
           {/* HERO CONTENT */}
           <div className="relative z-10 mx-auto flex w-full max-w-7xl px-5 sm:px-10 lg:px-16">
-            <div className="flex w-full max-w-3xl flex-col items-start">
+            <div className="flex w-full max-w-4xl translate-y-16 flex-col items-start sm:translate-y-20 lg:translate-y-24">
               {/* LOCKED TWO-LINE TAGLINE */}
-              <div className="font-black uppercase text-[#D4AF37]">
-                <p className="whitespace-nowrap text-sm leading-none tracking-[0.18em] sm:text-base sm:tracking-[0.24em] lg:text-lg">
+              <div
+                className="font-black uppercase"
+                style={{ color: "#D4AF37" }}
+              >
+                <p className="whitespace-nowrap text-[1.75rem] leading-none tracking-[0.12em] sm:text-[2rem] sm:tracking-[0.18em] lg:text-[2.25rem]">
                   MORE THAN A NAME
                 </p>
 
-                <p className="mt-2 whitespace-nowrap text-[1.225rem] leading-none tracking-[0.18em] sm:text-[1.4rem] sm:tracking-[0.24em] lg:text-[1.575rem]">
+                <p className="mt-3 whitespace-nowrap text-[2.45rem] leading-none tracking-[0.10em] sm:text-[2.8rem] sm:tracking-[0.16em] lg:text-[3.15rem]">
                   A WARNING...
                 </p>
-              </div>              {/* SINGLE HERO ACTION */}
+              </div>
+
+              {/* SINGLE HERO ACTION */}
               <button
                 type="button"
                 onClick={handleWelcome}
                 disabled={welcomeActive}
-                className="fafo-welcome-cta mt-7 inline-flex min-h-14 items-center justify-center border border-red-600 bg-black/65 px-7 py-4 text-xs font-black uppercase tracking-[0.16em] text-white shadow-[0_0_14px_rgba(220,38,38,0.85)] backdrop-blur-sm transition hover:border-red-500 hover:bg-red-700/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-600 disabled:cursor-default disabled:opacity-80 sm:px-9 sm:text-sm sm:tracking-[0.18em]"
+                className="fafo-welcome-cta mt-8 inline-flex min-h-14 items-center justify-center border border-red-600 bg-black/65 px-7 py-4 text-xs font-black uppercase tracking-[0.16em] shadow-[0_0_14px_rgba(220,38,38,0.85)] backdrop-blur-sm transition hover:border-red-500 hover:bg-red-700/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-600 disabled:cursor-default disabled:opacity-80 sm:px-9 sm:text-sm sm:tracking-[0.18em]"
+                style={{ color: "#D4AF37" }}
               >
                 Welcome to FAFO, Friend
               </button>
             </div>
-          </div>
-
-          {/* SCROLL INDICATOR */}
+          </div>          {/* SCROLL INDICATOR */}
           <div className="absolute bottom-7 left-1/2 z-10 -translate-x-1/2">
             <div className="flex flex-col items-center gap-2 text-[10px] font-bold uppercase tracking-[0.28em] text-white/60">
               <span>Explore</span>
