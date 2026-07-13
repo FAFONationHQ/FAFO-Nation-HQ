@@ -355,17 +355,20 @@ export default function Header() {
         .fafo-nav-red {
           color: #dc2626 !important;
           -webkit-text-fill-color: #dc2626 !important;
-        }
+        
+          forced-color-adjust: none !important;}
 
         .fafo-nav-custom {
           color: #dc2626 !important;
           -webkit-text-fill-color: #dc2626 !important;
-        }
+        
+          forced-color-adjust: none !important;}
 
         .fafo-nav-cares {
           color: #ffffff !important;
           -webkit-text-fill-color: #ffffff !important;
-        }
+        
+          forced-color-adjust: none !important;}
       `}</style>
     </>
   );
