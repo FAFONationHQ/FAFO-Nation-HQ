@@ -61,7 +61,7 @@ export default function Home() {
                   <span className="px-5 text-[10px] font-black uppercase tracking-[0.16em] text-[#D4AF37] sm:px-7 sm:text-xs">
                     {item}
                   </span>
-                  <span aria-hidden="true" className="text-base">🍁</span>
+                  <span aria-hidden="true" className="text-base font-black text-[#DC2626]">♥</span>
                 </span>
               ))}
             </div>

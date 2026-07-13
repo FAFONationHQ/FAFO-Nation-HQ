@@ -72,11 +72,11 @@ const NAV_ITEMS: NavItem[] = [
     { label: "Community Challenges", href: "/community/challenges", description: "Join organized challenges and participation campaigns." },
     { label: "Deployed Members", href: "/community/deployed-members", description: "Discover members who choose to deploy publicly." },
   ]},
-  { label: "Global Operations", children: [
+  { label: "Global Operations", icon: "🌐", children: [
     { label: "FAFO World", href: "/fafo-world", description: "Explore the Nation, deployed worldwide." },
     { label: "Recently Deployed", href: "/recently-deployed", description: "View verified public deployment activity." },
   ]},
-  { label: "About", children: [
+  { label: "About", icon: "❓", children: [
     { label: "Our Story", href: "/about", description: "Learn how FAFO Nation began and what it stands for." },
     { label: "Sgt Swagger", href: "/about/sgt-swagger", description: "Meet the official FAFO Nation Brand Ambassador." },
     { label: "Long-Term Vision", href: "/about/long-term-vision", description: "Explore future FAFO Nation initiatives, programs, chapters, and the proposed FAFO Foundation." },
@@ -166,7 +166,16 @@ export default function Header() {
               className={item.highlight
                 ? "mx-2 animate-[pulse_1.8s_ease-in-out_infinite] border border-red-600 px-3 py-2 text-[9px] font-black uppercase tracking-[0.08em] text-[#D4AF37] shadow-[0_0_10px_rgba(220,38,38,0.65)] transition hover:bg-red-700/30 xl:text-[10px] 2xl:mx-3 2xl:px-4 2xl:text-xs"
                 : `px-2 text-[9px] font-black uppercase tracking-[0.08em] transition xl:px-3 xl:text-[10px] 2xl:px-4 2xl:text-xs ${color(item)}`}
-            >{item.label}</Link>
+            >
+              {item.highlight ? (
+                <span className="flex w-full flex-col items-center justify-center text-center leading-tight">
+                  <span>Join the</span>
+                  <span>Nation</span>
+                </span>
+              ) : (
+                item.label
+              )}
+            </Link>
           ))}
         </nav>
 
@@ -199,7 +208,16 @@ export default function Header() {
                 )}
               </div>
             ) : (
-              <Link key={item.label} href={item.href ?? "/"} onClick={closeNavigation} className={item.highlight ? "my-4 flex w-full items-center justify-center border border-red-600 px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-[#D4AF37] shadow-[0_0_10px_rgba(220,38,38,0.65)]" : `block border-b border-white/10 py-4 text-xs font-black uppercase tracking-[0.14em] ${color(item)}`}>{item.label}</Link>
+              <Link key={item.label} href={item.href ?? "/"} onClick={closeNavigation} className={item.highlight ? "my-4 flex w-full items-center justify-center border border-red-600 px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-[#D4AF37] shadow-[0_0_10px_rgba(220,38,38,0.65)]" : `block border-b border-white/10 py-4 text-xs font-black uppercase tracking-[0.14em] ${color(item)}`}>
+              {item.highlight ? (
+                <span className="flex w-full flex-col items-center justify-center text-center leading-tight">
+                  <span>Join the</span>
+                  <span>Nation</span>
+                </span>
+              ) : (
+                item.label
+              )}
+            </Link>
             ))}
           </div>
         </nav>
