@@ -58,10 +58,10 @@ export default function Home() {
             <div className="fafo-deployment-marquee flex w-max shrink-0 items-center whitespace-nowrap">
               {[...DEPLOYMENT_TICKER_ITEMS, ...DEPLOYMENT_TICKER_ITEMS].map((item, index) => (
                 <span key={`${item}-${index}`} className="flex shrink-0 items-center">
-                  <span className="fafo-force-gold px-5 text-[10px] font-black uppercase tracking-[0.16em] sm:px-7 sm:text-xs">
+                  <span className="fafo-ticker-red px-5 text-[10px] font-black uppercase tracking-[0.16em] sm:px-7 sm:text-xs">
                     {item}
                   </span>
-                  <span aria-hidden="true" className="text-base font-black" style={{ color: "#DC2626" }}>🍁︎</span>
+                  <span aria-hidden="true" className="fafo-ticker-leaf-gold text-base font-black">🍁︎</span>
                 </span>
               ))}
             </div>
@@ -142,6 +142,12 @@ export default function Home() {
         .fafo-force-gold {
           color: #D4AF37 !important;
           background: transparent !important;
+        }
+        .fafo-ticker-red {
+          color: #DC2626 !important;
+        }
+        .fafo-ticker-leaf-gold {
+          color: #D4AF37 !important;
         }
 
         @keyframes fafo-deployment-scroll {

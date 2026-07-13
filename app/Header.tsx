@@ -116,13 +116,11 @@ export default function Header() {
   const label = (item: NavItem) => (
     <>
       <span
-        className={item.customShop ? "fafo-nav-custom" : item.cares ? "fafo-nav-cares" : "fafo-nav-gold"}
+        className={item.cares ? "fafo-nav-cares" : "fafo-nav-red"}
         style={
-          item.customShop
-            ? { color: "#DC2626" }
-            : item.cares
-              ? undefined
-              : { color: "#D4AF37" }
+          item.cares
+            ? undefined
+            : { color: "#DC2626" }
         }
       >
         {item.label}
@@ -139,11 +137,9 @@ export default function Header() {
   );
 
   const color = (item: NavItem) =>
-    item.customShop
-      ? "fafo-nav-custom text-red-600 hover:text-red-500"
-      : item.cares
-        ? "fafo-nav-cares text-white"
-        : "fafo-nav-gold text-[#D4AF37] hover:text-[#F1D36A]";
+    item.cares
+      ? "fafo-nav-cares text-white"
+      : "fafo-nav-red text-[#DC2626] hover:text-red-500";
 
   return (
     <>
@@ -229,7 +225,7 @@ export default function Header() {
       )}
     </header>
       <style jsx global>{`
-        .fafo-nav-gold { color: #D4AF37 !important; }
+        .fafo-nav-red { color: #DC2626 !important; }
         .fafo-nav-custom { color: #DC2626 !important; }
         .fafo-nav-cares { color: #FFFFFF !important; }
       `}</style>
