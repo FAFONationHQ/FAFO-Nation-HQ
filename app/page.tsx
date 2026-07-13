@@ -141,13 +141,16 @@ export default function Home() {
       <style jsx global>{`
         .fafo-force-gold {
           color: #D4AF37 !important;
+          -webkit-text-fill-color: #D4AF37 !important;
           background: transparent !important;
         }
         .fafo-ticker-red {
           color: #DC2626 !important;
+          -webkit-text-fill-color: #DC2626 !important;
         }
         .fafo-ticker-leaf-gold {
           color: #D4AF37 !important;
+          -webkit-text-fill-color: #D4AF37 !important;
         }
 
         @keyframes fafo-deployment-scroll {

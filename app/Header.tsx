@@ -13,15 +13,6 @@ type NavItem = {
   children?: { label: string; href: string; description: string }[];
 };
 
-type DiagnosticReading = {
-  name: string;
-  found: boolean;
-  color: string;
-  webkitTextFillColor: string;
-  fontFamily: string;
-  filter: string;
-  opacity: string;
-};
 
 const NAV_ITEMS: NavItem[] = [
   { label: "Home", href: "/" },
@@ -94,52 +85,13 @@ const NAV_ITEMS: NavItem[] = [
   ]},
 ];
 
-function findElementByText(text: string): HTMLElement | null {
-  const elements = Array.from(document.querySelectorAll<HTMLElement>("body *"));
-
-  return (
-    elements.find((element) => {
-      if (element.children.length !== 0) return false;
-      return element.textContent?.trim() === text;
-    }) ?? null
-  );
-}
-
-function readComputedStyle(name: string, element: HTMLElement | null): DiagnosticReading {
-  if (!element) {
-    return {
-      name,
-      found: false,
-      color: "NOT FOUND",
-      webkitTextFillColor: "NOT FOUND",
-      fontFamily: "NOT FOUND",
-      filter: "NOT FOUND",
-      opacity: "NOT FOUND",
-    };
-  }
-
-  const computed = window.getComputedStyle(element);
-
-  return {
-    name,
-    found: true,
-    color: computed.color,
-    webkitTextFillColor:
-      computed.getPropertyValue("-webkit-text-fill-color") || "(not set)",
-    fontFamily: computed.fontFamily,
-    filter: computed.filter,
-    opacity: computed.opacity,
-  };
-}
 
 export default function Header() {
   const headerRef = useRef<HTMLElement | null>(null);
-  const merchLabelRef = useRef<HTMLSpanElement | null>(null);
 
   const [openDesktopMenu, setOpenDesktopMenu] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openMobileMenu, setOpenMobileMenu] = useState<string | null>(null);
-  const [diagnostics, setDiagnostics] = useState<DiagnosticReading[]>([]);
 
   useEffect(() => {
     const outside = (event: PointerEvent) => {
@@ -166,39 +118,7 @@ export default function Header() {
       document.removeEventListener("keydown", escape);
     };
   }, []);
-
-  useEffect(() => {
-    let attempts = 0;
-    let timer: number | undefined;
-
-    const collectDiagnostics = () => {
-      attempts += 1;
-
-      const tickerText =
-        document.querySelector<HTMLElement>(".fafo-deployment-marquee span span") ??
-        findElementByText("FAFO GEAR DEPLOYED • VICTORIA, BRITISH COLUMBIA, CANADA");
-
-      const heroText = findElementByText("MORE THAN A NAME");
-
-      setDiagnostics([
-        readComputedStyle("MERCH", merchLabelRef.current),
-        readComputedStyle("TICKER", tickerText),
-        readComputedStyle("HERO", heroText),
-      ]);
-
-      if ((!tickerText || !heroText) && attempts < 20) {
-        timer = window.setTimeout(collectDiagnostics, 250);
-      }
-    };
-
-    timer = window.setTimeout(collectDiagnostics, 500);
-
-    return () => {
-      if (timer !== undefined) {
-        window.clearTimeout(timer);
-      }
-    };
-  }, []);  const closeNavigation = () => {
+  const closeNavigation = () => {
     setOpenDesktopMenu(null);
     setMobileMenuOpen(false);
     setOpenMobileMenu(null);
@@ -207,7 +127,6 @@ export default function Header() {
   const label = (item: NavItem) => (
     <>
       <span
-        ref={item.label === "Merch" ? merchLabelRef : undefined}
         className={item.cares ? "fafo-nav-cares" : "fafo-nav-red"}
         style={item.cares ? undefined : { color: "#DC2626" }}
       >
@@ -431,50 +350,21 @@ export default function Header() {
         )}
       </header>
 
-      <aside
-        aria-label="Temporary FAFO color diagnostics"
-        className="fixed bottom-2 left-2 z-[99999] max-h-[45vh] w-[min(94vw,520px)] overflow-auto border-2 border-yellow-300 bg-black p-3 font-mono text-[10px] leading-4 text-white shadow-2xl"
-      >
-        <div className="mb-2 font-black uppercase text-yellow-300">
-          TEMP COLOR DIAGNOSTICS
-        </div>
-
-        {diagnostics.length === 0 ? (
-          <div>Collecting computed styles...</div>
-        ) : (
-          diagnostics.map((reading) => (
-            <div
-              key={reading.name}
-              className="mb-3 border-t border-white/30 pt-2 last:mb-0"
-            >
-              <div className="font-black text-yellow-300">
-                {reading.name}
-              </div>
-
-              <div>FOUND: {reading.found ? "YES" : "NO"}</div>
-              <div>COLOR: {reading.color}</div>
-              <div>
-                WEBKIT TEXT FILL: {reading.webkitTextFillColor}
-              </div>
-              <div>FONT: {reading.fontFamily}</div>
-              <div>FILTER: {reading.filter}</div>
-              <div>OPACITY: {reading.opacity}</div>
-            </div>
-          ))
-        )}
-      </aside>
 
       <style jsx global>{`
         .fafo-nav-red {
           color: #dc2626 !important;
+          -webkit-text-fill-color: #dc2626 !important;
         }
 
         .fafo-nav-custom {
           color: #dc2626 !important;
+          -webkit-text-fill-color: #dc2626 !important;
         }
 
         .fafo-nav-cares {
           color: #ffffff !important;
+          -webkit-text-fill-color: #ffffff !important;
         }
       `}</style>
     </>
