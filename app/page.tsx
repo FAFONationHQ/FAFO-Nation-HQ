@@ -58,10 +58,10 @@ export default function Home() {
             <div className="fafo-deployment-marquee flex w-max shrink-0 items-center whitespace-nowrap">
               {[...DEPLOYMENT_TICKER_ITEMS, ...DEPLOYMENT_TICKER_ITEMS].map((item, index) => (
                 <span key={`${item}-${index}`} className="flex shrink-0 items-center">
-                  <span className="px-5 text-[10px] font-black uppercase tracking-[0.16em] text-[#D4AF37] sm:px-7 sm:text-xs">
+                  <span className="px-5 text-[10px] font-black uppercase tracking-[0.16em] sm:px-7 sm:text-xs" style={{ color: "#D4AF37" }}>
                     {item}
                   </span>
-                  <span aria-hidden="true" className="text-base font-black text-[#DC2626]">♥</span>
+                  <span aria-hidden="true" className="text-base font-black" style={{ color: "#DC2626" }}>🍁︎</span>
                 </span>
               ))}
             </div>
@@ -76,8 +76,8 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/35 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/15" />
 
-          <div className="relative z-10 mx-auto flex w-full max-w-7xl px-5 sm:px-10 lg:px-16">
-            <div className="flex w-full max-w-4xl flex-col items-start pt-[clamp(7rem,18vh,13rem)]">
+          <div className="relative z-10 mx-auto flex w-full max-w-7xl px-5 sm:px-10 lg:absolute lg:inset-0 lg:max-w-none lg:items-end lg:justify-end lg:px-16 lg:pb-24">
+            <div className="flex w-full max-w-4xl flex-col items-start pt-[clamp(7rem,18vh,13rem)] lg:w-auto lg:max-w-none lg:items-start lg:pt-0 lg:pr-[clamp(1rem,4vw,5rem)]">
               <div className="font-black uppercase">
                 <p className="whitespace-nowrap text-[1.3125rem] leading-none tracking-[0.12em] sm:text-[1.5rem] sm:tracking-[0.18em] lg:text-[1.6875rem]">
                   <span style={{ color: "#D4AF37" }}>MORE THAN A NAME</span>
