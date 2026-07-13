@@ -115,7 +115,18 @@ export default function Header() {
 
   const label = (item: NavItem) => (
     <>
-      <span className={item.cares ? "text-white" : undefined}>{item.label}</span>
+      <span
+        className={item.cares ? "text-white" : undefined}
+        style={
+          item.customShop
+            ? { color: "#DC2626" }
+            : item.cares
+              ? undefined
+              : { color: "#D4AF37" }
+        }
+      >
+        {item.label}
+      </span>
       {item.icon && (
         <span
           aria-hidden="true"
@@ -208,16 +219,7 @@ export default function Header() {
                 )}
               </div>
             ) : (
-              <Link key={item.label} href={item.href ?? "/"} onClick={closeNavigation} className={item.highlight ? "my-4 flex w-full items-center justify-center border border-red-600 px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-[#D4AF37] shadow-[0_0_10px_rgba(220,38,38,0.65)]" : `block border-b border-white/10 py-4 text-xs font-black uppercase tracking-[0.14em] ${color(item)}`}>
-              {item.highlight ? (
-                <span className="flex w-full flex-col items-center justify-center text-center leading-tight">
-                  <span>Join the</span>
-                  <span>Nation</span>
-                </span>
-              ) : (
-                item.label
-              )}
-            </Link>
+              <Link key={item.label} href={item.href ?? "/"} onClick={closeNavigation} className={item.highlight ? "my-4 flex w-full items-center justify-center border border-red-600 px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-[#D4AF37] shadow-[0_0_10px_rgba(220,38,38,0.65)]" : `block border-b border-white/10 py-4 text-xs font-black uppercase tracking-[0.14em] ${color(item)}`}>{item.label}</Link>
             ))}
           </div>
         </nav>

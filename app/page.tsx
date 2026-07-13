@@ -46,9 +46,9 @@ export default function Home() {
   return (
     <>
       <LoadingScreen />
-      <main className="min-h-screen bg-black text-white">
-        <section aria-label="Recently Deployed activity" className="relative z-50 flex h-10 w-full overflow-hidden border-b border-red-600/40 bg-black sm:h-11">
-          <div className="relative z-20 flex shrink-0 items-center border-r border-red-600/50 bg-black px-3 sm:px-5">
+      <main className="min-h-screen text-white">
+        <section aria-label="Recently Deployed activity" className="relative z-50 flex h-10 w-full overflow-hidden border-b border-red-600/40 sm:h-11">
+          <div className="relative z-20 flex shrink-0 items-center border-r border-red-600/50 px-3 sm:px-5">
             <span aria-hidden="true" className="mr-2 h-2 w-2 shrink-0 rounded-full bg-red-600" />
             <span className="whitespace-nowrap text-[10px] font-black uppercase tracking-[0.18em] text-[#DC2626] sm:text-xs">
               Recently Deployed
@@ -72,7 +72,7 @@ export default function Home() {
 
         <section className="relative flex min-h-[calc(100dvh-92px)] w-full items-center overflow-hidden">
           <Image src={heroBanner} alt="" fill priority sizes="100vw" className="object-cover object-center" />
-          <div className="absolute inset-0 bg-black/25" />
+          <div className="absolute inset-0/25" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/35 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/15" />
 
@@ -80,13 +80,13 @@ export default function Home() {
             <div className="flex w-full max-w-4xl flex-col items-start pt-[clamp(7rem,18vh,13rem)] lg:w-auto lg:max-w-none lg:items-start lg:pt-0 lg:pr-[clamp(1rem,4vw,5rem)]">
               <div className="font-black uppercase">
                 <p className="whitespace-nowrap text-[1.3125rem] leading-none tracking-[0.12em] sm:text-[1.5rem] sm:tracking-[0.18em] lg:text-[1.6875rem]">
-                  <span style={{ color: "#D4AF37" }}>MORE THAN A NAME</span>
+                  <span style={{ color: "#D4AF37", textShadow: "0 2px 8px rgba(0,0,0,0.75)" }}>MORE THAN A NAME</span>
                 </p>
                 <p className="mt-3 whitespace-nowrap text-[2.45rem] leading-none tracking-[0.10em] sm:text-[2.8rem] sm:tracking-[0.16em] lg:text-[3.15rem]">
-                  <span style={{ color: "#D4AF37" }}>A WARNING...</span>
+                  <span style={{ color: "#D4AF37", textShadow: "0 2px 8px rgba(0,0,0,0.75)" }}>A WARNING...</span>
                 </p>
               </div>
-              <button type="button" onClick={handleWelcome} disabled={welcomeActive} className="fafo-welcome-cta mt-8 inline-flex min-h-14 items-center justify-center border border-red-600 bg-black/65 px-7 py-4 text-xs font-black uppercase tracking-[0.16em] shadow-[0_0_14px_rgba(220,38,38,0.85)] backdrop-blur-sm transition hover:border-red-500 hover:bg-red-700/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-600 disabled:cursor-default disabled:opacity-80 sm:px-9 sm:text-sm sm:tracking-[0.18em]">
+              <button type="button" onClick={handleWelcome} disabled={welcomeActive} className="fafo-welcome-cta mt-8 inline-flex min-h-14 items-center justify-center border border-red-600/65 px-7 py-4 text-xs font-black uppercase tracking-[0.16em] shadow-[0_0_14px_rgba(220,38,38,0.85)] backdrop-blur-sm transition hover:border-red-500 hover:bg-red-700/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-600 disabled:cursor-default disabled:opacity-80 sm:px-9 sm:text-sm sm:tracking-[0.18em]">
                 <span style={{ color: "#D4AF37" }}>Welcome to FAFO, Friend</span>
               </button>
             </div>
@@ -100,7 +100,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="home-content" aria-labelledby="what-is-fafo-heading" className="relative overflow-hidden border-t border-white/10 bg-black px-5 py-24 sm:px-10 sm:py-32 lg:px-16 lg:py-40">
+        <section id="home-content" aria-labelledby="what-is-fafo-heading" className="relative overflow-hidden border-t border-white/10 px-5 py-24 sm:px-10 sm:py-32 lg:px-16 lg:py-40">
           <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-0 h-[500px] w-[900px] max-w-full -translate-x-1/2 bg-[radial-gradient(circle,rgba(127,29,29,0.20)_0%,rgba(0,0,0,0)_68%)]" />
           <div className="relative z-10 mx-auto w-full max-w-7xl">
             <div className="max-w-4xl">
