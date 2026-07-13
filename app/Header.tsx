@@ -52,13 +52,13 @@ const NAV_ITEMS: NavItem[] = [
     { label: "Live Streams", href: "/media/live", description: "Find weekly themed streams and FAFO Nation live content." },
     { label: "Livestream Countdown", href: "/media/countdown", description: "See countdowns and details for upcoming livestreams." },
     { label: "Community Game Nights", href: "/media/game-nights", description: "Find scheduled community gaming events." },
+    { label: "FAFO Featured Artist", href: "/media/featured-artist", description: "Discover artists featured by FAFO Nation." },
     { label: "Interview Series", href: "/media/interviews", description: "Watch FAFO Nation interviews and conversations." },
     { label: "Veteran Stories", href: "/media/veteran-stories", description: "Explore veteran stories shared through FAFO Nation." },
     { label: "Behind the Scenes", href: "/media/behind-the-scenes", description: "See the work and people behind FAFO Nation." },
     { label: "Podcasts", href: "/media/podcasts", description: "Listen to FAFO Nation podcast content." },
     { label: "Gallery", href: "/media/gallery", description: "Browse FAFO Nation photos, artwork, and visual media." },
     { label: "News & Updates", href: "/media/news", description: "Read the latest FAFO Nation news and updates." },
-    { label: "FAFO Featured Artist", href: "/media/featured-artist", description: "Discover artists featured by FAFO Nation." },
     { label: "FAFO Nation Content Wall", href: "/media/content-wall", description: "Discover FAFO Nation community creators and social media accounts." },
   ]},
   { label: "Community", icon: "🛡", children: [
@@ -116,7 +116,7 @@ export default function Header() {
   const label = (item: NavItem) => (
     <>
       <span
-        className={item.cares ? "text-white" : undefined}
+        className={item.customShop ? "fafo-nav-custom" : item.cares ? "fafo-nav-cares" : "fafo-nav-gold"}
         style={
           item.customShop
             ? { color: "#DC2626" }
@@ -161,9 +161,9 @@ export default function Header() {
               {openDesktopMenu === item.label && (
                 <div className="absolute left-0 top-full z-50 w-80 border border-white/15 bg-black shadow-2xl">
                   {item.children.map((child) => (
-                    <Link key={child.href} href={child.href} onClick={closeNavigation} className="group block border-b border-white/10 px-6 py-5 transition last:border-b-0 hover:bg-neutral-950">
+                    <Link key={child.href} href={child.href} onClick={closeNavigation} className="group block border-b border-white/10 px-6 py-3 transition last:border-b-0 hover:bg-neutral-950">
                       <span className={`block text-xs font-black uppercase tracking-[0.14em] transition ${child.label === "Need Help Now" ? "text-red-500 group-hover:text-red-400" : item.customShop || item.cares ? "text-red-600 group-hover:text-red-500" : "text-[#D4AF37] group-hover:text-[#F1D36A]"}`}>{child.label}</span>
-                      <span className="mt-2 block text-xs leading-5 text-white/40">{child.description}</span>
+                      <span className="mt-1 block text-xs leading-4 text-white/40">{child.description}</span>
                     </Link>
                   ))}
                 </div>
@@ -225,5 +225,10 @@ export default function Header() {
         </nav>
       )}
     </header>
+      <style jsx global>{`
+        .fafo-nav-gold { color: #D4AF37 !important; }
+        .fafo-nav-custom { color: #DC2626 !important; }
+        .fafo-nav-cares { color: #FFFFFF !important; }
+      `}</style>
   );
 }

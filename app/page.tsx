@@ -58,7 +58,7 @@ export default function Home() {
             <div className="fafo-deployment-marquee flex w-max shrink-0 items-center whitespace-nowrap">
               {[...DEPLOYMENT_TICKER_ITEMS, ...DEPLOYMENT_TICKER_ITEMS].map((item, index) => (
                 <span key={`${item}-${index}`} className="flex shrink-0 items-center">
-                  <span className="px-5 text-[10px] font-black uppercase tracking-[0.16em] sm:px-7 sm:text-xs" style={{ color: "#D4AF37" }}>
+                  <span className="fafo-force-gold px-5 text-[10px] font-black uppercase tracking-[0.16em] sm:px-7 sm:text-xs">
                     {item}
                   </span>
                   <span aria-hidden="true" className="text-base font-black" style={{ color: "#DC2626" }}>🍁︎</span>
@@ -78,16 +78,16 @@ export default function Home() {
 
           <div className="relative z-10 mx-auto flex w-full max-w-7xl px-5 sm:px-10 lg:absolute lg:inset-0 lg:max-w-none lg:items-end lg:justify-end lg:px-16 lg:pb-24">
             <div className="flex w-full max-w-4xl flex-col items-start pt-[clamp(7rem,18vh,13rem)] lg:w-auto lg:max-w-none lg:items-start lg:pt-0 lg:pr-[clamp(1rem,4vw,5rem)]">
-              <div className="font-black uppercase">
+              <div className="font-black uppercase bg-transparent">
                 <p className="whitespace-nowrap text-[1.3125rem] leading-none tracking-[0.12em] sm:text-[1.5rem] sm:tracking-[0.18em] lg:text-[1.6875rem]">
-                  <span style={{ color: "#D4AF37", textShadow: "0 2px 8px rgba(0,0,0,0.75)" }}>MORE THAN A NAME</span>
+                  <span className="fafo-force-gold bg-transparent" style={{ textShadow: "0 2px 8px rgba(0,0,0,0.75)" }}>MORE THAN A NAME</span>
                 </p>
                 <p className="mt-3 whitespace-nowrap text-[2.45rem] leading-none tracking-[0.10em] sm:text-[2.8rem] sm:tracking-[0.16em] lg:text-[3.15rem]">
-                  <span style={{ color: "#D4AF37", textShadow: "0 2px 8px rgba(0,0,0,0.75)" }}>A WARNING...</span>
+                  <span className="fafo-force-gold bg-transparent" style={{ textShadow: "0 2px 8px rgba(0,0,0,0.75)" }}>A WARNING...</span>
                 </p>
               </div>
               <button type="button" onClick={handleWelcome} disabled={welcomeActive} className="fafo-welcome-cta mt-8 inline-flex min-h-14 items-center justify-center border border-red-600/65 px-7 py-4 text-xs font-black uppercase tracking-[0.16em] shadow-[0_0_14px_rgba(220,38,38,0.85)] backdrop-blur-sm transition hover:border-red-500 hover:bg-red-700/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-600 disabled:cursor-default disabled:opacity-80 sm:px-9 sm:text-sm sm:tracking-[0.18em]">
-                <span style={{ color: "#D4AF37" }}>Welcome to FAFO, Friend</span>
+                <span className="fafo-force-gold">Welcome to FAFO, Friend</span>
               </button>
             </div>
           </div>
@@ -129,8 +129,9 @@ export default function Home() {
             </div>
             <div className="mt-20 border-l-2 border-red-600 pl-6 sm:mt-28 sm:pl-8">
               <p className="max-w-4xl text-xl font-black uppercase leading-tight tracking-[-0.02em] text-white sm:text-3xl lg:text-4xl">
-                Different backgrounds. Different stories.
-                <span className="block text-white/40">One Nation built by those who show up.</span>
+                <span className="block">Different Backgrounds</span>
+                <span className="block">All Different Stories</span>
+                <span className="block text-white/40">One Nation Built by Those Who Show Up</span>
               </p>
             </div>
           </div>
@@ -138,6 +139,11 @@ export default function Home() {
       </main>
 
       <style jsx global>{`
+        .fafo-force-gold {
+          color: #D4AF37 !important;
+          background: transparent !important;
+        }
+
         @keyframes fafo-deployment-scroll {
           from { transform: translateX(0); }
           to { transform: translateX(-50%); }
