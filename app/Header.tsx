@@ -13,6 +13,16 @@ type NavItem = {
   children?: { label: string; href: string; description: string }[];
 };
 
+type DiagnosticReading = {
+  name: string;
+  found: boolean;
+  color: string;
+  webkitTextFillColor: string;
+  fontFamily: string;
+  filter: string;
+  opacity: string;
+};
+
 const NAV_ITEMS: NavItem[] = [
   { label: "Home", href: "/" },
   { label: "Join the Nation", href: "/join", highlight: true },
@@ -84,47 +94,126 @@ const NAV_ITEMS: NavItem[] = [
   ]},
 ];
 
+function findElementByText(text: string): HTMLElement | null {
+  const elements = Array.from(document.querySelectorAll<HTMLElement>("body *"));
+
+  return (
+    elements.find((element) => {
+      if (element.children.length !== 0) return false;
+      return element.textContent?.trim() === text;
+    }) ?? null
+  );
+}
+
+function readComputedStyle(name: string, element: HTMLElement | null): DiagnosticReading {
+  if (!element) {
+    return {
+      name,
+      found: false,
+      color: "NOT FOUND",
+      webkitTextFillColor: "NOT FOUND",
+      fontFamily: "NOT FOUND",
+      filter: "NOT FOUND",
+      opacity: "NOT FOUND",
+    };
+  }
+
+  const computed = window.getComputedStyle(element);
+
+  return {
+    name,
+    found: true,
+    color: computed.color,
+    webkitTextFillColor:
+      computed.getPropertyValue("-webkit-text-fill-color") || "(not set)",
+    fontFamily: computed.fontFamily,
+    filter: computed.filter,
+    opacity: computed.opacity,
+  };
+}
+
 export default function Header() {
   const headerRef = useRef<HTMLElement | null>(null);
+  const merchLabelRef = useRef<HTMLSpanElement | null>(null);
+
   const [openDesktopMenu, setOpenDesktopMenu] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openMobileMenu, setOpenMobileMenu] = useState<string | null>(null);
+  const [diagnostics, setDiagnostics] = useState<DiagnosticReading[]>([]);
 
   useEffect(() => {
     const outside = (event: PointerEvent) => {
       if (headerRef.current && !headerRef.current.contains(event.target as Node)) {
-        setOpenDesktopMenu(null); setMobileMenuOpen(false); setOpenMobileMenu(null);
+        setOpenDesktopMenu(null);
+        setMobileMenuOpen(false);
+        setOpenMobileMenu(null);
       }
     };
+
     const escape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setOpenDesktopMenu(null); setMobileMenuOpen(false); setOpenMobileMenu(null);
+        setOpenDesktopMenu(null);
+        setMobileMenuOpen(false);
+        setOpenMobileMenu(null);
       }
     };
+
     document.addEventListener("pointerdown", outside);
     document.addEventListener("keydown", escape);
+
     return () => {
       document.removeEventListener("pointerdown", outside);
       document.removeEventListener("keydown", escape);
     };
   }, []);
 
-  const closeNavigation = () => {
-    setOpenDesktopMenu(null); setMobileMenuOpen(false); setOpenMobileMenu(null);
+  useEffect(() => {
+    let attempts = 0;
+    let timer: number | undefined;
+
+    const collectDiagnostics = () => {
+      attempts += 1;
+
+      const tickerText =
+        document.querySelector<HTMLElement>(".fafo-deployment-marquee span span") ??
+        findElementByText("FAFO GEAR DEPLOYED • VICTORIA, BRITISH COLUMBIA, CANADA");
+
+      const heroText = findElementByText("MORE THAN A NAME");
+
+      setDiagnostics([
+        readComputedStyle("MERCH", merchLabelRef.current),
+        readComputedStyle("TICKER", tickerText),
+        readComputedStyle("HERO", heroText),
+      ]);
+
+      if ((!tickerText || !heroText) && attempts < 20) {
+        timer = window.setTimeout(collectDiagnostics, 250);
+      }
+    };
+
+    timer = window.setTimeout(collectDiagnostics, 500);
+
+    return () => {
+      if (timer !== undefined) {
+        window.clearTimeout(timer);
+      }
+    };
+  }, []);  const closeNavigation = () => {
+    setOpenDesktopMenu(null);
+    setMobileMenuOpen(false);
+    setOpenMobileMenu(null);
   };
 
   const label = (item: NavItem) => (
     <>
       <span
+        ref={item.label === "Merch" ? merchLabelRef : undefined}
         className={item.cares ? "fafo-nav-cares" : "fafo-nav-red"}
-        style={
-          item.cares
-            ? undefined
-            : { color: "#DC2626" }
-        }
+        style={item.cares ? undefined : { color: "#DC2626" }}
       >
         {item.label}
       </span>
+
       {item.icon && (
         <span
           aria-hidden="true"
@@ -143,91 +232,250 @@ export default function Header() {
 
   return (
     <>
-    <header ref={headerRef} className="relative z-40 w-full border-b border-white/10 bg-black">
-      <div className="mx-auto flex h-12 w-full max-w-7xl items-center justify-between px-5 sm:px-10 lg:px-16">
-        <nav aria-label="Main navigation" className="hidden h-full items-center lg:flex">
-          {NAV_ITEMS.map((item) => item.children ? (
-            <div key={item.label} className="relative flex h-full items-center">
-              <button
-                type="button"
-                onClick={() => setOpenDesktopMenu((v) => v === item.label ? null : item.label)}
-                aria-expanded={openDesktopMenu === item.label}
-                className={`flex h-full items-center gap-1.5 px-2 text-[9px] font-black uppercase tracking-[0.08em] transition xl:px-3 xl:text-[10px] 2xl:px-4 2xl:text-xs ${color(item)}`}
-              >
-                {label(item)}
-                <span aria-hidden="true" className={`text-[8px] transition-transform ${openDesktopMenu === item.label ? "rotate-180" : ""}`}>▼</span>
-              </button>
-              {openDesktopMenu === item.label && (
-                <div className="absolute left-0 top-full z-50 w-80 border border-white/15 bg-black shadow-2xl">
-                  {item.children.map((child) => (
-                    <Link key={child.href} href={child.href} onClick={closeNavigation} className="group block border-b border-white/10 px-6 py-3 transition last:border-b-0 hover:bg-neutral-950">
-                      <span className={`block text-xs font-black uppercase tracking-[0.14em] transition ${child.label === "Need Help Now" ? "text-red-500 group-hover:text-red-400" : item.customShop || item.cares ? "text-red-600 group-hover:text-red-500" : "text-[#D4AF37] group-hover:text-[#F1D36A]"}`}>{child.label}</span>
-                      <span className="mt-1 block text-xs leading-4 text-white/40">{child.description}</span>
-                    </Link>
-                  ))}
+      <header
+        ref={headerRef}
+        className="relative z-40 w-full border-b border-white/10 bg-black"
+      >
+        <div className="mx-auto flex h-12 w-full max-w-7xl items-center justify-between px-5 sm:px-10 lg:px-16">
+          <nav
+            aria-label="Main navigation"
+            className="hidden h-full items-center lg:flex"
+          >
+            {NAV_ITEMS.map((item) =>
+              item.children ? (
+                <div
+                  key={item.label}
+                  className="relative flex h-full items-center"
+                >
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setOpenDesktopMenu((value) =>
+                        value === item.label ? null : item.label
+                      )
+                    }
+                    aria-expanded={openDesktopMenu === item.label}
+                    className={`flex h-full items-center gap-1.5 px-2 text-[9px] font-black uppercase tracking-[0.08em] transition xl:px-3 xl:text-[10px] 2xl:px-4 2xl:text-xs ${color(item)}`}
+                  >
+                    {label(item)}
+
+                    <span
+                      aria-hidden="true"
+                      className={`text-[8px] transition-transform ${
+                        openDesktopMenu === item.label ? "rotate-180" : ""
+                      }`}
+                    >
+                      ▼
+                    </span>
+                  </button>
+
+                  {openDesktopMenu === item.label && (
+                    <div className="absolute left-0 top-full z-50 w-80 border border-white/15 bg-black shadow-2xl">
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          onClick={closeNavigation}
+                          className="group block border-b border-white/10 px-6 py-3 transition last:border-b-0 hover:bg-neutral-950"
+                        >
+                          <span
+                            className={`block text-xs font-black uppercase tracking-[0.14em] transition ${
+                              child.label === "Need Help Now"
+                                ? "text-red-500 group-hover:text-red-400"
+                                : item.customShop || item.cares
+                                  ? "text-red-600 group-hover:text-red-500"
+                                  : "text-[#D4AF37] group-hover:text-[#F1D36A]"
+                            }`}
+                          >
+                            {child.label}
+                          </span>
+
+                          <span className="mt-1 block text-xs leading-4 text-white/40">
+                            {child.description}
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                 </div>
+              ) : (
+                <Link
+                  key={item.label}
+                  href={item.href ?? "/"}
+                  onClick={closeNavigation}
+                  className={
+                    item.highlight
+                      ? "mx-2 animate-[pulse_1.8s_ease-in-out_infinite] border border-red-600 px-3 py-2 text-[9px] font-black uppercase tracking-[0.08em] text-[#D4AF37] shadow-[0_0_10px_rgba(220,38,38,0.65)] transition hover:bg-red-700/30 xl:text-[10px] 2xl:mx-3 2xl:px-4 2xl:text-xs"
+                      : `px-2 text-[9px] font-black uppercase tracking-[0.08em] transition xl:px-3 xl:text-[10px] 2xl:px-4 2xl:text-xs ${color(item)}`
+                  }
+                >
+                  {item.highlight ? (
+                    <span className="flex w-full flex-col items-center justify-center text-center leading-tight">
+                      <span>Join the</span>
+                      <span>Nation</span>
+                    </span>
+                  ) : (
+                    item.label
+                  )}
+                </Link>
+              )
+            )}
+          </nav>
+
+          <div className="flex w-full items-center justify-between lg:hidden">
+            <Link
+              href="/"
+              onClick={closeNavigation}
+              className="text-sm font-black uppercase tracking-[0.2em] text-[#D4AF37]"
+            >
+              FAFO Nation
+            </Link>
+
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen((value) => !value);
+                setOpenMobileMenu(null);
+              }}
+              aria-expanded={mobileMenuOpen}
+              aria-label="Toggle main navigation"
+              className="flex min-h-10 min-w-10 items-center justify-center border border-red-600/60 text-xl text-[#D4AF37]"
+            >
+              <span aria-hidden="true">
+                {mobileMenuOpen ? "✕" : "☰"}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {mobileMenuOpen && (
+          <nav
+            aria-label="Mobile navigation"
+            className="border-t border-white/10 bg-black lg:hidden"
+          >
+            <div className="mx-auto w-full max-w-7xl px-5 py-4 sm:px-10">
+              {NAV_ITEMS.map((item) =>
+                item.children ? (
+                  <div
+                    key={item.label}
+                    className="border-b border-white/10"
+                  >
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setOpenMobileMenu((value) =>
+                          value === item.label ? null : item.label
+                        )
+                      }
+                      aria-expanded={openMobileMenu === item.label}
+                      className={`flex w-full items-center justify-between py-4 text-left text-xs font-black uppercase tracking-[0.14em] ${color(item)}`}
+                    >
+                      <span className="flex items-center gap-2">
+                        {label(item)}
+                      </span>
+
+                      <span
+                        aria-hidden="true"
+                        className={`text-[9px] transition-transform ${
+                          openMobileMenu === item.label ? "rotate-180" : ""
+                        }`}
+                      >
+                        ▼
+                      </span>
+                    </button>                    {openMobileMenu === item.label && (
+                      <div className="pb-3">
+                        {item.children.map((child) => (
+                          <Link
+                            key={child.href}
+                            href={child.href}
+                            onClick={closeNavigation}
+                            className="group block border-l border-white/15 py-3 pl-5"
+                          >
+                            <span
+                              className={`block text-xs font-black uppercase tracking-[0.12em] ${
+                                child.label === "Need Help Now"
+                                  ? "text-red-500"
+                                  : item.customShop || item.cares
+                                    ? "text-red-600"
+                                    : "text-[#D4AF37]"
+                              }`}
+                            >
+                              {child.label}
+                            </span>
+
+                            <span className="mt-1 block text-xs leading-5 text-white/40">
+                              {child.description}
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <Link
+                    key={item.label}
+                    href={item.href ?? "/"}
+                    onClick={closeNavigation}
+                    className={
+                      item.highlight
+                        ? "my-4 flex w-full items-center justify-center border border-red-600 px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-[#D4AF37] shadow-[0_0_10px_rgba(220,38,38,0.65)]"
+                        : `block border-b border-white/10 py-4 text-xs font-black uppercase tracking-[0.14em] ${color(item)}`
+                    }
+                  >
+                    {item.label}
+                  </Link>
+                )
               )}
             </div>
-          ) : (
-            <Link
-              key={item.label}
-              href={item.href ?? "/"}
-              onClick={closeNavigation}
-              className={item.highlight
-                ? "mx-2 animate-[pulse_1.8s_ease-in-out_infinite] border border-red-600 px-3 py-2 text-[9px] font-black uppercase tracking-[0.08em] text-[#D4AF37] shadow-[0_0_10px_rgba(220,38,38,0.65)] transition hover:bg-red-700/30 xl:text-[10px] 2xl:mx-3 2xl:px-4 2xl:text-xs"
-                : `px-2 text-[9px] font-black uppercase tracking-[0.08em] transition xl:px-3 xl:text-[10px] 2xl:px-4 2xl:text-xs ${color(item)}`}
-            >
-              {item.highlight ? (
-                <span className="flex w-full flex-col items-center justify-center text-center leading-tight">
-                  <span>Join the</span>
-                  <span>Nation</span>
-                </span>
-              ) : (
-                item.label
-              )}
-            </Link>
-          ))}
-        </nav>
+          </nav>
+        )}
+      </header>
 
-        <div className="flex w-full items-center justify-between lg:hidden">
-          <Link href="/" onClick={closeNavigation} className="text-sm font-black uppercase tracking-[0.2em] text-[#D4AF37]">FAFO Nation</Link>
-          <button type="button" onClick={() => { setMobileMenuOpen((v) => !v); setOpenMobileMenu(null); }} aria-expanded={mobileMenuOpen} aria-label="Toggle main navigation" className="flex min-h-10 min-w-10 items-center justify-center border border-red-600/60 text-xl text-[#D4AF37]">
-            <span aria-hidden="true">{mobileMenuOpen ? "✕" : "☰"}</span>
-          </button>
+      <aside
+        aria-label="Temporary FAFO color diagnostics"
+        className="fixed bottom-2 left-2 z-[99999] max-h-[45vh] w-[min(94vw,520px)] overflow-auto border-2 border-yellow-300 bg-black p-3 font-mono text-[10px] leading-4 text-white shadow-2xl"
+      >
+        <div className="mb-2 font-black uppercase text-yellow-300">
+          TEMP COLOR DIAGNOSTICS
         </div>
-      </div>
 
-      {mobileMenuOpen && (
-        <nav aria-label="Mobile navigation" className="border-t border-white/10 bg-black lg:hidden">
-          <div className="mx-auto w-full max-w-7xl px-5 py-4 sm:px-10">
-            {NAV_ITEMS.map((item) => item.children ? (
-              <div key={item.label} className="border-b border-white/10">
-                <button type="button" onClick={() => setOpenMobileMenu((v) => v === item.label ? null : item.label)} aria-expanded={openMobileMenu === item.label} className={`flex w-full items-center justify-between py-4 text-left text-xs font-black uppercase tracking-[0.14em] ${color(item)}`}>
-                  <span className="flex items-center gap-2">{label(item)}</span>
-                  <span aria-hidden="true" className={`text-[9px] transition-transform ${openMobileMenu === item.label ? "rotate-180" : ""}`}>▼</span>
-                </button>
-                {openMobileMenu === item.label && (
-                  <div className="pb-3">
-                    {item.children.map((child) => (
-                      <Link key={child.href} href={child.href} onClick={closeNavigation} className="group block border-l border-white/15 py-3 pl-5">
-                        <span className={`block text-xs font-black uppercase tracking-[0.12em] ${child.label === "Need Help Now" ? "text-red-500" : item.customShop || item.cares ? "text-red-600" : "text-[#D4AF37]"}`}>{child.label}</span>
-                        <span className="mt-1 block text-xs leading-5 text-white/40">{child.description}</span>
-                      </Link>
-                    ))}
-                  </div>
-                )}
+        {diagnostics.length === 0 ? (
+          <div>Collecting computed styles...</div>
+        ) : (
+          diagnostics.map((reading) => (
+            <div
+              key={reading.name}
+              className="mb-3 border-t border-white/30 pt-2 last:mb-0"
+            >
+              <div className="font-black text-yellow-300">
+                {reading.name}
               </div>
-            ) : (
-              <Link key={item.label} href={item.href ?? "/"} onClick={closeNavigation} className={item.highlight ? "my-4 flex w-full items-center justify-center border border-red-600 px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-[#D4AF37] shadow-[0_0_10px_rgba(220,38,38,0.65)]" : `block border-b border-white/10 py-4 text-xs font-black uppercase tracking-[0.14em] ${color(item)}`}>{item.label}</Link>
-            ))}
-          </div>
-        </nav>
-      )}
-    </header>
+
+              <div>FOUND: {reading.found ? "YES" : "NO"}</div>
+              <div>COLOR: {reading.color}</div>
+              <div>
+                WEBKIT TEXT FILL: {reading.webkitTextFillColor}
+              </div>
+              <div>FONT: {reading.fontFamily}</div>
+              <div>FILTER: {reading.filter}</div>
+              <div>OPACITY: {reading.opacity}</div>
+            </div>
+          ))
+        )}
+      </aside>
+
       <style jsx global>{`
-        .fafo-nav-red { color: #DC2626 !important; }
-        .fafo-nav-custom { color: #DC2626 !important; }
-        .fafo-nav-cares { color: #FFFFFF !important; }
+        .fafo-nav-red {
+          color: #dc2626 !important;
+        }
+
+        .fafo-nav-custom {
+          color: #dc2626 !important;
+        }
+
+        .fafo-nav-cares {
+          color: #ffffff !important;
+        }
       `}</style>
     </>
   );
