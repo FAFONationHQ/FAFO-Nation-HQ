@@ -8,417 +8,166 @@ type NavItem = {
   href?: string;
   highlight?: boolean;
   cares?: boolean;
-  children?: {
-    label: string;
-    href: string;
-    description: string;
-  }[];
+  customShop?: boolean;
+  children?: { label: string; href: string; description: string }[];
 };
 
 const NAV_ITEMS: NavItem[] = [
-  {
-    label: "Home",
-    href: "/",
-  },
-  {
-    label: "Join the Nation",
-    href: "/join",
-    highlight: true,
-  },
-  {
-    label: "Store",
-    children: [
-      {
-        label: "Shop All Gear",
-        href: "/store",
-        description: "Explore the full FAFO Nation gear lineup.",
-      },
-      {
-        label: "Featured Deployments",
-        href: "/store/featured",
-        description: "Highlighted gear and current featured releases.",
-      },
-      {
-        label: "Collections",
-        href: "/store/collections",
-        description: "Browse FAFO Nation gear by collection.",
-      },
-      {
-        label: "FAFO Cares",
-        href: "/store/fafo-cares",
-        description: "Shop merchandise supporting FAFO Cares campaigns.",
-      },
-    ],
-  },
-  {
-    label: "Community",
-    children: [
-      {
-        label: "FAFO Family",
-        href: "/community",
-        description: "The people and community behind FAFO Nation.",
-      },
-      {
-        label: "Deployed Members",
-        href: "/community/deployed-members",
-        description: "Discover members who choose to deploy publicly.",
-      },
-      {
-        label: "Community Activity",
-        href: "/community/activity",
-        description: "See what is happening across the Nation.",
-      },
-      {
-        label: "Events & Contests",
-        href: "/community/events",
-        description: "Community events, competitions, and contests.",
-      },
-    ],
-  },
-  {
-    label: "Global Operations",
-    children: [
-      {
-        label: "FAFO World",
-        href: "/fafo-world",
-        description: "Explore the Nation, deployed worldwide.",
-      },
-      {
-        label: "Recently Deployed",
-        href: "/recently-deployed",
-        description: "View verified public deployment activity.",
-      },
-    ],
-  },
-  {
-    label: "FAFO Cares",
-    cares: true,
-    children: [
-      {
-        label: "FAFO Cares",
-        href: "/fafo-cares",
-        description: "Learn about the mission behind FAFO Cares.",
-      },
-      {
-        label: "Current Campaigns",
-        href: "/fafo-cares/campaigns",
-        description: "See active FAFO Cares campaigns and initiatives.",
-      },
-      {
-        label: "Support & Crisis Resources",
-        href: "/fafo-cares/support",
-        description: "Find support resources and crisis-help information.",
-      },
-    ],
-  },
-  {
-    label: "About",
-    children: [
-      {
-        label: "Our Story",
-        href: "/about",
-        description: "Learn how FAFO Nation began and what it stands for.",
-      },
-      {
-        label: "Sgt Swagger",
-        href: "/about/sgt-swagger",
-        description: "Meet the official FAFO Nation Brand Ambassador.",
-      },
-      {
-        label: "Contact",
-        href: "/contact",
-        description: "Contact FAFO Nation.",
-      },
-    ],
-  },
+  { label: "Home", href: "/" },
+  { label: "Join the Nation", href: "/join", highlight: true },
+  { label: "Store", children: [
+    { label: "Shop All Gear", href: "/store", description: "Explore the full FAFO Nation gear lineup." },
+    { label: "Featured Deployments", href: "/store/featured", description: "Highlighted gear and current featured releases." },
+    { label: "Collections", href: "/store/collections", description: "Browse FAFO Nation gear by collection." },
+    { label: "FAFO Cares", href: "/store/fafo-cares", description: "Shop merchandise supporting FAFO Cares campaigns." },
+  ]},
+  { label: "Custom Shop", customShop: true, children: [
+    { label: "Start a Custom Project", href: "/custom-shop/start", description: "Submit your idea, references, sketches, and project requirements." },
+    { label: "Custom Gear Listings", href: "/custom-shop/listings", description: "Review custom items and approved projects ready for purchase." },
+    { label: "Custom Project Gallery", href: "/custom-shop/gallery", description: "Explore completed custom projects and get ideas for your own." },
+    { label: "How Custom Gear Works", href: "/custom-shop/how-it-works", description: "Learn the FAFO Custom Shop process from idea to deployment." },
+    { label: "Project Status", href: "/custom-shop/status", description: "Check the status of an active custom project." },
+  ]},
+  { label: "FAFO Cares", cares: true, children: [
+    { label: "FAFO Cares", href: "/fafo-cares", description: "Learn about the mission behind FAFO Cares." },
+    { label: "Current Campaigns", href: "/fafo-cares/campaigns", description: "See active FAFO Cares campaigns and initiatives." },
+    { label: "Support & Crisis Resources", href: "/fafo-cares/support", description: "Find support resources and crisis-help information." },
+  ]},
+  { label: "Media", children: [
+    { label: "Videos", href: "/media/videos", description: "Watch FAFO Nation videos and featured video content." },
+    { label: "Live Streams", href: "/media/live", description: "Find FAFO Nation live streams and streaming destinations." },
+    { label: "Gallery", href: "/media/gallery", description: "Browse FAFO Nation photos, artwork, and visual media." },
+    { label: "News & Updates", href: "/media/news", description: "Read the latest FAFO Nation news and updates." },
+    { label: "FAFO Featured Artist", href: "/media/featured-artist", description: "Discover artists featured by FAFO Nation." },
+    { label: "FAFO Nation Content Wall", href: "/media/content-wall", description: "Discover FAFO Nation community creators and social media accounts." },
+  ]},
+  { label: "Community", children: [
+    { label: "FAFO Family", href: "/community", description: "The people and community behind FAFO Nation." },
+    { label: "Deployed Members", href: "/community/deployed-members", description: "Discover members who choose to deploy publicly." },
+    { label: "Community Activity", href: "/community/activity", description: "See what is happening across the Nation." },
+    { label: "Events & Contests", href: "/community/events", description: "Community events, competitions, and contests." },
+  ]},
+  { label: "Global Operations", children: [
+    { label: "FAFO World", href: "/fafo-world", description: "Explore the Nation, deployed worldwide." },
+    { label: "Recently Deployed", href: "/recently-deployed", description: "View verified public deployment activity." },
+  ]},
+  { label: "About", children: [
+    { label: "Our Story", href: "/about", description: "Learn how FAFO Nation began and what it stands for." },
+    { label: "Sgt Swagger", href: "/about/sgt-swagger", description: "Meet the official FAFO Nation Brand Ambassador." },
+    { label: "Contact", href: "/contact", description: "Contact FAFO Nation." },
+  ]},
 ];
 
 export default function Header() {
   const headerRef = useRef<HTMLElement | null>(null);
+  const [openDesktopMenu, setOpenDesktopMenu] = useState<string | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [openMobileMenu, setOpenMobileMenu] = useState<string | null>(null);
 
-  const [openDesktopMenu, setOpenDesktopMenu] =
-    useState<string | null>(null);
-
-  const [mobileMenuOpen, setMobileMenuOpen] =
-    useState(false);
-
-  const [openMobileMenu, setOpenMobileMenu] =
-    useState<string | null>(null);  useEffect(() => {
-    const handlePointerDown = (event: PointerEvent) => {
-      if (
-        headerRef.current &&
-        !headerRef.current.contains(event.target as Node)
-      ) {
-        setOpenDesktopMenu(null);
-        setMobileMenuOpen(false);
-        setOpenMobileMenu(null);
+  useEffect(() => {
+    const outside = (event: PointerEvent) => {
+      if (headerRef.current && !headerRef.current.contains(event.target as Node)) {
+        setOpenDesktopMenu(null); setMobileMenuOpen(false); setOpenMobileMenu(null);
       }
     };
-
-    const handleEscape = (event: KeyboardEvent) => {
+    const escape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setOpenDesktopMenu(null);
-        setMobileMenuOpen(false);
-        setOpenMobileMenu(null);
+        setOpenDesktopMenu(null); setMobileMenuOpen(false); setOpenMobileMenu(null);
       }
     };
-
-    document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleEscape);
-
+    document.addEventListener("pointerdown", outside);
+    document.addEventListener("keydown", escape);
     return () => {
-      document.removeEventListener(
-        "pointerdown",
-        handlePointerDown,
-      );
-
-      document.removeEventListener(
-        "keydown",
-        handleEscape,
-      );
+      document.removeEventListener("pointerdown", outside);
+      document.removeEventListener("keydown", escape);
     };
   }, []);
 
   const closeNavigation = () => {
-    setOpenDesktopMenu(null);
-    setMobileMenuOpen(false);
-    setOpenMobileMenu(null);
+    setOpenDesktopMenu(null); setMobileMenuOpen(false); setOpenMobileMenu(null);
   };
 
-  const toggleDesktopMenu = (label: string) => {
-    setOpenDesktopMenu((current) =>
-      current === label ? null : label,
-    );
-  };
+  const label = (item: NavItem) => item.cares ? (
+    <>
+      <span className="text-white">{item.label}</span>
+      <span aria-hidden="true" className="inline-block origin-center animate-[pulse_1.1s_ease-in-out_infinite]">❤️</span>
+    </>
+  ) : item.label;
 
-  const toggleMobileMenu = (label: string) => {
-    setOpenMobileMenu((current) =>
-      current === label ? null : label,
-    );
-  };
-
-  const renderNavLabel = (item: NavItem) => {
-    if (!item.cares) {
-      return item.label;
-    }
-
-    return (
-      <>
-        <span className="text-white">
-          {item.label}
-        </span>
-
-        <span
-          aria-hidden="true"
-          className="inline-block origin-center animate-[pulse_1.1s_ease-in-out_infinite]"
-        >
-          ❤️
-        </span>
-      </>
-    );
-  };
+  const color = (item: NavItem) =>
+    item.customShop
+      ? "text-red-600 hover:text-red-500 animate-[pulse_1.4s_ease-in-out_infinite]"
+      : item.cares ? "text-white" : "text-[#D4AF37] hover:text-[#F1D36A]";
 
   return (
-    <header
-      ref={headerRef}
-      className="relative z-40 w-full border-b border-white/10 bg-black"
-    >
+    <header ref={headerRef} className="relative z-40 w-full border-b border-white/10 bg-black">
       <div className="mx-auto flex h-12 w-full max-w-7xl items-center justify-between px-5 sm:px-10 lg:px-16">
-        <nav
-          aria-label="Main navigation"
-          className="hidden h-full items-center lg:flex"
-        >
-          {NAV_ITEMS.map((item) => {
-            if (item.children) {
-              const isOpen =
-                openDesktopMenu === item.label;
-
-              return (
-                <div
-                  key={item.label}
-                  className="relative flex h-full items-center"
-                >
-                  <button
-                    type="button"
-                    onClick={() =>
-                      toggleDesktopMenu(item.label)
-                    }
-                    aria-expanded={isOpen}
-                    className={`flex h-full items-center gap-2 px-3 text-[10px] font-black uppercase tracking-[0.14em] transition xl:px-4 xl:text-xs ${
-                      item.cares
-                        ? "text-white"
-                        : "text-[#D4AF37] hover:text-[#F1D36A]"
-                    }`}
-                  >
-                    {renderNavLabel(item)}
-
-                    <span
-                      aria-hidden="true"
-                      className={`text-[9px] transition-transform ${
-                        isOpen ? "rotate-180" : ""
-                      }`}
-                    >
-                      ▼
-                    </span>
-                  </button>                  {isOpen && (
-                    <div className="absolute left-0 top-full z-50 w-80 border border-white/15 bg-black shadow-2xl">
-                      {item.children.map((child) => (
-                        <Link
-                          key={child.href}
-                          href={child.href}
-                          onClick={closeNavigation}
-                          className="group block border-b border-white/10 px-6 py-5 transition last:border-b-0 hover:bg-neutral-950"
-                        >
-                          <span
-                            className={`block text-xs font-black uppercase tracking-[0.14em] transition ${
-                              item.cares
-                                ? "text-red-600 group-hover:text-red-500"
-                                : "text-[#D4AF37] group-hover:text-[#F1D36A]"
-                            }`}
-                          >
-                            {child.label}
-                          </span>
-
-                          <span className="mt-2 block text-xs leading-5 text-white/40">
-                            {child.description}
-                          </span>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            }
-
-            return (
-              <Link
-                key={item.label}
-                href={item.href ?? "/"}
-                onClick={closeNavigation}
-                className={
-                  item.highlight
-                    ? "mx-3 animate-[pulse_1.8s_ease-in-out_infinite] border border-red-600 px-4 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-[#D4AF37] shadow-[0_0_10px_rgba(220,38,38,0.65)] transition hover:bg-red-700/30 xl:text-xs"
-                    : "px-3 text-[10px] font-black uppercase tracking-[0.14em] text-[#D4AF37] transition hover:text-[#F1D36A] xl:px-4 xl:text-xs"
-                }
+        <nav aria-label="Main navigation" className="hidden h-full items-center lg:flex">
+          {NAV_ITEMS.map((item) => item.children ? (
+            <div key={item.label} className="relative flex h-full items-center">
+              <button
+                type="button"
+                onClick={() => setOpenDesktopMenu((v) => v === item.label ? null : item.label)}
+                aria-expanded={openDesktopMenu === item.label}
+                className={`flex h-full items-center gap-1.5 px-2 text-[9px] font-black uppercase tracking-[0.08em] transition xl:px-3 xl:text-[10px] 2xl:px-4 2xl:text-xs ${color(item)}`}
               >
-                {item.label}
-              </Link>
-            );
-          })}
+                {label(item)}
+                <span aria-hidden="true" className={`text-[8px] transition-transform ${openDesktopMenu === item.label ? "rotate-180" : ""}`}>▼</span>
+              </button>
+              {openDesktopMenu === item.label && (
+                <div className="absolute left-0 top-full z-50 w-80 border border-white/15 bg-black shadow-2xl">
+                  {item.children.map((child) => (
+                    <Link key={child.href} href={child.href} onClick={closeNavigation} className="group block border-b border-white/10 px-6 py-5 transition last:border-b-0 hover:bg-neutral-950">
+                      <span className={`block text-xs font-black uppercase tracking-[0.14em] transition ${item.customShop || item.cares ? "text-red-600 group-hover:text-red-500" : "text-[#D4AF37] group-hover:text-[#F1D36A]"}`}>{child.label}</span>
+                      <span className="mt-2 block text-xs leading-5 text-white/40">{child.description}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link
+              key={item.label}
+              href={item.href ?? "/"}
+              onClick={closeNavigation}
+              className={item.highlight
+                ? "mx-2 animate-[pulse_1.8s_ease-in-out_infinite] border border-red-600 px-3 py-2 text-[9px] font-black uppercase tracking-[0.08em] text-[#D4AF37] shadow-[0_0_10px_rgba(220,38,38,0.65)] transition hover:bg-red-700/30 xl:text-[10px] 2xl:mx-3 2xl:px-4 2xl:text-xs"
+                : `px-2 text-[9px] font-black uppercase tracking-[0.08em] transition xl:px-3 xl:text-[10px] 2xl:px-4 2xl:text-xs ${color(item)}`}
+            >{item.label}</Link>
+          ))}
         </nav>
 
         <div className="flex w-full items-center justify-between lg:hidden">
-          <Link
-            href="/"
-            onClick={closeNavigation}
-            className="text-sm font-black uppercase tracking-[0.2em] text-[#D4AF37]"
-          >
-            FAFO Nation
-          </Link>
-
-          <button
-            type="button"
-            onClick={() => {
-              setMobileMenuOpen((current) => !current);
-              setOpenMobileMenu(null);
-            }}
-            aria-expanded={mobileMenuOpen}
-            aria-label="Toggle main navigation"
-            className="flex min-h-10 min-w-10 items-center justify-center border border-red-600/60 text-xl text-[#D4AF37]"
-          >
-            <span aria-hidden="true">
-              {mobileMenuOpen ? "✕" : "☰"}
-            </span>
+          <Link href="/" onClick={closeNavigation} className="text-sm font-black uppercase tracking-[0.2em] text-[#D4AF37]">FAFO Nation</Link>
+          <button type="button" onClick={() => { setMobileMenuOpen((v) => !v); setOpenMobileMenu(null); }} aria-expanded={mobileMenuOpen} aria-label="Toggle main navigation" className="flex min-h-10 min-w-10 items-center justify-center border border-red-600/60 text-xl text-[#D4AF37]">
+            <span aria-hidden="true">{mobileMenuOpen ? "✕" : "☰"}</span>
           </button>
         </div>
       </div>
 
       {mobileMenuOpen && (
-        <nav
-          aria-label="Mobile navigation"
-          className="border-t border-white/10 bg-black lg:hidden"
-        >
+        <nav aria-label="Mobile navigation" className="border-t border-white/10 bg-black lg:hidden">
           <div className="mx-auto w-full max-w-7xl px-5 py-4 sm:px-10">
-            {NAV_ITEMS.map((item) => {
-              if (item.children) {
-                const isOpen =
-                  openMobileMenu === item.label;
-
-                return (
-                  <div
-                    key={item.label}
-                    className="border-b border-white/10"
-                  >
-                    <button
-                      type="button"
-                      onClick={() =>
-                        toggleMobileMenu(item.label)
-                      }
-                      aria-expanded={isOpen}
-                      className={`flex w-full items-center justify-between py-4 text-left text-xs font-black uppercase tracking-[0.14em] ${
-                        item.cares
-                          ? "text-white"
-                          : "text-[#D4AF37]"
-                      }`}
-                    >                      <span className="flex items-center gap-2">
-                        {renderNavLabel(item)}
-                      </span>
-
-                      <span
-                        aria-hidden="true"
-                        className={`text-[9px] transition-transform ${
-                          isOpen ? "rotate-180" : ""
-                        }`}
-                      >
-                        ▼
-                      </span>
-                    </button>
-
-                    {isOpen && (
-                      <div className="pb-3">
-                        {item.children.map((child) => (
-                          <Link
-                            key={child.href}
-                            href={child.href}
-                            onClick={closeNavigation}
-                            className="group block border-l border-white/15 py-3 pl-5"
-                          >
-                            <span
-                              className={`block text-xs font-black uppercase tracking-[0.12em] ${
-                                item.cares
-                                  ? "text-red-600"
-                                  : "text-[#D4AF37]"
-                              }`}
-                            >
-                              {child.label}
-                            </span>
-
-                            <span className="mt-1 block text-xs leading-5 text-white/40">
-                              {child.description}
-                            </span>
-                          </Link>
-                        ))}
-                      </div>
-                    )}
+            {NAV_ITEMS.map((item) => item.children ? (
+              <div key={item.label} className="border-b border-white/10">
+                <button type="button" onClick={() => setOpenMobileMenu((v) => v === item.label ? null : item.label)} aria-expanded={openMobileMenu === item.label} className={`flex w-full items-center justify-between py-4 text-left text-xs font-black uppercase tracking-[0.14em] ${color(item)}`}>
+                  <span className="flex items-center gap-2">{label(item)}</span>
+                  <span aria-hidden="true" className={`text-[9px] transition-transform ${openMobileMenu === item.label ? "rotate-180" : ""}`}>▼</span>
+                </button>
+                {openMobileMenu === item.label && (
+                  <div className="pb-3">
+                    {item.children.map((child) => (
+                      <Link key={child.href} href={child.href} onClick={closeNavigation} className="group block border-l border-white/15 py-3 pl-5">
+                        <span className={`block text-xs font-black uppercase tracking-[0.12em] ${item.customShop || item.cares ? "text-red-600" : "text-[#D4AF37]"}`}>{child.label}</span>
+                        <span className="mt-1 block text-xs leading-5 text-white/40">{child.description}</span>
+                      </Link>
+                    ))}
                   </div>
-                );
-              }
-
-              return (
-                <Link
-                  key={item.label}
-                  href={item.href ?? "/"}
-                  onClick={closeNavigation}
-                  className={
-                    item.highlight
-                      ? "my-4 flex w-full items-center justify-center border border-red-600 px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-[#D4AF37] shadow-[0_0_10px_rgba(220,38,38,0.65)]"
-                      : "block border-b border-white/10 py-4 text-xs font-black uppercase tracking-[0.14em] text-[#D4AF37]"
-                  }
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
+                )}
+              </div>
+            ) : (
+              <Link key={item.label} href={item.href ?? "/"} onClick={closeNavigation} className={item.highlight ? "my-4 flex w-full items-center justify-center border border-red-600 px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-[#D4AF37] shadow-[0_0_10px_rgba(220,38,38,0.65)]" : `block border-b border-white/10 py-4 text-xs font-black uppercase tracking-[0.14em] ${color(item)}`}>{item.label}</Link>
+            ))}
           </div>
         </nav>
       )}
