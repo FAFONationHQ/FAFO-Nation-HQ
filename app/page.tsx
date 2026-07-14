@@ -76,8 +76,8 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/35 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/15" />
 
-          <div className="relative z-10 mx-auto flex w-full max-w-7xl px-5 sm:px-10 lg:absolute lg:inset-0 lg:max-w-none lg:items-end lg:justify-end lg:px-16 lg:pb-24">
-            <div className="flex w-full max-w-4xl flex-col items-start pt-[clamp(7rem,18vh,13rem)] lg:w-auto lg:max-w-none lg:items-start lg:pt-0 lg:pr-[clamp(1rem,4vw,5rem)]">
+          <div className="relative z-10 mx-auto flex w-full max-w-7xl px-5 sm:px-10 lg:absolute lg:inset-0 lg:max-w-none lg:items-end lg:justify-end lg:px-8 lg:pb-4">
+            <div className="flex w-full max-w-4xl flex-col items-start pt-[clamp(7rem,18vh,13rem)] lg:w-auto lg:max-w-none lg:items-start lg:pt-0 lg:translate-x-[clamp(3rem,7vw,8rem)]">
               <div className="font-black uppercase bg-transparent">
                 <p className="whitespace-nowrap text-[1.3125rem] leading-none tracking-[0.12em] sm:text-[1.5rem] sm:tracking-[0.18em] lg:text-[1.6875rem]">
                   <span className="fafo-force-gold bg-transparent" style={{ textShadow: "0 2px 8px rgba(0,0,0,0.75)" }}>MORE THAN A NAME</span>
@@ -143,18 +143,18 @@ export default function Home() {
           color: #D4AF37 !important;
           -webkit-text-fill-color: #D4AF37 !important;
           background: transparent !important;
-        
-          forced-color-adjust: none !important;}
+          forced-color-adjust: none !important;
+        }
         .fafo-ticker-red {
           color: #DC2626 !important;
           -webkit-text-fill-color: #DC2626 !important;
-        
-          forced-color-adjust: none !important;}
+          forced-color-adjust: none !important;
+        }
         .fafo-ticker-leaf-gold {
           color: #D4AF37 !important;
           -webkit-text-fill-color: #D4AF37 !important;
-        
-          forced-color-adjust: none !important;}
+          forced-color-adjust: none !important;
+        }
 
         @keyframes fafo-deployment-scroll {
           from { transform: translateX(0); }

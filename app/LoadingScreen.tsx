@@ -8,15 +8,14 @@ const ENTRY_EXIT_TIME_MS = 180;
 
 export default function LoadingScreen() {
   const [started, setStarted] = useState(false);
+  const [impactActive, setImpactActive] = useState(false);
   const [entryLeaving, setEntryLeaving] = useState(false);
   const [visible, setVisible] = useState(true);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
-
   const entryTimerRef = useRef<number | null>(null);
   const impactTimerRef = useRef<number | null>(null);
   const removeTimerRef = useRef<number | null>(null);
-
   const startedRef = useRef(false);
 
   const startSequence = () => {
@@ -27,11 +26,6 @@ export default function LoadingScreen() {
 
     const audio = audioRef.current;
 
-    /*
-      Unlock audio during the user's click.
-      Reset immediately so the actual sound begins
-      from the start at the impact moment.
-    */
     if (audio) {
       audio.volume = 0;
       audio.currentTime = 0;
@@ -48,32 +42,20 @@ export default function LoadingScreen() {
         });
     }
 
-    /*
-      Allow the entry graphic to fade out quickly,
-      then mount the animated crest.
-    */
     entryTimerRef.current = window.setTimeout(() => {
       setStarted(true);
 
-      /*
-        Impact timing begins when the crest animation begins.
-      */
       impactTimerRef.current = window.setTimeout(() => {
-        const impactAudio = audioRef.current;
+        setImpactActive(true);
 
+        const impactAudio = audioRef.current;
         if (!impactAudio) return;
 
         impactAudio.volume = 1;
         impactAudio.currentTime = 0;
-
-        impactAudio.play().catch(() => {
-          // Visual sequence continues if playback fails.
-        });
+        impactAudio.play().catch(() => {});
       }, IMPACT_TIME_MS);
 
-      /*
-        Remove the loading screen after the full animation.
-      */
       removeTimerRef.current = window.setTimeout(() => {
         setVisible(false);
       }, SCREEN_REMOVE_TIME_MS);
@@ -82,20 +64,11 @@ export default function LoadingScreen() {
 
   useEffect(() => {
     return () => {
-      if (entryTimerRef.current !== null) {
-        window.clearTimeout(entryTimerRef.current);
-      }
-
-      if (impactTimerRef.current !== null) {
-        window.clearTimeout(impactTimerRef.current);
-      }
-
-      if (removeTimerRef.current !== null) {
-        window.clearTimeout(removeTimerRef.current);
-      }
+      if (entryTimerRef.current !== null) window.clearTimeout(entryTimerRef.current);
+      if (impactTimerRef.current !== null) window.clearTimeout(impactTimerRef.current);
+      if (removeTimerRef.current !== null) window.clearTimeout(removeTimerRef.current);
 
       const audio = audioRef.current;
-
       if (audio) {
         audio.pause();
         audio.currentTime = 0;
@@ -140,15 +113,21 @@ export default function LoadingScreen() {
       )}
 
       {started && (
-        <div className="loading-crest-stage">
-          <div className="loading-smoke"></div>
+        <>
+          <div className="loading-crest-stage">
+            <img
+              src="/assets/logos/FAFO Heritage Crest.png"
+              alt=""
+              className="loading-logo"
+            />
+          </div>
 
-          <img
-            src="/assets/logos/FAFO Heritage Crest.png"
-            alt=""
-            className="loading-logo"
-          />
-        </div>
+          {impactActive && (
+            <div className="loading-impact-smoke" aria-hidden="true">
+              <div className="loading-impact-smoke-cloud" />
+            </div>
+          )}
+        </>
       )}
     </div>
   );
