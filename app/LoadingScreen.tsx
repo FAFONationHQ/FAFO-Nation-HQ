@@ -63,12 +63,13 @@ export default function LoadingScreen() {
   };
 
   useEffect(() => {
+    const audio = audioRef.current;
+
     return () => {
       if (entryTimerRef.current !== null) window.clearTimeout(entryTimerRef.current);
       if (impactTimerRef.current !== null) window.clearTimeout(impactTimerRef.current);
       if (removeTimerRef.current !== null) window.clearTimeout(removeTimerRef.current);
 
-      const audio = audioRef.current;
       if (audio) {
         audio.pause();
         audio.currentTime = 0;
