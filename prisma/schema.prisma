@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,16 +6,93 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  firstName String?
-  lastName  String?
-  callsign  String?  @unique
-  phone     String?
 
-  role      String   @default("MEMBER")
+enum MemberStatus {
+  ACTIVE
+  SUSPENDED
+  DELETION_REQUESTED
+  ANONYMIZED
+}
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum ProfileVisibility {
+  PRIVATE
+  PUBLIC
+}
+
+enum ConsentPurpose {
+  PUBLIC_MEMBER_PROFILE
+  PUBLIC_MEMBER_LOCATION
+  PUBLIC_DEPLOYMENT
+  MEMBER_LINKED_DEPLOYMENT
+  CUSTOM_SHOP_GALLERY
+  MEDIA_MEMBER_SPOTLIGHT
+}
+
+enum ConsentDecisionType {
+  GRANTED
+  REVOKED
+}
+
+model Member {
+  id                       String       @id @default(cuid())
+  status                   MemberStatus @default(ACTIVE)
+  ageEligibilityAttestedAt DateTime?
+  eligibilityPolicyVersion String?      @db.VarChar(100)
+  createdAt                DateTime     @default(now())
+  updatedAt                DateTime     @updatedAt
+
+  identities AuthIdentity[]
+  profile    MemberProfile?
+  consents   ConsentDecision[]
+
+  @@index([status, createdAt])
+}
+
+model AuthIdentity {
+  id              String   @id @default(cuid())
+  memberId        String
+  provider        String   @db.VarChar(50)
+  providerSubject String   @db.VarChar(255)
+  verifiedAt      DateTime
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerSubject])
+  @@index([memberId])
+}
+
+model MemberProfile {
+  id          String            @id @default(cuid())
+  publicId    String            @unique @default(cuid())
+  memberId    String            @unique
+  callsign    String            @unique @db.VarChar(24)
+  displayName String?           @db.VarChar(60)
+  biography   String?           @db.VarChar(500)
+  avatarUrl   String?           @db.VarChar(2048)
+  city        String?           @db.VarChar(100)
+  region      String?           @db.VarChar(100)
+  country     String?           @db.VarChar(100)
+  visibility  ProfileVisibility @default(PRIVATE)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([visibility, updatedAt])
+}
+
+model ConsentDecision {
+  id            String              @id @default(cuid())
+  memberId      String
+  purpose       ConsentPurpose
+  decision      ConsentDecisionType
+  policyVersion String              @db.VarChar(100)
+  decidedAt     DateTime            @default(now())
+  source        String              @db.VarChar(50)
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Restrict)
+
+  @@index([memberId, purpose, decidedAt, id])
 }
