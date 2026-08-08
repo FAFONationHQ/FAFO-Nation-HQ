@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import maplibregl, {
   Map as MapLibreMap,
   Marker,
@@ -162,22 +162,35 @@ function addMemberMarker(
 export default function FAFOWorldMap() {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
+  const [mapUnavailable, setMapUnavailable] = useState(false);
 
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) {
       return;
     }
 
-    const map = new maplibregl.Map({
-      container: mapContainerRef.current,
-      style: MAP_STYLE,
-      center: INITIAL_CENTER,
-      zoom: INITIAL_ZOOM,
-      minZoom: 1.5,
-      maxZoom: 16,
-    });
+    let map: MapLibreMap;
+
+    try {
+      map = new maplibregl.Map({
+        container: mapContainerRef.current,
+        style: MAP_STYLE,
+        center: INITIAL_CENTER,
+        zoom: INITIAL_ZOOM,
+        minZoom: 1.5,
+        maxZoom: 16,
+      });
+    } catch {
+      queueMicrotask(() => setMapUnavailable(true));
+      return;
+    }
 
     mapRef.current = map;
+
+    const handleMapError = () => setMapUnavailable(true);
+    const handleMapLoad = () => setMapUnavailable(false);
+    map.on("error", handleMapError);
+    map.on("load", handleMapLoad);
 
     map.addControl(
       new maplibregl.NavigationControl({
@@ -212,6 +225,8 @@ export default function FAFOWorldMap() {
     });
 
     return () => {
+      map.off("error", handleMapError);
+      map.off("load", handleMapLoad);
       map.remove();
       mapRef.current = null;
     };
@@ -224,6 +239,16 @@ export default function FAFOWorldMap() {
         aria-label="Interactive FAFO World map"
         className="h-[62dvh] min-h-[440px] w-full lg:h-[70dvh]"
       />
+
+      {mapUnavailable && (
+        <div
+          role="status"
+          className="absolute inset-x-4 top-4 z-20 border border-red-600/60 bg-black/95 px-4 py-3 text-sm font-bold text-white"
+        >
+          The interactive map is temporarily unavailable. The public deployment
+          summary remains available on this page.
+        </div>
+      )}
 
       <div className="pointer-events-none absolute bottom-3 left-3 right-3 z-10 flex flex-wrap gap-2">
         <div className="border border-white/15 bg-black/85 px-3 py-2 text-[10px] font-black uppercase tracking-[0.12em] text-[#D4AF37] backdrop-blur">
