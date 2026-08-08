@@ -40,6 +40,10 @@ export const ROLE_PERMISSION_SETS = {
 
 export type RoleName = keyof typeof ROLE_PERMISSION_SETS;
 
+export function isRoleName(value: string): value is RoleName {
+  return Object.hasOwn(ROLE_PERMISSION_SETS, value);
+}
+
 export type AuthorizationSubject = {
   subjectId: string;
   permissions: readonly string[];
@@ -53,8 +57,12 @@ export function isPermission(value: string): value is Permission {
   return (PERMISSIONS as readonly string[]).includes(value);
 }
 
-export function permissionsForRoles(roles: readonly RoleName[]): Permission[] {
-  return [...new Set(roles.flatMap((role) => ROLE_PERMISSION_SETS[role]))];
+export function permissionsForRoles(roles: readonly string[]): Permission[] {
+  return [
+    ...new Set(
+      roles.filter(isRoleName).flatMap((role) => ROLE_PERMISSION_SETS[role]),
+    ),
+  ];
 }
 
 export function authorize(

@@ -29,9 +29,10 @@ export function latestConsentDecision(
     .filter((decision) => decision.purpose === purpose && isValidTimestamp(decision.decidedAt))
     .reduce<ConsentDecision | null>((latest, decision) => {
       if (!latest) return decision;
-      return Date.parse(decision.decidedAt) > Date.parse(latest.decidedAt)
-        ? decision
-        : latest;
+      const comparison = Date.parse(decision.decidedAt) - Date.parse(latest.decidedAt);
+      if (comparison > 0) return decision;
+      if (comparison === 0 && decision.status === "REVOKED") return decision;
+      return latest;
     }, null);
 }
 

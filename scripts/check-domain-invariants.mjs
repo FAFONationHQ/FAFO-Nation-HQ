@@ -68,6 +68,7 @@ check("authorization is default deny and roles aggregate explicit permissions", 
   const member = { subjectId: "member-1", permissions: permissionsForRoles(["MEMBER"]) };
   assert.equal(authorize(member, "member.profile.write-self").allowed, true);
   assert.equal(authorize(member, "refund.execute").allowed, false);
+  assert.deepEqual(permissionsForRoles(["NOT_A_ROLE"]), []);
   const owner = { subjectId: "owner-1", permissions: permissionsForRoles(["OWNER_OPERATOR"]) };
   assert.equal(
     hasEveryPermission(owner, ["deployment.publish", "refund.execute", "cares.publish"]),
@@ -98,6 +99,13 @@ check("consent is purpose-specific and revocation wins", () => {
   ];
   assert.equal(hasActiveConsent(revoked, "PUBLIC_MEMBER_PROFILE"), false);
   assert.equal(latestConsentDecision(revoked, "PUBLIC_MEMBER_PROFILE")?.status, "REVOKED");
+  assert.equal(
+    latestConsentDecision(
+      [baseConsent[0], { ...baseConsent[0], status: "REVOKED" }],
+      "PUBLIC_MEMBER_PROFILE",
+    )?.status,
+    "REVOKED",
+  );
 });
 
 const memberProfile = {
@@ -125,6 +133,13 @@ check("public member projection is allow-listed and location needs separate cons
     },
   ]);
   assert.equal(withLocation.location.city, "Victoria");
+  assert.equal(
+    projectPublicMemberProfile(
+      { ...memberProfile, avatarUrl: "javascript:alert(1)" },
+      baseConsent,
+    ).avatarUrl,
+    undefined,
+  );
 });
 
 const deploymentRecord = {
@@ -162,6 +177,13 @@ check("public deployments are sanitized and default closed", () => {
     projectPublicDeployment({ ...deploymentRecord, publicationState: "DRAFT" }),
     null,
   );
+  assert.equal(
+    projectPublicDeployment({
+      ...deploymentRecord,
+      location: { ...deploymentRecord.location, latitude: 1000 },
+    }),
+    null,
+  );
 });
 
 check("static FAFO World adapter preserves record identity and statistics", () => {
@@ -193,6 +215,7 @@ check("money rejects invalid values and prevents cross-currency arithmetic", () 
     currency: "CAD",
   });
   assert.equal(addMoney(createMoney(100, "CAD"), createMoney(100, "USD")), null);
+  assert.equal(addMoney({ minorUnits: -100, currency: "CAD" }, createMoney(100, "CAD")), null);
 });
 
 check("commerce lifecycles allow listed transitions only", () => {
@@ -244,6 +267,7 @@ check("audit metadata is minimized and secret-like fields are excluded", () => {
       change: "GRANTED",
       password: "must-not-appear",
       arbitraryPayload: { private: true },
+      reasonCode: Number.POSITIVE_INFINITY,
     },
   });
   assert.deepEqual(event.metadata, {

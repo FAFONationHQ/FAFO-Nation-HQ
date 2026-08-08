@@ -66,6 +66,20 @@ export type PublicMemberLocation = PublicDeploymentBase & {
 
 export type PublicDeployment = PublicGearDeployment | PublicMemberLocation;
 
+function locationIsPublicSafe(location: DeploymentLocation): boolean {
+  return (
+    Number.isFinite(location.latitude) &&
+    location.latitude >= -90 &&
+    location.latitude <= 90 &&
+    Number.isFinite(location.longitude) &&
+    location.longitude >= -180 &&
+    location.longitude <= 180 &&
+    [location.city, location.region, location.country].every(
+      (value) => value.trim().length > 0 && value.length <= 100 && !/\p{Cc}/u.test(value),
+    )
+  );
+}
+
 /**
  * Projects a public deployment through an explicit allow-list. Private
  * fulfillment, account, contact, address, order, and payment fields cannot be
@@ -77,7 +91,8 @@ export function projectPublicDeployment(
   if (
     record.verificationState !== "VERIFIED" ||
     record.publicationState !== "PUBLISHED" ||
-    record.publicDeploymentConsent !== "GRANTED"
+    record.publicDeploymentConsent !== "GRANTED" ||
+    !locationIsPublicSafe(record.location)
   ) {
     return null;
   }

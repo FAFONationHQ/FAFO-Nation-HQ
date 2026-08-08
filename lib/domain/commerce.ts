@@ -5,22 +5,33 @@ import type {
 
 export const ORDER_LEDGER_AUTHORITY = "FAFO_INTERNAL_LEDGER" as const;
 
+declare const moneyBrand: unique symbol;
+
 export type Money = Readonly<{
   minorUnits: number;
   currency: SupportedCurrency;
+  [moneyBrand]: true;
 }>;
+
+export function moneyIsValid(value: Pick<Money, "minorUnits" | "currency">): boolean {
+  return (
+    Number.isSafeInteger(value.minorUnits) &&
+    value.minorUnits >= 0 &&
+    (value.currency === "CAD" || value.currency === "USD")
+  );
+}
 
 export function createMoney(
   minorUnits: number,
   currency: SupportedCurrency,
 ): Money | null {
-  return Number.isSafeInteger(minorUnits) && minorUnits >= 0
-    ? Object.freeze({ minorUnits, currency })
+  return moneyIsValid({ minorUnits, currency } as Money)
+    ? Object.freeze({ minorUnits, currency }) as Money
     : null;
 }
 
 export function addMoney(left: Money, right: Money): Money | null {
-  if (left.currency !== right.currency) return null;
+  if (!moneyIsValid(left) || !moneyIsValid(right) || left.currency !== right.currency) return null;
   return createMoney(left.minorUnits + right.minorUnits, left.currency);
 }
 

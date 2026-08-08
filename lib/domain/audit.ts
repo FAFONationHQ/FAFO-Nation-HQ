@@ -57,6 +57,7 @@ export function createAuditEvent(input: CreateAuditEventInput): AuditEvent {
 
   for (const [key, value] of Object.entries(input.metadata ?? {})) {
     if (!allowedKeys.has(key) || FORBIDDEN_METADATA_KEY.test(key)) continue;
+    if (typeof value === "number" && !Number.isFinite(value)) continue;
     if (value === null || ["string", "number", "boolean"].includes(typeof value)) {
       metadata[key] = typeof value === "string" ? value.slice(0, 200) : value as number | boolean | null;
     }
