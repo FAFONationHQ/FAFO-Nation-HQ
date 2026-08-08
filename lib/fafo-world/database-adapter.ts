@@ -22,6 +22,36 @@ export interface AsyncPublicDeploymentRepository {
   loadSnapshot(): Promise<PublicDeploymentSnapshot>;
 }
 
+export type DeploymentTimelineQuery = {
+  publishedAfter?: string;
+  cursor?: string;
+  limit: number;
+};
+
+export interface DeploymentTimelineSource {
+  listTimelineCandidates(query: DeploymentTimelineQuery): Promise<readonly PrivateDeploymentRecord[]>;
+}
+
+export type PublicDeploymentParityResult =
+  | { matches: true }
+  | { matches: false; differingIds: readonly string[]; statisticsMatch: boolean };
+
+export function comparePublicDeploymentSnapshots(
+  expected: PublicDeploymentSnapshot,
+  candidate: PublicDeploymentSnapshot,
+): PublicDeploymentParityResult {
+  const serialize = (deployment: PublicDeployment) => JSON.stringify(deployment);
+  const expectedById = new Map(expected.all.map((deployment) => [deployment.id, serialize(deployment)]));
+  const candidateById = new Map(candidate.all.map((deployment) => [deployment.id, serialize(deployment)]));
+  const differingIds = [...new Set([...expectedById.keys(), ...candidateById.keys()])]
+    .filter((id) => expectedById.get(id) !== candidateById.get(id))
+    .sort();
+  const statisticsMatch = JSON.stringify(expected.statistics) === JSON.stringify(candidate.statistics);
+  return differingIds.length === 0 && statisticsMatch
+    ? { matches: true }
+    : { matches: false, differingIds, statisticsMatch };
+}
+
 /**
  * Database preparation adapter. The future Prisma source owns its private
  * select; this adapter owns fail-closed public projection and DTO assembly.

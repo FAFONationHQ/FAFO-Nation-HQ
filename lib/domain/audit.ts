@@ -8,6 +8,7 @@ export const AUDIT_ACTIONS = [
   "MODERATION_ACTION_TAKEN",
   "REFUND_ACTION_TAKEN",
   "ADMINISTRATIVE_CHANGE",
+  "OPERATOR_AUTHORIZATION_EVALUATED",
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
@@ -34,9 +35,11 @@ const ALLOWED_METADATA_KEYS = {
   MODERATION_ACTION_TAKEN: ["moderationType", "reasonCode"],
   REFUND_ACTION_TAKEN: ["refundState", "currency", "minorUnits", "reasonCode"],
   ADMINISTRATIVE_CHANGE: ["changeType", "reasonCode"],
+  OPERATOR_AUTHORIZATION_EVALUATED: ["permission", "reasonCode"],
 } as const satisfies Record<AuditAction, readonly string[]>;
 
 const FORBIDDEN_METADATA_KEY = /(password|secret|token|credential|authorization|cookie)/i;
+const FORBIDDEN_METADATA_VALUE = /(bearer\s|sk_(?:test|live)_|password|secret|token|cookie)/i;
 
 export type AuditEvent = {
   eventId: string;
@@ -53,7 +56,27 @@ export type CreateAuditEventInput = Omit<AuditEvent, "metadata"> & {
   metadata?: Readonly<Record<string, unknown>>;
 };
 
+export class AuditValidationError extends Error {
+  constructor() {
+    super("Invalid audit event input.");
+    this.name = "AuditValidationError";
+  }
+}
+
+function safeIdentifier(value: string, maximumLength = 200): boolean {
+  return value.trim().length > 0 && value.length <= maximumLength && !/\p{Cc}/u.test(value);
+}
+
 export function createAuditEvent(input: CreateAuditEventInput): AuditEvent {
+  if (
+    !safeIdentifier(input.eventId) ||
+    !safeIdentifier(input.actor.actorId) ||
+    !safeIdentifier(input.target.type, 50) ||
+    !safeIdentifier(input.target.targetId) ||
+    !safeIdentifier(input.requestId) ||
+    Number.isNaN(new Date(input.occurredAt).getTime())
+  ) throw new AuditValidationError();
+
   const allowedKeys = new Set<string>(ALLOWED_METADATA_KEYS[input.action]);
   const metadata: Record<string, AuditMetadataValue> = {};
 
@@ -61,9 +84,15 @@ export function createAuditEvent(input: CreateAuditEventInput): AuditEvent {
     if (!allowedKeys.has(key) || FORBIDDEN_METADATA_KEY.test(key)) continue;
     if (typeof value === "number" && !Number.isFinite(value)) continue;
     if (value === null || ["string", "number", "boolean"].includes(typeof value)) {
+      if (typeof value === "string" && FORBIDDEN_METADATA_VALUE.test(value)) continue;
       metadata[key] = typeof value === "string" ? value.slice(0, 200) : value as number | boolean | null;
     }
   }
 
-  return { ...input, metadata };
+  return Object.freeze({
+    ...input,
+    actor: Object.freeze({ ...input.actor }),
+    target: Object.freeze({ ...input.target }),
+    metadata: Object.freeze(metadata),
+  });
 }

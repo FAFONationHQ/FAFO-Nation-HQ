@@ -35,4 +35,26 @@ describe("append-only audit persistence boundary", () => {
     expect(repository.delete).toBeUndefined();
     expect(repository.remove).toBeUndefined();
   });
+
+  test("audit events and minimized metadata are immutable at runtime", async () => {
+    const repository = new InMemoryAuditEventRepository();
+    const event = await appendAuditEvent(repository, {
+      eventId: "audit-frozen",
+      actor: { kind: "SYSTEM", actorId: "SYSTEM" },
+      action: "ADMINISTRATIVE_CHANGE",
+      target: { type: "SYSTEM", targetId: "authorization" },
+      occurredAt: "2026-08-08T20:00:00.000Z",
+      requestId: "request-frozen",
+      outcome: "DENIED",
+      metadata: {
+        changeType: "BOUNDARY_CHECK",
+        reasonCode: "sk_test_must_not_persist",
+      },
+    });
+    expect(Object.isFrozen(event)).toBe(true);
+    expect(Object.isFrozen(event.actor)).toBe(true);
+    expect(Object.isFrozen(event.target)).toBe(true);
+    expect(Object.isFrozen(event.metadata)).toBe(true);
+    expect(event.metadata).toEqual({ changeType: "BOUNDARY_CHECK" });
+  });
 });

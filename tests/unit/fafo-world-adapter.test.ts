@@ -1,7 +1,11 @@
 import { describe, expect, test } from "vitest";
 
-import { ProjectingPublicDeploymentRepository } from "../../lib/fafo-world/database-adapter.ts";
-import type { PrivateDeploymentRecord } from "../../lib/fafo-world/domain.ts";
+import {
+  comparePublicDeploymentSnapshots,
+  ProjectingPublicDeploymentRepository,
+} from "../../lib/fafo-world/database-adapter.ts";
+import { validateDeploymentRecord, type PrivateDeploymentRecord } from "../../lib/fafo-world/domain.ts";
+import { publishDeployment, reviewDeployment } from "../../lib/fafo-world/workflow.ts";
 import { InMemoryDeploymentCandidateSource } from "../doubles/in-memory-deployment-source.ts";
 
 const approved: PrivateDeploymentRecord = {
@@ -32,6 +36,49 @@ const approved: PrivateDeploymentRecord = {
 };
 
 describe("database-prepared FAFO World adapter", () => {
+  test("validates provenance and rejects malformed public records", () => {
+    expect(validateDeploymentRecord({
+      ...approved,
+      provenance: {
+        source: "STATIC_IMPORT",
+        sourceReference: "shift-five-synthetic",
+        recordedAt: "2026-08-08T20:00:00.000Z",
+      },
+    })).toEqual({ valid: true });
+    expect(validateDeploymentRecord({
+      ...approved,
+      location: { ...approved.location, latitude: 200 },
+    })).toMatchObject({ valid: false, reasons: ["INVALID_PUBLIC_LOCATION"] });
+  });
+
+  test("requires explicit operator permission, verification, and consent to publish", () => {
+    const reviewAuthorization = {
+      allowed: true as const,
+      memberId: "reviewer-1",
+      roles: ["DEPLOYMENT_REVIEWER" as const],
+      permission: "deployment.review" as const,
+      auditRequired: true as const,
+    };
+    const publishAuthorization = {
+      allowed: true as const,
+      memberId: "publisher-1",
+      roles: ["DEPLOYMENT_PUBLISHER" as const],
+      permission: "deployment.publish" as const,
+      auditRequired: true as const,
+    };
+    const draft = { ...approved, verificationState: "PENDING" as const, publicationState: "DRAFT" as const };
+    const verified = reviewDeployment(draft, "APPROVE", reviewAuthorization, new Date("2026-08-08T21:00:00Z"));
+    expect(publishDeployment(
+      verified,
+      publishAuthorization,
+      new Date("2026-08-08T21:01:00Z"),
+    )).toMatchObject({ verificationState: "VERIFIED", publicationState: "PUBLISHED" });
+    expect(() => publishDeployment(
+      { ...verified, publicDeploymentConsent: "REVOKED" },
+      publishAuthorization,
+    )).toThrow("Deployment workflow transition denied.");
+  });
+
   test("projects only publishable, consented records through the public allow-list", async () => {
     const repository = new ProjectingPublicDeploymentRepository(
       new InMemoryDeploymentCandidateSource([
@@ -62,5 +109,19 @@ describe("database-prepared FAFO World adapter", () => {
       }]),
     );
     expect((await repository.loadSnapshot()).all).toEqual([]);
+  });
+
+  test("reports static/database snapshot parity without exposing private candidates", async () => {
+    const snapshot = await new ProjectingPublicDeploymentRepository(
+      new InMemoryDeploymentCandidateSource([approved]),
+    ).loadSnapshot();
+    expect(comparePublicDeploymentSnapshots(snapshot, structuredClone(snapshot))).toEqual({ matches: true });
+    const changed = structuredClone(snapshot);
+    changed.all[0].publicLabel = "Changed";
+    expect(comparePublicDeploymentSnapshots(snapshot, changed)).toEqual({
+      matches: false,
+      differingIds: ["deployment-1"],
+      statisticsMatch: true,
+    });
   });
 });

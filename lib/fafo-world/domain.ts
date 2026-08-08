@@ -9,6 +9,12 @@ export type DeploymentVerificationState = "PENDING" | "VERIFIED" | "REJECTED";
 export type DeploymentPublicationState = "DRAFT" | "PUBLISHED" | "UNPUBLISHED";
 export type DeploymentConsentState = "NOT_GRANTED" | "GRANTED" | "REVOKED";
 
+export type DeploymentProvenance = {
+  source: "MANUAL_REVIEW" | "FULFILLMENT_EVENT" | "MEMBER_SUBMISSION" | "STATIC_IMPORT";
+  sourceReference: string;
+  recordedAt: string;
+};
+
 export type DeploymentTimeline = {
   createdAt: string | null;
   updatedAt: string | null;
@@ -37,6 +43,7 @@ export type PrivateDeploymentRecord = {
     consent: DeploymentConsentState;
   };
   timeline: DeploymentTimeline;
+  provenance?: DeploymentProvenance;
   privateFulfillment?: {
     customerName?: string;
     email?: string;
@@ -45,6 +52,10 @@ export type PrivateDeploymentRecord = {
     paymentReference?: string;
   };
 };
+
+export type DeploymentValidationResult =
+  | { valid: true }
+  | { valid: false; reasons: readonly string[] };
 
 type PublicDeploymentBase = DeploymentLocation & {
   id: string;
@@ -80,6 +91,26 @@ function locationIsPublicSafe(location: DeploymentLocation): boolean {
   );
 }
 
+function validOptionalTimestamp(value: string | null): boolean {
+  return value === null || !Number.isNaN(new Date(value).getTime());
+}
+
+export function validateDeploymentRecord(record: PrivateDeploymentRecord): DeploymentValidationResult {
+  const reasons: string[] = [];
+  if (!record.id.trim() || record.id.length > 200 || /\p{Cc}/u.test(record.id)) reasons.push("INVALID_ID");
+  if (!record.publicLabel.trim() || record.publicLabel.length > 120 || /\p{Cc}/u.test(record.publicLabel)) {
+    reasons.push("INVALID_PUBLIC_LABEL");
+  }
+  if (!locationIsPublicSafe(record.location)) reasons.push("INVALID_PUBLIC_LOCATION");
+  if (!Object.values(record.timeline).every(validOptionalTimestamp)) reasons.push("INVALID_TIMELINE");
+  if (record.provenance && (
+    !record.provenance.sourceReference.trim() ||
+    record.provenance.sourceReference.length > 200 ||
+    Number.isNaN(new Date(record.provenance.recordedAt).getTime())
+  )) reasons.push("INVALID_PROVENANCE");
+  return reasons.length === 0 ? { valid: true } : { valid: false, reasons };
+}
+
 /**
  * Projects a public deployment through an explicit allow-list. Private
  * fulfillment, account, contact, address, order, and payment fields cannot be
@@ -88,6 +119,7 @@ function locationIsPublicSafe(location: DeploymentLocation): boolean {
 export function projectPublicDeployment(
   record: PrivateDeploymentRecord,
 ): PublicDeployment | null {
+  if (!validateDeploymentRecord(record).valid) return null;
   if (
     record.verificationState !== "VERIFIED" ||
     record.publicationState !== "PUBLISHED" ||
