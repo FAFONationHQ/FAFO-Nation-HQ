@@ -69,6 +69,14 @@ The route check confirms that every header destination is either implemented or 
 
 - [`docs/architecture.md`](docs/architecture.md) - current application structure and dynamic-system boundaries
 - [`docs/website-visual-asset-queue.md`](docs/website-visual-asset-queue.md) - owner/creative handoff for future website imagery
+- [`docs/platform-readiness.md`](docs/platform-readiness.md) - implementation order and dynamic-system dependency map
+- [`docs/authentication-and-members.md`](docs/authentication-and-members.md) - identity and Member V1 decision package
+- [`docs/data-and-fafo-world.md`](docs/data-and-fafo-world.md) - proposed V1 data model and FAFO World V2 specification
+- [`docs/commerce-and-custom-shop.md`](docs/commerce-and-custom-shop.md) - commerce and Custom Shop workflow specifications
+- [`docs/media-and-operations.md`](docs/media-and-operations.md) - media publishing and future operations architecture
+- [`docs/security-testing-performance.md`](docs/security-testing-performance.md) - security, test, performance, and hygiene baseline
+- [`docs/owner-decision-register.md`](docs/owner-decision-register.md) - prioritized owner decisions
+- [`docs/shift-3-backlog.md`](docs/shift-3-backlog.md) - dependency-aware next-shift queue
 
 ## Architecture
 
