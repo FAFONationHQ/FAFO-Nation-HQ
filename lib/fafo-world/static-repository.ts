@@ -1,8 +1,8 @@
-import type { PublicDeploymentRepository } from "@/lib/fafo-world/repository";
+import type { PublicDeploymentRepository } from "./repository.ts";
 import {
   STATIC_GEAR_DEPLOYMENTS,
   STATIC_MEMBER_LOCATIONS,
-} from "@/lib/fafo-world/static-data";
+} from "./static-data.ts";
 
 export const staticFafoWorldRepository: PublicDeploymentRepository = {
   listAll: () => [...STATIC_GEAR_DEPLOYMENTS, ...STATIC_MEMBER_LOCATIONS],

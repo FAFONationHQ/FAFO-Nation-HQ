@@ -1,7 +1,7 @@
 import type {
   LaunchCountry,
   SupportedCurrency,
-} from "@/lib/config/application";
+} from "../config/application.ts";
 
 export const ORDER_LEDGER_AUTHORITY = "FAFO_INTERNAL_LEDGER" as const;
 

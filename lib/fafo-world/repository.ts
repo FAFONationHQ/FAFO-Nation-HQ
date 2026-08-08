@@ -2,7 +2,7 @@ import type {
   PublicDeployment,
   PublicGearDeployment,
   PublicMemberLocation,
-} from "@/lib/fafo-world/domain";
+} from "./domain.ts";
 
 export type FafoWorldStatistics = {
   gearDeployments: number;

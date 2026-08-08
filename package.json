@@ -10,8 +10,9 @@
     "lint": "eslint",
     "prisma:generate": "prisma generate",
     "check:routes": "node scripts/check-routes.mjs",
+    "check:invariants": "node scripts/check-domain-invariants.mjs",
     "typecheck": "tsc --noEmit",
-    "verify": "npm run prisma:generate && npm run lint && npm run check:routes && npm run typecheck && npm run build"
+    "verify": "npm run prisma:generate && npm run lint && npm run check:routes && npm run check:invariants && npm run typecheck && npm run build"
   },
   "dependencies": {
     "@prisma/client": "6.19.2",

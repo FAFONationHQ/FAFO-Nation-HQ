@@ -1,4 +1,4 @@
-import type { Money } from "@/lib/domain/commerce";
+import type { Money } from "./commerce.ts";
 
 export const CUSTOM_PROJECT_STATES = [
   "INQUIRY",

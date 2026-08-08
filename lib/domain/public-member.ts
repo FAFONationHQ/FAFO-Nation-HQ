@@ -1,5 +1,5 @@
-import { hasActiveConsent, type ConsentDecision } from "@/lib/domain/consent";
-import type { CityLevelLocation, MemberProfile } from "@/lib/domain/member";
+import { hasActiveConsent, type ConsentDecision } from "./consent.ts";
+import type { CityLevelLocation, MemberProfile } from "./member.ts";
 
 export type PublicMemberProfile = {
   publicId: string;

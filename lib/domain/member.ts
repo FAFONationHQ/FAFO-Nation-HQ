@@ -1,4 +1,4 @@
-import { APPLICATION_CONFIG } from "@/lib/config/application";
+import { APPLICATION_CONFIG } from "../config/application.ts";
 
 export const CALLSIGN_MIN_LENGTH = 3;
 export const CALLSIGN_MAX_LENGTH = 24;

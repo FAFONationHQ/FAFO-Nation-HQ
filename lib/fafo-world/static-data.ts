@@ -1,7 +1,7 @@
 import type {
   PublicGearDeployment,
   PublicMemberLocation,
-} from "@/lib/fafo-world/domain";
+} from "./domain.ts";
 
 const UNKNOWN_STATIC_TIMELINE = {
   createdAt: null,
