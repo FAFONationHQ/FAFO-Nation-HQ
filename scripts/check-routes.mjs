@@ -1,10 +1,18 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
+import { pathToFileURL } from "node:url";
 
 const root = process.cwd();
 const appDirectory = path.join(root, "app");
-const headerSource = await readFile(path.join(appDirectory, "Header.tsx"), "utf8");
+const manifestModule = await import(
+  pathToFileURL(path.join(root, "lib/navigation/public-routes.ts"))
+);
+const {
+  INTENTIONALLY_BLOCKED_ROUTES,
+  PUBLIC_ROUTES,
+  SITEMAP_ROUTES,
+} = manifestModule;
 
 function extractStaticInternalRoutes(source) {
   const routes = new Set();
@@ -21,21 +29,6 @@ function extractStaticInternalRoutes(source) {
 
   return routes;
 }
-
-const navigationRoutes = extractStaticInternalRoutes(headerSource);
-
-const intentionallyUnimplemented = new Set([
-  "/fafo-cares/annual-campaign",
-  "/fafo-cares/cancer-support",
-  "/fafo-cares/emergency-fund",
-  "/fafo-cares/fundraising",
-  "/fafo-cares/mental-health",
-  "/fafo-cares/need-help-now",
-  "/fafo-cares/spotlights",
-  "/fafo-cares/support",
-  "/fafo-cares/veterans",
-  "/fafo-cares/volunteer",
-]);
 
 async function findFiles(directory, includeFile) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -79,52 +72,65 @@ for (const sourceFile of sourceFiles) {
 }
 
 const referencedRoutes = new Set(routeSources.keys());
+const declaredRoutes = new Set(PUBLIC_ROUTES.map(({ path: route }) => route));
+const blockedRoutes = new Set(INTENTIONALLY_BLOCKED_ROUTES);
+const sitemapRoutes = new Set(SITEMAP_ROUTES.map(({ path: route }) => route));
 
-const missingRoutes = [...navigationRoutes].filter(
+const duplicateDeclaredRoutes = PUBLIC_ROUTES
+  .map(({ path: route }) => route)
+  .filter((route, index, routes) => routes.indexOf(route) !== index);
+const undeclaredImplementedRoutes = [...implementedRoutes].filter(
+  (route) => !declaredRoutes.has(route),
+);
+const declaredButMissingRoutes = [...declaredRoutes].filter(
   (route) => !implementedRoutes.has(route),
 );
-const unexpectedMissing = missingRoutes.filter(
-  (route) => !intentionallyUnimplemented.has(route),
-);
 const unexpectedBrokenLinks = [...referencedRoutes].filter(
-  (route) =>
-    !implementedRoutes.has(route) && !intentionallyUnimplemented.has(route),
+  (route) => !implementedRoutes.has(route) && !blockedRoutes.has(route),
 );
-const staleExceptions = [...intentionallyUnimplemented].filter(
-  (route) => implementedRoutes.has(route) || !navigationRoutes.has(route),
+const staleBlockers = [...blockedRoutes].filter(
+  (route) => implementedRoutes.has(route) || !referencedRoutes.has(route),
+);
+const blockedSitemapRoutes = [...blockedRoutes].filter((route) => sitemapRoutes.has(route));
+const missingSitemapRoutes = [...declaredRoutes].filter(
+  (route) => !sitemapRoutes.has(route),
 );
 
-console.log(`Navigation routes: ${navigationRoutes.size}`);
-console.log(
-  `Implemented navigation routes: ${navigationRoutes.size - missingRoutes.length}`,
-);
-console.log(`Intentional blockers: ${missingRoutes.length}`);
+console.log(`Declared public routes: ${declaredRoutes.size}`);
+console.log(`Implemented public routes: ${implementedRoutes.size}`);
+console.log(`Intentional blockers: ${blockedRoutes.size}`);
+console.log(`Sitemap routes: ${sitemapRoutes.size}`);
 console.log(`Static internal links inspected: ${referencedRoutes.size}`);
 
-if (unexpectedMissing.length > 0) {
-  console.error("Unexpected missing navigation routes:");
-  unexpectedMissing.forEach((route) => console.error(`- ${route}`));
+function report(label, values, describe = (value) => value) {
+  if (values.length === 0) return;
+  console.error(label);
+  values.forEach((value) => console.error(`- ${describe(value)}`));
 }
 
-if (unexpectedBrokenLinks.length > 0) {
-  console.error("Unexpected broken static internal links:");
-  unexpectedBrokenLinks.forEach((route) => {
-    const sources = [...(routeSources.get(route) ?? [])].join(", ");
-    console.error(`- ${route} (${sources})`);
-  });
-}
+report("Duplicate route manifest entries:", duplicateDeclaredRoutes);
+report("Implemented routes missing from manifest:", undeclaredImplementedRoutes);
+report("Manifest routes missing page implementations:", declaredButMissingRoutes);
+report("Unexpected broken static internal links:", unexpectedBrokenLinks, (route) => {
+  const sources = [...(routeSources.get(route) ?? [])].join(", ");
+  return `${route} (${sources})`;
+});
+report("Stale intentional-route blockers:", staleBlockers);
+report("Blocked routes exposed in sitemap:", blockedSitemapRoutes);
+report("Declared public routes omitted from sitemap:", missingSitemapRoutes);
 
-if (staleExceptions.length > 0) {
-  console.error("Stale intentional-route exceptions:");
-  staleExceptions.forEach((route) => console.error(`- ${route}`));
-}
+const failures = [
+  duplicateDeclaredRoutes,
+  undeclaredImplementedRoutes,
+  declaredButMissingRoutes,
+  unexpectedBrokenLinks,
+  staleBlockers,
+  blockedSitemapRoutes,
+  missingSitemapRoutes,
+];
 
-if (
-  unexpectedMissing.length > 0 ||
-  unexpectedBrokenLinks.length > 0 ||
-  staleExceptions.length > 0
-) {
+if (failures.some((failure) => failure.length > 0)) {
   process.exitCode = 1;
 } else {
-  console.log("Route inventory check passed.");
+  console.log("Route manifest and sitemap integrity check passed.");
 }
