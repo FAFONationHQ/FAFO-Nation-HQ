@@ -54,6 +54,16 @@ const implementedRoutes = new Set(
     return relative === "" ? "/" : `/${relative.split(path.sep).join("/")}`;
   }),
 );
+const routeHandlerFiles = await findFiles(
+  appDirectory,
+  (entry) => entry.name === "route.ts" || entry.name === "route.js",
+);
+const implementedRouteHandlers = new Set(
+  routeHandlerFiles.map((routeFile) => {
+    const relative = path.relative(appDirectory, path.dirname(routeFile));
+    return relative === "" ? "/" : `/${relative.split(path.sep).join("/")}`;
+  }),
+);
 
 const sourceFiles = await findFiles(
   appDirectory,
@@ -86,7 +96,10 @@ const declaredButMissingRoutes = [...declaredRoutes].filter(
   (route) => !implementedRoutes.has(route),
 );
 const unexpectedBrokenLinks = [...referencedRoutes].filter(
-  (route) => !implementedRoutes.has(route) && !blockedRoutes.has(route),
+  (route) =>
+    !implementedRoutes.has(route) &&
+    !implementedRouteHandlers.has(route) &&
+    !blockedRoutes.has(route),
 );
 const staleBlockers = [...blockedRoutes].filter(
   (route) => implementedRoutes.has(route) || !referencedRoutes.has(route),
@@ -98,6 +111,7 @@ const missingSitemapRoutes = [...declaredRoutes].filter(
 
 console.log(`Declared public routes: ${declaredRoutes.size}`);
 console.log(`Implemented public routes: ${implementedRoutes.size}`);
+console.log(`Implemented route handlers: ${implementedRouteHandlers.size}`);
 console.log(`Intentional blockers: ${blockedRoutes.size}`);
 console.log(`Sitemap routes: ${sitemapRoutes.size}`);
 console.log(`Static internal links inspected: ${referencedRoutes.size}`);

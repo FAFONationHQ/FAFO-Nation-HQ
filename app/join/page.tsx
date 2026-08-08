@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import Header from "../Header";
+import MemberAccessPanel from "../components/MemberAccessPanel";
 
 export const metadata: Metadata = {
   title: "Join the Nation",
@@ -76,15 +77,8 @@ export default function JoinPage() {
               and action.
             </p>
 
-            <div className="mt-10 max-w-2xl border border-red-600/40 bg-red-950/10 p-6 sm:p-7">
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-[#D4AF37]">
-                Member Accounts — Coming Later
-              </p>
-              <p className="mt-4 text-sm leading-7 text-white/55 sm:text-base">
-                Public member registration is not available yet. This page
-                introduces what FAFO Nation membership is intended to
-                represent while the account system is being prepared.
-              </p>
+            <div className="mt-10 max-w-2xl">
+              <MemberAccessPanel />
             </div>
           </div>
 

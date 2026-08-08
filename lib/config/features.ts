@@ -9,7 +9,7 @@ export type FeatureState = (typeof FEATURE_STATES)[number];
 
 export const FEATURE_STATUS = {
   publicSite: "LIVE",
-  memberAccounts: "PLANNED",
+  memberAccounts: "PREVIEW",
   commerce: "PREVIEW",
   customShop: "PLANNED",
   media: "PREVIEW",
