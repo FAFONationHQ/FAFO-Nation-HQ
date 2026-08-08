@@ -4,8 +4,15 @@ import { describe, expect, test, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 
 import { projectPublicMemberProfile } from "../../lib/domain/public-member.ts";
-import { PrismaMemberIdentityRepository } from "../../lib/domain/persistence/prisma-member-repositories.server.ts";
-import { PersistenceConflictError } from "../../lib/domain/persistence/member-repositories.ts";
+import {
+  normalizePrismaPersistenceError,
+  PrismaMemberIdentityRepository,
+} from "../../lib/domain/persistence/prisma-member-repositories.server.ts";
+import {
+  PersistenceConflictError,
+  PersistenceOperationError,
+  PersistenceUnavailableError,
+} from "../../lib/domain/persistence/member-repositories.ts";
 import { InMemoryMemberRepositories } from "../doubles/in-memory-member-repositories.ts";
 
 const verifiedIdentity = {
@@ -15,6 +22,35 @@ const verifiedIdentity = {
 };
 
 describe("member repository contract double", () => {
+  test("normalizes connection and unknown database failures without leaking details", () => {
+    const unavailable = normalizePrismaPersistenceError({
+      code: "P1001",
+      message: "secret database host and credential detail",
+    });
+    expect(unavailable).toBeInstanceOf(PersistenceUnavailableError);
+    expect(unavailable.message).not.toMatch(/secret|host|credential/i);
+
+    const operation = normalizePrismaPersistenceError(new Error("raw query and database detail"));
+    expect(operation).toBeInstanceOf(PersistenceOperationError);
+    expect(operation.message).not.toMatch(/raw query|database detail/i);
+  });
+
+  test("connection failures from repository reads become stable retryable errors", async () => {
+    const repositories = new PrismaMemberIdentityRepository({
+      authIdentity: {
+        findUnique: vi.fn().mockRejectedValue({ code: "P1017", message: "connection closed" }),
+      },
+    } as unknown as PrismaClient);
+
+    await expect(repositories.findMemberByIdentity({
+      provider: "workos",
+      providerSubject: "user_01",
+    })).rejects.toMatchObject({
+      name: "PersistenceUnavailableError",
+      retryable: true,
+    });
+  });
+
   test("Prisma identity lookup passes only compound unique selector fields", async () => {
     const findUnique = vi.fn().mockResolvedValue({
       member: {

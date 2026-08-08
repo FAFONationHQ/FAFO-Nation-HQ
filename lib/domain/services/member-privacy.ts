@@ -1,5 +1,10 @@
 import { MEMBER_ELIGIBILITY_POLICY_VERSION } from "../../auth/member-signup-state.ts";
-import { PersistenceValidationError, type ConsentDecisionRepository, type MemberProfileRepository } from "../persistence/member-repositories.ts";
+import {
+  PersistenceValidationError,
+  type ConsentDecisionRepository,
+  type MemberProfileRepository,
+  type MemberRepositoryUnitOfWork,
+} from "../persistence/member-repositories.ts";
 
 export const MEMBER_PRIVACY_POLICY_VERSION = "member-privacy-v1";
 
@@ -38,6 +43,15 @@ export async function changePublicConsent(
     await profiles.savePrivateProfile({ ...profile, visibility: "PUBLIC" });
   }
   return decision;
+}
+
+export async function changePublicConsentTransactionally(
+  input: Parameters<typeof changePublicConsent>[0],
+  unitOfWork: MemberRepositoryUnitOfWork,
+) {
+  return unitOfWork.execute(({ profiles, consents }) =>
+    changePublicConsent(input, profiles, consents),
+  );
 }
 
 // Keep the eligibility policy import visible to dependency checks: privacy

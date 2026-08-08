@@ -29,6 +29,10 @@ export class InMemoryMemberRepositories implements MemberIdentityRepository, Mem
     return memberId ? this.members.get(memberId) ?? null : null;
   }
 
+  async findMemberById(memberId: string) {
+    return this.members.get(memberId) ?? null;
+  }
+
   async ensureMemberForVerifiedIdentity(identity: VerifiedIdentityInput) {
     if (!identity.providerSubject.trim() || Number.isNaN(identity.verifiedAt.getTime())) {
       throw new PersistenceValidationError("verified identity");
@@ -62,6 +66,20 @@ export class InMemoryMemberRepositories implements MemberIdentityRepository, Mem
     const member = this.members.get(memberId);
     if (!member || !policyVersion.trim()) throw new PersistenceValidationError("age eligibility attestation");
     const updated = { ...member, ageEligibilityAttestedAt: attestedAt, eligibilityPolicyVersion: policyVersion, updatedAt: attestedAt };
+    this.members.set(memberId, updated);
+    return updated;
+  }
+
+  async requestDeletion(memberId: string, requestedAt = new Date()) {
+    const member = this.members.get(memberId);
+    if (!member || Number.isNaN(requestedAt.getTime())) {
+      throw new PersistenceValidationError("deletion request");
+    }
+    const updated: MemberRecord = {
+      ...member,
+      status: "DELETION_REQUESTED",
+      updatedAt: requestedAt,
+    };
     this.members.set(memberId, updated);
     return updated;
   }

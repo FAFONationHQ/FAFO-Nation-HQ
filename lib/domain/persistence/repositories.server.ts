@@ -2,11 +2,13 @@ import "server-only";
 
 import { prisma } from "../../prisma.ts";
 import {
-  PrismaConsentDecisionRepository,
-  PrismaMemberIdentityRepository,
-  PrismaMemberProfileRepository,
+  createPrismaMemberRepositorySet,
+  PrismaMemberRepositoryUnitOfWork,
 } from "./prisma-member-repositories.server.ts";
 
-export const memberIdentityRepository = new PrismaMemberIdentityRepository(prisma);
-export const memberProfileRepository = new PrismaMemberProfileRepository(prisma);
-export const consentDecisionRepository = new PrismaConsentDecisionRepository(prisma);
+const repositories = createPrismaMemberRepositorySet(prisma);
+
+export const memberIdentityRepository = repositories.identities;
+export const memberProfileRepository = repositories.profiles;
+export const consentDecisionRepository = repositories.consents;
+export const memberRepositoryUnitOfWork = new PrismaMemberRepositoryUnitOfWork(prisma);

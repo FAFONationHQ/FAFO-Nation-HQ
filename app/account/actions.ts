@@ -4,10 +4,10 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 import { requireMemberSession } from "@/lib/auth/member-session.server";
-import { changePublicConsent } from "@/lib/domain/services/member-privacy";
+import { changePublicConsentTransactionally } from "@/lib/domain/services/member-privacy";
 import {
-  consentDecisionRepository,
   memberProfileRepository,
+  memberRepositoryUnitOfWork,
 } from "@/lib/domain/persistence/repositories.server";
 import { PersistenceConflictError, PersistenceValidationError } from "@/lib/domain/persistence/member-repositories";
 
@@ -54,10 +54,9 @@ export async function updateConsentAction(formData: FormData) {
     (status !== "GRANTED" && status !== "REVOKED")
   ) redirect("/account/privacy?error=invalid");
   try {
-    await changePublicConsent(
+    await changePublicConsentTransactionally(
       { memberId: member.id, purpose, status },
-      memberProfileRepository,
-      consentDecisionRepository,
+      memberRepositoryUnitOfWork,
     );
   } catch (error) {
     if (error instanceof PersistenceValidationError) redirect("/account/privacy?error=profile-required");

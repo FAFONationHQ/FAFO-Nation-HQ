@@ -29,8 +29,10 @@ export type VerifiedIdentityInput = {
 
 export interface MemberIdentityRepository {
   findMemberByIdentity(identity: Pick<VerifiedIdentityInput, "provider" | "providerSubject">): Promise<MemberRecord | null>;
+  findMemberById(memberId: string): Promise<MemberRecord | null>;
   ensureMemberForVerifiedIdentity(identity: VerifiedIdentityInput): Promise<MemberRecord>;
   attestAdultEligibility(memberId: string, attestedAt: Date, policyVersion: string): Promise<MemberRecord>;
+  requestDeletion(memberId: string, requestedAt?: Date): Promise<MemberRecord>;
 }
 
 export type SaveMemberProfileInput = {
@@ -76,6 +78,16 @@ export interface ConsentDecisionRepository {
   append(input: AppendConsentDecisionInput): Promise<StoredConsentDecision>;
 }
 
+export type MemberRepositorySet = {
+  identities: MemberIdentityRepository;
+  profiles: MemberProfileRepository;
+  consents: ConsentDecisionRepository;
+};
+
+export interface MemberRepositoryUnitOfWork {
+  execute<T>(operation: (repositories: MemberRepositorySet) => Promise<T>): Promise<T>;
+}
+
 export class PersistenceConflictError extends Error {
   constructor(readonly field: "identity" | "callsign") {
     super(`A persistent ${field} conflict occurred.`);
@@ -87,5 +99,23 @@ export class PersistenceValidationError extends Error {
   constructor(readonly field: string) {
     super(`Invalid persistence input: ${field}.`);
     this.name = "PersistenceValidationError";
+  }
+}
+
+export class PersistenceUnavailableError extends Error {
+  readonly retryable = true;
+
+  constructor() {
+    super("Member persistence is temporarily unavailable.");
+    this.name = "PersistenceUnavailableError";
+  }
+}
+
+export class PersistenceOperationError extends Error {
+  readonly retryable = false;
+
+  constructor() {
+    super("Member persistence operation failed.");
+    this.name = "PersistenceOperationError";
   }
 }

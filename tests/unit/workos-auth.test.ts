@@ -7,6 +7,7 @@ import {
 } from "../../lib/auth/associate-workos-user.ts";
 import { evaluateMemberAccessEnvironment } from "../../lib/auth/config.ts";
 import { createMemberSignUpState, parseMemberSignUpState } from "../../lib/auth/member-signup-state.ts";
+import { MemberSessionError, resolveMemberSession } from "../../lib/auth/member-session.ts";
 import { InMemoryMemberRepositories } from "../doubles/in-memory-member-repositories.ts";
 
 const completeEnvironment = {
@@ -18,6 +19,46 @@ const completeEnvironment = {
 };
 
 describe("WorkOS member authentication boundary", () => {
+  test("denies signed-out, unverified, missing, and ineligible sessions", async () => {
+    const repositories = new InMemoryMemberRepositories();
+    await expect(resolveMemberSession(null, repositories)).rejects.toMatchObject({ reason: "SIGNED_OUT" });
+    await expect(resolveMemberSession({
+      id: "unverified",
+      emailVerified: false,
+    }, repositories)).rejects.toMatchObject({ reason: "UNVERIFIED_EMAIL" });
+    await expect(resolveMemberSession({
+      id: "missing",
+      emailVerified: true,
+    }, repositories)).rejects.toMatchObject({ reason: "MISSING_MEMBER" });
+
+    await repositories.ensureMemberForVerifiedIdentity({
+      provider: "workos",
+      providerSubject: "under-age-boundary",
+      verifiedAt: new Date("2026-08-08T19:00:00.000Z"),
+    });
+    await expect(resolveMemberSession({
+      id: "under-age-boundary",
+      emailVerified: true,
+    }, repositories)).rejects.toEqual(new MemberSessionError("INELIGIBLE_MEMBER"));
+  });
+
+  test("resolves a signed-in verified and eligible member without granting authority", async () => {
+    const repositories = new InMemoryMemberRepositories();
+    const member = await repositories.ensureMemberForVerifiedIdentity({
+      provider: "workos",
+      providerSubject: "eligible-member",
+      verifiedAt: new Date("2026-08-08T19:00:00.000Z"),
+      ageEligibility: {
+        attestedAt: new Date("2026-08-08T19:00:00.000Z"),
+        policyVersion: "member-eligibility-v1",
+      },
+    });
+    await expect(resolveMemberSession({
+      id: "eligible-member",
+      emailVerified: true,
+    }, repositories)).resolves.toEqual({ member, workosUserId: "eligible-member" });
+  });
+
   test("stays disabled until every server and redirect requirement is present", () => {
     expect(evaluateMemberAccessEnvironment({}).enabled).toBe(false);
     expect(evaluateMemberAccessEnvironment({ ...completeEnvironment, DATABASE_URL: "" }).enabled).toBe(false);
