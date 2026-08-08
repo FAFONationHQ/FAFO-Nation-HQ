@@ -1,0 +1,4 @@
+import type { Metadata } from "next";
+import PublicStatusPage from "../../components/PublicStatusPage";
+export const metadata: Metadata = { title: "FAFO Nation Content Wall", description: "Current status of the planned FAFO Nation community-content directory." };
+export default function ContentWallPage() { return <PublicStatusPage eyebrow="Media & Community" title="FAFO Nation" accentTitle="Content Wall" introduction="The Content Wall is intended to help visitors discover approved FAFO Nation community creators and public content." statusLabel="Creator Directory — Coming Later" statusText="No creators, social accounts, endorsements, feeds, submissions, or content partnerships are currently listed. Future entries require consent and review." backHref="/media" backLabel="Return to Media" />; }
