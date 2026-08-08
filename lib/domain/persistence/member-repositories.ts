@@ -21,6 +21,10 @@ export type VerifiedIdentityInput = {
   provider: ManagedAuthProvider;
   providerSubject: string;
   verifiedAt: Date;
+  ageEligibility?: {
+    attestedAt: Date;
+    policyVersion: string;
+  };
 };
 
 export interface MemberIdentityRepository {

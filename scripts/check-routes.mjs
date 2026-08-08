@@ -10,6 +10,8 @@ const manifestModule = await import(
 );
 const {
   INTENTIONALLY_BLOCKED_ROUTES,
+  PROTECTED_ROUTES,
+  PUBLIC_DYNAMIC_ROUTES,
   PUBLIC_ROUTES,
   SITEMAP_ROUTES,
 } = manifestModule;
@@ -82,7 +84,11 @@ for (const sourceFile of sourceFiles) {
 }
 
 const referencedRoutes = new Set(routeSources.keys());
-const declaredRoutes = new Set(PUBLIC_ROUTES.map(({ path: route }) => route));
+const declaredRoutes = new Set([
+  ...PUBLIC_ROUTES.map(({ path: route }) => route),
+  ...PUBLIC_DYNAMIC_ROUTES,
+]);
+const protectedRoutes = new Set(PROTECTED_ROUTES);
 const blockedRoutes = new Set(INTENTIONALLY_BLOCKED_ROUTES);
 const sitemapRoutes = new Set(SITEMAP_ROUTES.map(({ path: route }) => route));
 
@@ -90,7 +96,10 @@ const duplicateDeclaredRoutes = PUBLIC_ROUTES
   .map(({ path: route }) => route)
   .filter((route, index, routes) => routes.indexOf(route) !== index);
 const undeclaredImplementedRoutes = [...implementedRoutes].filter(
-  (route) => !declaredRoutes.has(route),
+  (route) => !declaredRoutes.has(route) && !protectedRoutes.has(route),
+);
+const missingProtectedRoutes = [...protectedRoutes].filter(
+  (route) => !implementedRoutes.has(route),
 );
 const declaredButMissingRoutes = [...declaredRoutes].filter(
   (route) => !implementedRoutes.has(route),
@@ -105,13 +114,17 @@ const staleBlockers = [...blockedRoutes].filter(
   (route) => implementedRoutes.has(route) || !referencedRoutes.has(route),
 );
 const blockedSitemapRoutes = [...blockedRoutes].filter((route) => sitemapRoutes.has(route));
-const missingSitemapRoutes = [...declaredRoutes].filter(
+const requiredSitemapRoutes = new Set(
+  PUBLIC_ROUTES.filter(({ includeInSitemap }) => includeInSitemap).map(({ path: route }) => route),
+);
+const missingSitemapRoutes = [...requiredSitemapRoutes].filter(
   (route) => !sitemapRoutes.has(route),
 );
 
 console.log(`Declared public routes: ${declaredRoutes.size}`);
 console.log(`Implemented public routes: ${implementedRoutes.size}`);
 console.log(`Implemented route handlers: ${implementedRouteHandlers.size}`);
+console.log(`Protected routes: ${protectedRoutes.size}`);
 console.log(`Intentional blockers: ${blockedRoutes.size}`);
 console.log(`Sitemap routes: ${sitemapRoutes.size}`);
 console.log(`Static internal links inspected: ${referencedRoutes.size}`);
@@ -124,6 +137,7 @@ function report(label, values, describe = (value) => value) {
 
 report("Duplicate route manifest entries:", duplicateDeclaredRoutes);
 report("Implemented routes missing from manifest:", undeclaredImplementedRoutes);
+report("Protected route manifest entries missing implementations:", missingProtectedRoutes);
 report("Manifest routes missing page implementations:", declaredButMissingRoutes);
 report("Unexpected broken static internal links:", unexpectedBrokenLinks, (route) => {
   const sources = [...(routeSources.get(route) ?? [])].join(", ");
@@ -136,6 +150,7 @@ report("Declared public routes omitted from sitemap:", missingSitemapRoutes);
 const failures = [
   duplicateDeclaredRoutes,
   undeclaredImplementedRoutes,
+  missingProtectedRoutes,
   declaredButMissingRoutes,
   unexpectedBrokenLinks,
   staleBlockers,

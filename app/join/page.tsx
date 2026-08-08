@@ -10,6 +10,8 @@ export const metadata: Metadata = {
     "Learn what it means to join FAFO Nation and how future member access will support participation, recognition, and community.",
 };
 
+export const dynamic = "force-dynamic";
+
 const MEMBERSHIP_PRINCIPLES = [
   {
     number: "01",

@@ -14,9 +14,9 @@ export async function GET(request: NextRequest) {
   }
 
   return handleAuth({
-    returnPathname: "/join?auth=complete",
-    onSuccess: async ({ user }) => {
-      await associateVerifiedWorkOsUser(user, memberIdentityRepository);
+    returnPathname: "/account",
+    onSuccess: async ({ user, state }) => {
+      await associateVerifiedWorkOsUser(user, memberIdentityRepository, { state });
     },
     onError: async ({ request: callbackRequest }) =>
       NextResponse.redirect(new URL("/join?auth=callback-error", callbackRequest.url)),

@@ -17,4 +17,10 @@ test("credential-free member access stays truthful and inert", async ({ page, re
 
   const signOutGet = await request.get("/auth/sign-out");
   expect(signOutGet.status()).toBe(405);
+
+  await page.goto("/account");
+  await expect(page.getByRole("heading", { name: "Private account access is not enabled here" })).toBeVisible();
+
+  const unknownMember = await request.get("/members/not-a-public-member");
+  expect(unknownMember.status()).toBe(404);
 });

@@ -1,7 +1,12 @@
 import { describe, expect, test } from "vitest";
 
-import { associateVerifiedWorkOsUser, UnverifiedWorkOsEmailError } from "../../lib/auth/associate-workos-user.ts";
+import {
+  associateVerifiedWorkOsUser,
+  MissingEligibilityAttestationError,
+  UnverifiedWorkOsEmailError,
+} from "../../lib/auth/associate-workos-user.ts";
 import { evaluateMemberAccessEnvironment } from "../../lib/auth/config.ts";
+import { createMemberSignUpState, parseMemberSignUpState } from "../../lib/auth/member-signup-state.ts";
 import { InMemoryMemberRepositories } from "../doubles/in-memory-member-repositories.ts";
 
 const completeEnvironment = {
@@ -37,12 +42,27 @@ describe("WorkOS member authentication boundary", () => {
       repositories,
     )).rejects.toBeInstanceOf(UnverifiedWorkOsEmailError);
 
+    await expect(associateVerifiedWorkOsUser(
+      { id: "user_verified", emailVerified: true },
+      repositories,
+    )).rejects.toBeInstanceOf(MissingEligibilityAttestationError);
+
     const member = await associateVerifiedWorkOsUser(
       { id: "user_verified", emailVerified: true },
       repositories,
-      new Date("2026-08-08T19:00:00.000Z"),
+      {
+        observedAt: new Date("2026-08-08T19:00:00.000Z"),
+        state: createMemberSignUpState(),
+      },
     );
     expect(member.id).toBeTruthy();
     expect(await repositories.findMemberByIdentity({ provider: "workos", providerSubject: "user_verified" })).toEqual(member);
+    expect(member.ageEligibilityAttestedAt?.toISOString()).toBe("2026-08-08T19:00:00.000Z");
+  });
+
+  test("signup state parsing fails closed", () => {
+    expect(parseMemberSignUpState(createMemberSignUpState())).not.toBeNull();
+    expect(parseMemberSignUpState('{"adultEligibilityAttested":true}')).toBeNull();
+    expect(parseMemberSignUpState("not-json")).toBeNull();
   });
 });

@@ -33,6 +33,12 @@ function validateIdentity(identity: VerifiedIdentityInput): void {
   if (!identity.providerSubject.trim() || Number.isNaN(identity.verifiedAt.getTime())) {
     throw new PersistenceValidationError("verified identity");
   }
+  if (identity.ageEligibility && (
+    Number.isNaN(identity.ageEligibility.attestedAt.getTime()) ||
+    !identity.ageEligibility.policyVersion.trim()
+  )) {
+    throw new PersistenceValidationError("age eligibility attestation");
+  }
 }
 
 function validateProfile(input: SaveMemberProfileInput): SaveMemberProfileInput & { callsign: string } {
@@ -97,11 +103,22 @@ export class PrismaMemberIdentityRepository implements MemberIdentityRepository 
   async ensureMemberForVerifiedIdentity(identity: VerifiedIdentityInput) {
     validateIdentity(identity);
     const existing = await this.findMemberByIdentity(identity);
-    if (existing) return existing;
+    if (existing) {
+      if (identity.ageEligibility && !existing.ageEligibilityAttestedAt) {
+        return this.attestAdultEligibility(
+          existing.id,
+          identity.ageEligibility.attestedAt,
+          identity.ageEligibility.policyVersion,
+        );
+      }
+      return existing;
+    }
 
     try {
       const created = await this.client.member.create({
         data: {
+          ageEligibilityAttestedAt: identity.ageEligibility?.attestedAt,
+          eligibilityPolicyVersion: identity.ageEligibility?.policyVersion.trim(),
           identities: {
             create: {
               provider: identity.provider,

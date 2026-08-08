@@ -34,13 +34,22 @@ export class InMemoryMemberRepositories implements MemberIdentityRepository, Mem
       throw new PersistenceValidationError("verified identity");
     }
     const existing = await this.findMemberByIdentity(identity);
-    if (existing) return existing;
+    if (existing) {
+      if (identity.ageEligibility && !existing.ageEligibilityAttestedAt) {
+        return this.attestAdultEligibility(
+          existing.id,
+          identity.ageEligibility.attestedAt,
+          identity.ageEligibility.policyVersion,
+        );
+      }
+      return existing;
+    }
     const now = new Date(identity.verifiedAt);
     const member: MemberRecord = {
       id: this.nextId("member"),
       status: "ACTIVE",
-      ageEligibilityAttestedAt: null,
-      eligibilityPolicyVersion: null,
+      ageEligibilityAttestedAt: identity.ageEligibility?.attestedAt ?? null,
+      eligibilityPolicyVersion: identity.ageEligibility?.policyVersion ?? null,
       createdAt: now,
       updatedAt: now,
     };

@@ -73,6 +73,16 @@ export const INTENTIONALLY_BLOCKED_ROUTES = [
   "/fafo-cares/volunteer",
 ] as const;
 
+export const PROTECTED_ROUTES = [
+  "/account",
+  "/account/profile",
+  "/account/privacy",
+] as const;
+
+export const PUBLIC_DYNAMIC_ROUTES = [
+  "/members/[callsign]",
+] as const;
+
 export const SITEMAP_ROUTES = PUBLIC_ROUTES.filter(
   (route) => route.includeInSitemap,
 );
