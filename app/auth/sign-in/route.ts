@@ -1,11 +1,11 @@
 import { getSignInUrl } from "@workos-inc/authkit-nextjs";
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
-import { MEMBER_ACCESS_READINESS } from "@/lib/auth/config.server";
+import { MEMBER_ACCESS_READINESS, memberAccessRedirectUrl } from "@/lib/auth/config.server";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   if (!MEMBER_ACCESS_READINESS.enabled) {
-    return NextResponse.redirect(new URL("/join?auth=configuration-required", request.url));
+    return NextResponse.redirect(memberAccessRedirectUrl("/join?auth=configuration-required"));
   }
   return NextResponse.redirect(await getSignInUrl({ returnTo: "/join?auth=complete" }));
 }

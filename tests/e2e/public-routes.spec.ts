@@ -27,3 +27,29 @@ test("primary navigation reaches the truthful join experience", async ({ page })
   await expect(page).toHaveURL(/\/join$/);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 });
+
+const responsiveRoutes = [
+  "/",
+  "/join",
+  "/fafo-world",
+  "/custom-shop",
+  "/media",
+  "/store",
+] as const;
+
+for (const path of responsiveRoutes) {
+  test(`${path} remains usable without horizontal overflow on a narrow viewport`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const response = await page.goto(path, { waitUntil: "domcontentloaded" });
+    expect(response?.status()).toBe(200);
+    await expect(page.locator("main")).toBeVisible();
+    await expect(page.locator("h1").first()).toBeVisible();
+    const layout = await page.evaluate(() => ({
+      viewportWidth: document.documentElement.clientWidth,
+      contentWidth: document.documentElement.scrollWidth,
+    }));
+    expect(layout.contentWidth, `${path} should fit the narrow viewport`).toBeLessThanOrEqual(
+      layout.viewportWidth + 1,
+    );
+  });
+}

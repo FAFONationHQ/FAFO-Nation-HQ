@@ -2,7 +2,7 @@ import { handleAuth } from "@workos-inc/authkit-nextjs";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { associateVerifiedWorkOsUser } from "@/lib/auth/associate-workos-user";
-import { MEMBER_ACCESS_READINESS } from "@/lib/auth/config.server";
+import { MEMBER_ACCESS_READINESS, memberAccessRedirectUrl } from "@/lib/auth/config.server";
 import { memberIdentityRepository } from "@/lib/domain/persistence/repositories.server";
 
 export async function GET(request: NextRequest) {
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     onSuccess: async ({ user, state }) => {
       await associateVerifiedWorkOsUser(user, memberIdentityRepository, { state });
     },
-    onError: async ({ request: callbackRequest }) =>
-      NextResponse.redirect(new URL("/join?auth=callback-error", callbackRequest.url)),
+    onError: async () =>
+      NextResponse.redirect(memberAccessRedirectUrl("/join?auth=callback-error")),
   })(request);
 }

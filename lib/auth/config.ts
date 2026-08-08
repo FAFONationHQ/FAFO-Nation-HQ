@@ -15,6 +15,32 @@ export type MemberAccessReadiness = {
   invalid: readonly string[];
 };
 
+function validatedRedirectUrl(value: string | undefined): URL | null {
+  if (!value?.trim()) return null;
+  try {
+    const parsed = new URL(value.trim());
+    const localHostname = ["localhost", "127.0.0.1", "[::1]"].includes(parsed.hostname);
+    if (
+      parsed.pathname !== WORKOS_CALLBACK_PATH ||
+      parsed.username ||
+      parsed.password ||
+      parsed.search ||
+      parsed.hash ||
+      (parsed.protocol !== "https:" && !(parsed.protocol === "http:" && localHostname))
+    ) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+export function resolveMemberAccessRedirectOrigin(
+  environment: Pick<MemberAccessEnvironment, "NEXT_PUBLIC_WORKOS_REDIRECT_URI">,
+  fallbackOrigin: string,
+): string {
+  return validatedRedirectUrl(environment.NEXT_PUBLIC_WORKOS_REDIRECT_URI)?.origin ?? fallbackOrigin;
+}
+
 export function evaluateMemberAccessEnvironment(environment: MemberAccessEnvironment): MemberAccessReadiness {
   const missing = REQUIRED_KEYS.filter((key) => !environment[key]?.trim());
   const invalid: string[] = [];
@@ -24,16 +50,14 @@ export function evaluateMemberAccessEnvironment(environment: MemberAccessEnviron
   const placeholderKeys = REQUIRED_KEYS.filter((key) => /replace_me|\.invalid/i.test(environment[key] ?? ""));
   if (placeholderKeys.length > 0) invalid.push("placeholder values must be replaced");
 
+  const clientId = environment.WORKOS_CLIENT_ID?.trim();
+  if (clientId && !clientId.startsWith("client_")) invalid.push("WORKOS_CLIENT_ID must begin with client_");
+  const apiKey = environment.WORKOS_API_KEY?.trim();
+  if (apiKey && !apiKey.startsWith("sk_")) invalid.push("WORKOS_API_KEY must begin with sk_");
+
   const redirect = environment.NEXT_PUBLIC_WORKOS_REDIRECT_URI?.trim();
-  if (redirect) {
-    try {
-      const parsed = new URL(redirect);
-      if (!["http:", "https:"].includes(parsed.protocol) || parsed.pathname !== WORKOS_CALLBACK_PATH) {
-        invalid.push(`NEXT_PUBLIC_WORKOS_REDIRECT_URI must use ${WORKOS_CALLBACK_PATH}`);
-      }
-    } catch {
-      invalid.push("NEXT_PUBLIC_WORKOS_REDIRECT_URI must be an absolute URL");
-    }
+  if (redirect && !validatedRedirectUrl(redirect)) {
+    invalid.push(`NEXT_PUBLIC_WORKOS_REDIRECT_URI must be an approved absolute ${WORKOS_CALLBACK_PATH} URL`);
   }
 
   return { enabled: missing.length === 0 && invalid.length === 0, missing, invalid };

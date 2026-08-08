@@ -5,7 +5,10 @@ import {
   MissingEligibilityAttestationError,
   UnverifiedWorkOsEmailError,
 } from "../../lib/auth/associate-workos-user.ts";
-import { evaluateMemberAccessEnvironment } from "../../lib/auth/config.ts";
+import {
+  evaluateMemberAccessEnvironment,
+  resolveMemberAccessRedirectOrigin,
+} from "../../lib/auth/config.ts";
 import { createMemberSignUpState, parseMemberSignUpState } from "../../lib/auth/member-signup-state.ts";
 import { MemberSessionError, resolveMemberSession } from "../../lib/auth/member-session.ts";
 import { InMemoryMemberRepositories } from "../doubles/in-memory-member-repositories.ts";
@@ -74,6 +77,25 @@ describe("WorkOS member authentication boundary", () => {
     });
     expect(readiness.enabled).toBe(false);
     expect(readiness.invalid).toHaveLength(3);
+  });
+
+  test("rejects insecure remote callbacks, URL credentials, queries, and fragments", () => {
+    for (const redirect of [
+      "http://attacker.example/auth/callback",
+      "https://user:password@example.test/auth/callback",
+      "https://example.test/auth/callback?next=attacker",
+      "https://example.test/auth/callback#fragment",
+    ]) {
+      expect(evaluateMemberAccessEnvironment({
+        ...completeEnvironment,
+        NEXT_PUBLIC_WORKOS_REDIRECT_URI: redirect,
+      }).enabled).toBe(false);
+    }
+    expect(resolveMemberAccessRedirectOrigin({
+      NEXT_PUBLIC_WORKOS_REDIRECT_URI: "http://attacker.example/auth/callback",
+    }, "https://fafonationhq.com")).toBe("https://fafonationhq.com");
+    expect(resolveMemberAccessRedirectOrigin(completeEnvironment, "https://fafonationhq.com"))
+      .toBe("http://localhost:3000");
   });
 
   test("associates only a WorkOS identity whose email is verified", async () => {

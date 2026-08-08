@@ -5,10 +5,14 @@ const representativeRoutes = [
   "/",
   "/about",
   "/community",
+  "/community/recognition",
+  "/contact",
   "/custom-shop",
+  "/custom-shop/start",
   "/fafo-world",
   "/join",
   "/media",
+  "/recently-deployed",
   "/store",
 ] as const;
 
