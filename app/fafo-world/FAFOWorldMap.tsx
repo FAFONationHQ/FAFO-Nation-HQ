@@ -61,24 +61,33 @@ function createMarkerElement(
   return marker;
 }
 
-function popupMarkup(
+function createPopupContent(
   title: string,
   location: string,
   detail: string,
 ) {
-  return `
-    <div style="min-width:190px;background:#050505;color:#fff;padding:12px;border:1px solid rgba(212,175,55,.45)">
-      <div style="color:#D4AF37;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.12em">
-        ${title}
-      </div>
-      <div style="margin-top:7px;font-size:14px;font-weight:800">
-        ${location}
-      </div>
-      <div style="margin-top:6px;color:rgba(255,255,255,.65);font-size:12px;line-height:1.5">
-        ${detail}
-      </div>
-    </div>
-  `;
+  const container = document.createElement("div");
+  container.style.cssText =
+    "min-width:190px;background:#050505;color:#fff;padding:12px;border:1px solid rgba(212,175,55,.45)";
+
+  const titleElement = document.createElement("div");
+  titleElement.style.cssText =
+    "color:#D4AF37;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.12em";
+  titleElement.textContent = title;
+
+  const locationElement = document.createElement("div");
+  locationElement.style.cssText =
+    "margin-top:7px;font-size:14px;font-weight:800";
+  locationElement.textContent = location;
+
+  const detailElement = document.createElement("div");
+  detailElement.style.cssText =
+    "margin-top:6px;color:rgba(255,255,255,.65);font-size:12px;line-height:1.5";
+  detailElement.textContent = detail;
+
+  container.append(titleElement, locationElement, detailElement);
+
+  return container;
 }
 
 function addGearMarker(
@@ -98,8 +107,8 @@ function addGearMarker(
     closeButton: true,
     closeOnClick: true,
     className: "fafo-world-popup",
-  }).setHTML(
-    popupMarkup(
+  }).setDOMContent(
+    createPopupContent(
       deployment.publicLabel,
       `${deployment.city}, ${deployment.region}`,
       isGoldStar
@@ -133,8 +142,8 @@ function addMemberMarker(
     closeButton: true,
     closeOnClick: true,
     className: "fafo-world-popup",
-  }).setHTML(
-    popupMarkup(
+  }).setDOMContent(
+    createPopupContent(
       member.publicLabel,
       `${member.city}, ${member.region}`,
       member.role,
