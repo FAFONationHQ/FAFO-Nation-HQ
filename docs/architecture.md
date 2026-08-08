@@ -1,193 +1,55 @@
 # FAFO Nation Application Architecture
 
-This document describes the application as it exists. Planned systems are identified explicitly and must not be interpreted as implemented.
+This document describes the repository after Dynamic Platform Breakthrough Shift #4. Planned or externally blocked capabilities are labeled explicitly.
 
 ## Runtime stack
 
-- Next.js 16 App Router
-- React 19
-- TypeScript 5 in strict mode
-- Tailwind CSS 4 through PostCSS
-- MapLibre GL 5
-- Prisma 6 client targeting PostgreSQL
-- npm lockfile and GitHub Actions verification
+- Next.js 16.3.0 App Router and React 19.2.4
+- strict TypeScript 5.9 and Tailwind CSS 4
+- Prisma / Prisma Client 6.19.3 targeting PostgreSQL
+- WorkOS AuthKit 4.3.1 and WorkOS Node 10.9.0
+- MapLibre GL 5.24.0 and PMTiles 4.4.1
+- Vitest, Playwright Chromium, and axe automation
+- Node.js 22.11 minimum; verification-only GitHub Actions
 
-## App Router structure
+## Route and rendering boundary
 
-The repository currently contains 51 authored `page.tsx` routes. Public route families include:
+The public sitemap contains 51 static routes. `/join` is dynamic so authentication readiness is evaluated at request time. `/account`, `/account/profile`, and `/account/privacy` are protected dynamic pages; `/members/[callsign]` is a dynamic public projection. Four `/auth/*` handlers implement sign-in, sign-up, callback, and sign-out. Ten sensitive FAFO Cares destinations remain intentional blockers.
 
-- homepage and `/join`
-- About and Contact
-- Community
-- FAFO Cares landing
-- Media
-- Custom Shop
-- Store
-- FAFO World and Recently Deployed
+Most public pages remain Server Components or static output. Client code is limited to interactive islands such as Header, LoadingScreen, member forms, and FAFO World. MapLibre and PMTiles remain route-local rather than entering the shared application shell.
 
-All public content routes are statically rendered by the current production build. No route reads application data from a database.
+## Authentication and member flow
 
-## Public page architecture
+`proxy.ts` enables AuthKit only when the complete environment passes validation. Missing or placeholder configuration leaves public pages usable and auth endpoints truthful/inert. WorkOS owns credentials and sessions. Callback association accepts only verified WorkOS users and a sealed 18+ attestation state; authentication never grants FAFO operator authority.
 
-### Bespoke pages
+Protected pages call a server-only member-session boundary that requires verified email, an associated active member, and stored eligibility attestation. Profile and consent mutations run through server actions, repositories, centralized callsign validation, and purpose-specific consent services. Public member output is rebuilt through an explicit allowlist and fails closed after revocation.
 
-Major landing and narrative pages define their own server-rendered layout using the existing Header, FAFO typography, black background, red/gold emphasis, bordered information cards, and responsive Tailwind utilities.
+## Persistence boundary
 
-Examples:
+Prisma V1 contains only `Member`, `AuthIdentity`, `MemberProfile`, and append-only `ConsentDecision` plus supporting enums and indexes. Provider credentials, email duplication, roles, audit, FAFO World, commerce, media, and uploads are excluded. Server-only adapters select and map explicit DTOs; Prisma records are not passed to client components.
 
-- `app/join/page.tsx`
-- `app/about/page.tsx`
-- `app/community/page.tsx`
-- `app/media/page.tsx`
-- `app/custom-shop/page.tsx`
-- `app/store/page.tsx`
-- `app/recently-deployed/page.tsx`
+The first SQL migration exists as a reviewable artifact but was not applied. No database was available that could safely be identified as isolated and disposable. In-memory repositories provide deterministic unit/integration coverage without simulating a live database.
 
-### Shared status pages
+## Authorization and audit boundary
 
-`app/components/PublicStatusPage.tsx` renders the demonstrated common pattern for planned but unavailable public areas. It provides:
+FAFO authorization remains independent from WorkOS. Permission sets and role aggregation default deny. The operator boundary additionally requires a recognized FAFO role, the action permission, recent authentication, configured MFA policy, and an audit requirement on successful privileged decisions. No operator UI or persistent role grants exist.
 
-- shared Header and main landmark
-- branded responsive hero
-- one primary heading
-- truthful availability panel
-- valid internal return link
+Audit event construction minimizes metadata by action and rejects secret-like keys. Persistence exposes `append` only. Audit and role tables are deferred to the reviewed V2 proposal; V1 was not silently expanded.
 
-Twenty-eight routes use this component. Route files retain their own metadata and exact content so availability claims remain explicit and reviewable.
+## FAFO World boundary
 
-### Existing specialized systems
+The active visual dataset remains the same seven typed static public records. Popups use DOM `textContent`, the page includes an equivalent text location index, and no fulfillment/customer data reaches the map.
 
-- `app/page.tsx` is the branded client homepage and loading-entry host.
-- `app/LoadingScreen.tsx` owns entry timing, audio, imagery, and animation behavior.
-- `app/Header.tsx` owns the complete desktop and mobile navigation definition.
-- `app/fafo-world/FAFOWorldMap.tsx` owns client-side MapLibre behavior.
+An asynchronous database-preparation adapter now accepts private candidates, runs every record through the fail-closed public projection, and returns a sanitized snapshot and statistics. A future Prisma source can sit behind this adapter after the V2 migration is approved. The static adapter remains the active fallback.
 
-These specialized systems are not forced into the status-page component architecture.
+The default basemap remains the MapLibre demonstration style. An optional same-origin raster PMTiles path registers the official protocol integration locally; invalid/external paths fall back to the demonstration style. No archive, object storage, CDN, or production switch was added.
 
-## Public-route audit baseline
+## Security and operational boundary
 
-The Shift #2 code audit covered all 51 page source files.
+Baseline headers disable MIME sniffing, framing, browser geolocation/camera/microphone, DNS prefetch, and the framework identification header. WorkOS handles PKCE/CSRF/session mechanics according to its installed integration; app routes do not accept user-controlled post-auth redirects. Public DTOs, authorization, consent, and callback errors have negative tests.
 
-- Root metadata is supplied by `app/layout.tsx`.
-- Meaningful public routes have route-specific metadata, including FAFO World.
-- The homepage now contains a visually hidden primary heading.
-- Template routes inherit their Header and primary heading from `PublicStatusPage`.
-- Alias routes for Community recognition and events re-export the corresponding approved page and metadata.
-- All exact static internal links are covered by route verification.
-- Ten sensitive FAFO Cares links remain explicit intentional blockers.
+This is not a production security certification. Rate limiting, operator persistence, database enforcement, secret scanning, CSP design compatible with Next/MapLibre, monitoring, recovery, deletion/export operations, incident response, and external review remain pre-launch work.
 
-Browser-level visual and assistive-technology testing is still required before production release.
+## Verification architecture
 
-## Route integrity
-
-`scripts/check-routes.mjs` uses built-in Node.js modules only. It:
-
-1. Extracts exact static internal `href` literals from Header and authored `app` TypeScript.
-2. Discovers implemented App Router `page.tsx` routes.
-3. Fails for unexpected missing Header routes.
-4. Fails for broken static internal links elsewhere in authored pages.
-5. Allows only the ten exact approved FAFO Cares blockers.
-6. Fails when a blocker exception becomes stale.
-
-Limitations:
-
-- Computed and runtime-generated links are not parsed.
-- The checker is intentionally not a JavaScript/TypeScript parser.
-- External links are outside its scope.
-
-## FAFO World data boundary
-
-Current public map data lives in `app/fafo-world/deployments.ts` as typed static arrays:
-
-- `GEAR_DEPLOYMENTS`
-- `MEMBER_LOCATIONS`
-- derived `FAFO_WORLD_STATS`
-
-The map receives no customer, payment, address, account, or order data. Locations use city-level coordinates. Recently Deployed imports the same public gear array and does not create a second source of truth.
-
-Future database work must preserve a separate sanitized public-deployment boundary. Private fulfillment data must never be passed directly to the map.
-
-## Prisma status
-
-Present:
-
-- Prisma CLI and client pinned to 6.19.2
-- PostgreSQL datasource declaration
-- initial `User` model
-- reusable development-safe client singleton
-- client generation in `npm run verify`
-
-Not present:
-
-- migrations
-- seed data
-- application queries
-- repository/data-access layer
-- database-backed routes
-- operational database verification
-
-No current page imports `lib/prisma.ts`.
-
-## API, authentication, and authorization status
-
-- `app/api/` contains no implemented route handlers.
-- Authentication is not implemented.
-- Sessions, verification, recovery, OAuth, and registration are not implemented.
-- No protected routes or server authorization layer exist.
-- The schema's string `role` field is not an authorization system.
-
-Dynamic or administrative functionality must wait for an approved authentication and authorization architecture.
-
-## Commerce and operational status
-
-The application does not implement:
-
-- native catalog data
-- cart or checkout
-- payments
-- orders or fulfillment
-- customer submissions
-- Custom Shop uploads or quotes
-- media publishing
-- community accounts/activity
-- FAFO Cares applications or donations
-- administration
-
-Store and operational pages are truthful static information/status pages. The only storefront action is the existing repository-supported external Printify link.
-
-## Verification pipeline
-
-`npm run verify` runs, in order:
-
-1. Prisma client generation
-2. ESLint
-3. static route integrity
-4. TypeScript type-check
-5. Next.js production build
-
-GitHub Actions runs the same command for pushes and pull requests with read-only repository permission. It does not deploy.
-
-Current accepted warnings:
-
-- two raw `<img>` warnings in `LoadingScreen.tsx`
-
-They remain because changing the rendering component requires browser-level confirmation of identical loading layout and timing.
-
-## Known blockers
-
-Ten FAFO Cares subroutes remain unavailable because the repository does not contain approved crisis, medical, veteran, fundraising, emergency-fund, campaign, volunteer, or spotlight information. These are exact exceptions in route verification and must not be broadened.
-
-## Intentionally deferred systems
-
-- authentication and member accounts
-- Prisma migrations and application data access
-- database-backed FAFO World
-- native commerce and payments
-- fulfillment-provider integration
-- Custom Shop workflows and uploads
-- media CMS
-- Community operational features
-- FAFO Cares sensitive workflows
-- Operations and Admin Center
-
-Each requires explicit architecture, security, privacy, data, and owner decisions before implementation.
+`npm run verify` performs Prisma generation, lint, route-manifest/sitemap integrity, 43 Vitest tests, strict type checking, and a production build. Playwright separately runs 62 Chromium tests: all public routes, credential-free auth behavior, baseline response headers, primary navigation, and eight representative axe scans. CI runs the deterministic gate plus Chromium browser job without deployment.

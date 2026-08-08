@@ -1,6 +1,6 @@
 # FAFO World V2 Database Proposal
 
-Date: 2026-08-08  
+Date: 2026-08-08
 Status: proposal only; V1 schema unchanged, no migration created or applied
 
 ## Objective

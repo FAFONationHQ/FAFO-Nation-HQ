@@ -1,7 +1,7 @@
 # Managed Authentication Provider Evaluation
 
 Date: 2026-08-08  
-Status: owner decision package; no provider installed, contacted, configured, or accessed
+Status: WorkOS selected and AuthKit installed; no provider account, credentials, paid service, or production environment accessed
 
 ## Repository requirements
 

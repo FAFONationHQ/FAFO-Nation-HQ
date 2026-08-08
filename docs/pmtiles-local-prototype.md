@@ -1,6 +1,6 @@
 # Local PMTiles Prototype
 
-Date: 2026-08-08  
+Date: 2026-08-08
 Status: integration path implemented; local/non-production only; no archive acquired or deployed
 
 FAFO World can now read a same-origin raster PMTiles archive through MapLibre while preserving the existing markers and text location index. The default remains the existing MapLibre demonstration style.

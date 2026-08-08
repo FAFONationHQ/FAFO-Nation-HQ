@@ -1,6 +1,6 @@
 # Prisma V2 Proposal — Immutable Audit and Operator Grants
 
-Date: 2026-08-08  
+Date: 2026-08-08
 Status: proposal only; not added to `schema.prisma`, no migration created or applied
 
 ## Objective

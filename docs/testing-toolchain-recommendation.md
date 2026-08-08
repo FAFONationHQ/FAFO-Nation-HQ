@@ -1,13 +1,13 @@
 # Testing Toolchain Recommendation
 
 Date: 2026-08-08  
-Status: approval package; no dependencies installed
+Status: approved tool subset installed and verified during Shift #4
 
 ## Current evidence
 
-The repository now has strong deterministic gates for Prisma generation, lint, a 51-route/10-blocker manifest, 14 pure domain invariant groups, strict TypeScript, and a production build. These catch structural drift and pure-policy regressions. They do not execute React interactions in a browser, simulate authenticated/server workflows, validate route handlers against isolated persistence, exercise focus/keyboard behavior, or run an accessibility engine against rendered pages.
+Vitest 4.1.10, Playwright 1.62.1, and `@axe-core/playwright` 4.12.1 are installed. The current result is 43 passing unit/integration tests and 62 passing Chromium tests, including all public routes, credential-free auth behavior, baseline headers, primary navigation, and eight representative axe scans. Testing Library/jsdom were deliberately not added because current forms and routes are covered adequately by domain tests and browser tests. An isolated database and live auth sandbox remain unavailable.
 
-## Minimum proposed toolchain
+## Original minimum proposal and current disposition
 
 | Package | Exact purpose | Compatibility/impact |
 | --- | --- | --- |
@@ -32,6 +32,6 @@ The repository now has strong deterministic gates for Prisma generation, lint, a
 - Accessibility runs inside the E2E job initially; split only if suite volume justifies it.
 - No test should require live auth, payment, fulfillment, email, or production services. Provider integrations need fakes/contracts locally and separately controlled sandbox E2E only after approval.
 
-## Approval requested
+## Completed approval outcome
 
-Approve the five development packages above in the staged order. Do not approve broad snapshot testing, multiple DOM simulators, or all-browser matrices by default. Re-check current package/Node/React 19/Next 16 compatibility and the dependency audit at installation time.
+The pure-domain and browser/accessibility packages were adopted with exact versions. Testing Library/jsdom remain deferred until evidence supports a component-test layer. The all-browser matrix remains Chromium-first, and live provider/database tests must use controlled non-production environments.

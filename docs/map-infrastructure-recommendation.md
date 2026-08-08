@@ -1,9 +1,11 @@
 # Self-Hosted Map Infrastructure Recommendation
 
 Date: 2026-08-08  
-Status: owner approval package; no infrastructure installed or deployed
+Status: local PMTiles integration seam implemented; no archive, object storage, CDN, or production infrastructure installed/deployed
 
 ## Current implementation
+
+Shift #4 added a same-origin raster PMTiles protocol/configuration seam and tests without changing the default source or visible records. No tile archive was acquired because data/licensing, coverage, zoom, and style decisions remain open. The original Day Shift #3 baseline and recommendation follow.
 
 FAFO World uses MapLibre GL JS and the public demonstration style at `https://demotiles.maplibre.org/style.json`. The application’s seven static public records and popup content are independent from the basemap. Day Shift #3 kept MapLibre, isolated its CSS to the FAFO World route, inserted a public-deployment repository boundary, and did not change the tile source.
 

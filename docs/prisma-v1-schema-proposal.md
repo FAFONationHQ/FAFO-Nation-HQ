@@ -1,15 +1,15 @@
 # Prisma V1 Schema Proposal — Member and Privacy Slice
 
 Date: 2026-08-08  
-Status: implementation-ready proposal; `prisma/schema.prisma` was not modified and no migration/database command was run
+Status: approved V1 implemented in schema with SQL migration artifact; migration not applied and no database connected
 
 ## Goal and scope
 
-The smallest useful first migration should support a managed-auth identity link, an adult-eligibility record, a private-by-default member profile, normalized unique callsigns, and append-only purpose-specific consent. It should not introduce FAFO World, commerce, Custom Shop, Media, Community, roles, or generic audit tables in the same migration.
+The implemented first migration scope supports a managed-auth identity link, adult-eligibility attestation, a private-by-default member profile, normalized unique callsigns, and append-only purpose-specific consent. It excludes FAFO World, commerce, Custom Shop, Media, Community, roles, and generic audit tables.
 
-The current preliminary `User` model mixes private contact, public profile, and a free-form `role`. The proposal replaces it rather than preserving those boundaries.
+The preliminary `User` model was replaced in source. The artifact remains unapplied until an isolated non-production target and its existing-data state are positively identified.
 
-## Proposed schema change set
+## Implemented schema change set
 
 ```prisma
 enum MemberStatus {
@@ -128,6 +128,6 @@ model ConsentDecision {
 - FAFO World V2 deployments: add after the member/privacy slice proves repository and consent behavior.
 - Commerce, refunds, Custom Shop, uploads, Media, Community, monitoring, and provider webhook persistence: separate migrations owned by their vertical slices.
 
-## Approval still required
+## Operational approval still required
 
-Owner approval is required for this schema and the migration procedure. Provider selection, isolated database provisioning, migration ownership, and confirmation of whether legacy `User` data exists are external prerequisites.
+The schema scope was approved and implemented. Applying it still requires isolated database provisioning, migration ownership, review of the SQL artifact, and confirmation of whether any legacy `User` data exists. WorkOS was selected, but credentials and provider-console activation remain external prerequisites.

@@ -1,6 +1,6 @@
 # Proposed V1 Data Architecture and FAFO World V2
 
-This document proposes a design for review. It does not change `prisma/schema.prisma`, create migrations, or connect to a database. The current schema contains only a preliminary `User` model with contact fields, a unique optional callsign, a free-form role string, and timestamps.
+Status after Shift #4: the approved V1 member/privacy subset is implemented in `prisma/schema.prisma`, and a first SQL migration artifact exists. It was not applied and no database was connected. The broader conceptual entities below remain proposals. FAFO World still displays the same static records, while a tested asynchronous projection adapter and separate V2 database proposal now prepare the future server source.
 
 ## Data classification
 
@@ -11,7 +11,7 @@ This document proposes a design for review. It does not change `prisma/schema.pr
 | Sensitive operational | payment-provider IDs, fulfillment addresses, quote details, private uploads, moderation evidence | narrow service/operator access, encryption and retention controls |
 | Admin-only | roles, audit events, approval notes, internal alerts, webhook records | least privilege, step-up auth, auditable access |
 
-## Conceptual V1 entities
+## Broader conceptual entities (not implemented unless noted)
 
 ### Identity and privacy
 

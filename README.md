@@ -1,22 +1,17 @@
 # FAFO Nation HQ
 
-FAFO Nation HQ is a Next.js website for the FAFO Nation community. The current application provides branded public information pages, FAFO World, public deployment records, and truthful status pages for planned areas that are not yet operational.
+FAFO Nation HQ is a Next.js application for the FAFO Nation community. It includes the public site, FAFO World, a privacy-first member foundation, and truthful placeholders for operational areas that are not yet live.
 
-## Technology
+## Technology and requirements
 
-- Next.js 16 App Router
-- React 19
-- TypeScript
-- Tailwind CSS 4
-- MapLibre GL
-- Prisma 6 with a PostgreSQL datasource
+- Node.js 22.11 or newer and npm
+- Next.js 16.3.0, React 19.2.4, strict TypeScript, Tailwind CSS 4
+- Prisma / Prisma Client 6.19.3 targeting PostgreSQL
+- WorkOS AuthKit 4.3.1 (configuration-gated)
+- MapLibre GL 5 with an optional PMTiles 4.4.1 local path
+- Vitest 4.1.10, Playwright 1.62.1, and axe 4.12.1
 
-## Requirements
-
-- Node.js 20.9 or newer
-- npm
-
-## Setup
+## Local setup
 
 Install the locked dependencies:
 
@@ -24,102 +19,72 @@ Install the locked dependencies:
 npm ci
 ```
 
-Create a local `.env` file containing a PostgreSQL connection URL when database access is required:
+Copy `.env.development.example` to `.env.local`. Replace placeholders only when exercising the corresponding non-production integration. The required names are:
 
 ```dotenv
-DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
+DATABASE_URL=
+WORKOS_CLIENT_ID=
+WORKOS_API_KEY=
+WORKOS_COOKIE_PASSWORD=
+NEXT_PUBLIC_WORKOS_REDIRECT_URI=
+NEXT_PUBLIC_FAFO_PMTILES_URL=
 ```
 
-Environment files are ignored by Git. Do not commit credentials.
+`NEXT_PUBLIC_FAFO_PMTILES_URL` is optional and accepts only a same-origin path such as `/maps/fafo-world.pmtiles`. All other values are server credentials except the explicitly public redirect URI. Never commit real values.
 
-Generate the Prisma client:
+Generate Prisma Client and start locally:
 
 ```bash
 npm run prisma:generate
-```
-
-Start the development server:
-
-```bash
 npm run dev
 ```
 
-The local application is available at `http://localhost:3000` by default.
+The app is available at `http://localhost:3000` by default. Without valid WorkOS and database configuration, `/join` truthfully reports that member access is unavailable; auth endpoints do not fabricate a session.
 
 ## Verification
 
-Run individual checks with:
-
 ```bash
-npm run lint
-npm run check:routes
-npm run typecheck
-npm run build
+npm run verify       # generation, lint, routes, unit tests, types, production build
+npm run test:e2e     # Chromium route, auth-boundary, security-header, and axe tests
+npm run test:a11y    # representative axe checks only
+npm audit
 ```
 
-Run Prisma client generation and all verification checks in sequence with:
+Automated axe checks supplement rather than replace keyboard, screen-reader, zoom/reflow, motion, and visual review.
 
-```bash
-npm run verify
-```
+## Current implementation
 
-The route check confirms that every header destination is either implemented or listed as an intentional content blocker. The GitHub Actions verification workflow runs the same combined checks for pushes and pull requests. It does not deploy the application.
+- 51 public sitemap routes, three protected account pages, four auth route handlers, and one dynamic public member-profile route.
+- WorkOS sign-in, sign-up, callback, and sign-out foundations with verified-email association, sealed 18+ attestation state, safe configuration gating, and no home-grown passwords.
+- Private member profile editing, normalized unique callsigns, separate profile/location consent, append-only consent history, exact public preview, and allowlisted public projection.
+- Prisma V1 `Member`, `AuthIdentity`, `MemberProfile`, and `ConsentDecision` schema plus a first SQL migration artifact. The migration has not been applied because no isolated database was available.
+- Server-only Prisma repositories and in-memory contract doubles. Public/protected behavior stays inert without credentials and a database.
+- Fail-closed operator authorization contracts, MFA/recent-auth requirements, and an append-only audit repository boundary. Their proposed V2 tables are not in the V1 schema.
+- Static FAFO World remains the active source. A tested asynchronous database-projection adapter and migration proposal are ready for a separately approved V2.
+- Optional local raster PMTiles protocol integration; the default remains the current demonstration style and no map archive is committed or deployed.
+- Baseline response security headers, hidden framework header, public/private DTO checks, and a zero-finding npm audit.
+
+## Database and migration status
+
+`prisma/migrations/20260808113000_member_privacy_v1/migration.sql` is an artifact for review. No database was provisioned, connected, migrated, rebuilt, restored, or seeded during Shift #4. Before applying it, identify an isolated disposable non-production PostgreSQL instance, confirm ownership and contents, review the SQL, and validate forward migration and recovery. Never point local tests or CI at production.
+
+## Important limitations
+
+- WorkOS credentials, a WorkOS development/staging environment, and an isolated database are still required for live account flows.
+- No production auth activation, operator portal, roles table, audit table, deployment table, database-backed map switch, or PMTiles archive exists.
+- Commerce, payments, fulfillment, arbitrary uploads, native administration, and operational FAFO Cares routes remain unavailable.
+- Ten sensitive FAFO Cares destinations remain intentional blockers pending approved content and operations.
+- The map still uses typed static records and the public MapLibre demonstration style unless local PMTiles is explicitly configured.
+- No deployment, DNS, production service, or external communication is performed by repository verification.
 
 ## Documentation
 
-- [`docs/architecture.md`](docs/architecture.md) - current application structure and dynamic-system boundaries
-- [`docs/website-visual-asset-queue.md`](docs/website-visual-asset-queue.md) - owner/creative handoff for future website imagery
-- [`docs/platform-readiness.md`](docs/platform-readiness.md) - implementation order and dynamic-system dependency map
-- [`docs/authentication-and-members.md`](docs/authentication-and-members.md) - identity and Member V1 decision package
-- [`docs/data-and-fafo-world.md`](docs/data-and-fafo-world.md) - proposed V1 data model and FAFO World V2 specification
-- [`docs/commerce-and-custom-shop.md`](docs/commerce-and-custom-shop.md) - commerce and Custom Shop workflow specifications
-- [`docs/media-and-operations.md`](docs/media-and-operations.md) - media publishing and future operations architecture
-- [`docs/security-testing-performance.md`](docs/security-testing-performance.md) - security, test, performance, and hygiene baseline
-- [`docs/owner-decision-register.md`](docs/owner-decision-register.md) - prioritized owner decisions
-- [`docs/shift-3-backlog.md`](docs/shift-3-backlog.md) - dependency-aware next-shift queue
-
-## Architecture
-
-- `app/` contains App Router pages, the shared header, loading experience, and global styles.
-- `app/components/PublicStatusPage.tsx` provides the shared presentation used by informational "coming later" routes.
-- `app/fafo-world/` contains the FAFO World page, interactive MapLibre component, and current static deployment records.
-- `assets/` contains source-imported artwork and product imagery.
-- `public/assets/` contains directly served branding, UI, and audio assets.
-- `lib/prisma.ts` provides a reusable Prisma client singleton.
-- `prisma/schema.prisma` contains the initial PostgreSQL schema.
-
-## Implemented routes
-
-- `/` - branded FAFO Nation homepage
-- `/join` - public explanation of membership and future account concepts
-- `/about`, `/about/our-story`, `/about/sgt-swagger`, and `/about/long-term-vision`
-- `/contact` - informational contact-status page without invented contact details
-- `/community` and public Community information/status routes
-- `/fafo-cares` - informational landing with explicit operational boundaries
-- `/media`, `/media/videos`, `/media/live`, and planned-content status routes
-- `/custom-shop`, `/custom-shop/how-it-works`, and planned Custom Shop status routes
-- `/store` and planned native Store category status routes
-- `/fafo-world` - interactive deployment and member-location map
-- `/recently-deployed` - list of the existing public gear deployment records
-
-The header currently contains 54 unique internal destinations. Forty-four have route implementations. Ten sensitive FAFO Cares subroutes remain intentionally unimplemented pending approved resources, policies, and operational details.
-
-## Database status
-
-The Prisma schema currently defines an initial `User` model. Prisma Client generation is configured, but the application does not yet query a database. There are no migrations or seed scripts in the repository, and verification does not connect to or modify a database.
-
-## FAFO World data
-
-FAFO World currently reads deployment and member-location records from `app/fafo-world/deployments.ts`. The records and statistics are static and are not connected to orders, fulfillment, member accounts, or Prisma.
-
-Map popups render values as text rather than raw HTML so future dynamic data cannot inject markup.
-
-## Known limitations
-
-- Ten FAFO Cares navigation destinations remain unimplemented because the repository does not contain sufficient approved crisis, medical, assistance, fundraising, campaign, volunteer, or support information.
-- Authentication, accounts, commerce, fulfillment, administration, community systems, and media publishing are not implemented.
-- Many Community, Custom Shop, Media, and Store routes are informational status pages; they do not provide the operational features described as planned.
-- The database client is not wired into application features.
-- FAFO World uses static source data and public MapLibre demonstration tiles.
-- Automated unit, integration, accessibility, and end-to-end tests have not been added.
-- Root-level static HTML and CSS files are legacy material and are not part of the active Next.js route tree.
+- `docs/architecture.md` — current boundaries and rendering/data flow
+- `docs/authentication-and-members.md` — member and authentication status plus design rationale
+- `docs/data-and-fafo-world.md` — current data boundary and FAFO World V2 design
+- `docs/prisma-v1-schema-proposal.md` — implemented V1 schema and unapplied migration status
+- `docs/prisma-v2-audit-proposal.md` — proposed audit/operator persistence only
+- `docs/fafo-world-v2-db-proposal.md` — proposed database-backed map persistence only
+- `docs/pmtiles-local-prototype.md` — local PMTiles setup and production prerequisites
+- `docs/security-testing-performance.md` — current security, testing, and performance status
+- `docs/shift-4-aar.md` — Shift #4 after-action report

@@ -1,74 +1,42 @@
 # Dynamic Platform Readiness
 
-This document is an implementation-order map, not a description of live functionality. The current site is a statically rendered public application. It has no application database queries, API route handlers, authentication, checkout, administrative interface, or production integrations.
+Date: 2026-08-08
 
-## Repository baseline
+## Implemented foundation
 
-- Next.js 16 App Router, React 19, strict TypeScript, and Tailwind CSS 4
-- Prisma CLI and client pinned to 6.19.2, with PostgreSQL configured through `DATABASE_URL`
-- one preliminary `User` model; no migrations, seed data, repositories, or application queries
-- `lib/prisma.ts` supplies a reusable client singleton but is not imported by a page or service
-- `app/api/` contains only `.gitkeep`
-- FAFO World reads typed static records from `app/fafo-world/deployments.ts`
-- all current authored pages are statically generated
-- CI verifies generation, lint, route integrity, types, and production build without deployment
+The repository now has a tested member/privacy vertical slice: managed WorkOS integration code, verified identity association, adult-attestation gating, a private-by-default V1 schema, server-only repositories, private profile and consent controls, and allowlisted public profiles. Runtime activation remains blocked by missing non-production WorkOS credentials and an isolated PostgreSQL database.
 
-## Recommended dependency order
+FAFO World remains static publicly but has a tested database-projection adapter, V2 proposal, and optional local raster PMTiles protocol path. Operator authorization and audit persistence contracts exist; their tables and user interface do not.
 
-```text
-Approved owner policy decisions
-  -> provider selection + authentication implementation
-  -> data classification + V1 schema design
-  -> migrations and server repository boundary
-     -> member accounts + privacy controls
-        -> opt-in public member locations
-     -> public deployment publishing -> database-backed FAFO World
-     -> catalog -> cart -> checkout -> order ledger -> fulfillment
-     -> Custom Shop project workflow + secure uploads
-     -> Media publishing + Community systems
-  -> operations/admin authorization
-     -> approval, moderation, publishing, commerce, and alert modules
-```
+## Readiness matrix
 
-Authentication policy and data classification are the first blocking decisions. Schema migrations should follow both, because identity ownership, consent, deletion, and role design change nearly every dynamic entity.
+| System | Current state | Next safe gate |
+| --- | --- | --- |
+| Authentication | WorkOS routes/session association implemented; configuration-gated | Configure an official dev/staging environment and run live sandbox lifecycle tests |
+| Member profiles | Private edit, preview, public preference, and protected routes implemented | Apply V1 migration to an isolated database and test authenticated persistence |
+| Consent/privacy | Purpose-specific append/revoke UI/services and public fail-closed projection implemented | Database transaction/invalidation and deletion/export workflows |
+| Public profiles | Dynamic allowlisted callsign route implemented | Authenticated database integration, moderation/rename policy, enumeration/rate review |
+| Database | V1 schema and SQL artifact; Prisma repositories implemented | Owner-approved isolated database, migration/rebuild/restore verification |
+| Operator/auth audit | Default-deny/MFA/step-up/audit contracts and V2 proposal | Approve V2 schema, persistence, operating roles, and provider MFA configuration |
+| FAFO World | Seven static records active; DB adapter/proposal ready | Approve V2 schema/workflow and validate parity in an isolated database |
+| PMTiles | Same-origin local raster integration path implemented | Approve licensed archive/style, measure it, then design object storage/CDN |
+| Testing | 43 unit/integration and 62 Chromium tests, including eight axe scans | Disposable DB integration, live auth sandbox tests, broader manual accessibility |
+| Commerce/fulfillment | Domain planning only; not live | Separate approved data/provider/policy package |
+| Operations/admin | Contracts only; no portal or persistent grants | V2 operator/audit foundation and explicit workflow ownership |
+| FAFO Cares | Landing only; ten intentional blockers | Approved content, jurisdiction, ownership, review, and emergency language |
 
-## System readiness matrix
+## Environment and activation rules
 
-| System | Current state | Can begin independently | Blocking foundations |
-| --- | --- | --- | --- |
-| Authentication | Not implemented | Decision brief and threat model only | provider/session decisions, email policy, authorization roles |
-| Member profiles | Public concept only | UX/content specification | authentication, profile/privacy schema |
-| Privacy/visibility | Not implemented | policy and data classification | owner consent rules, authentication |
-| Database-backed FAFO World | Static typed prototype | repository/DTO specification | migrations, publication/consent model, admin approval |
-| Public deployment publishing | Static public records | editorial and state-machine design | data model, provenance, admin authorization |
-| Catalog | Static status pages and product artwork | information architecture | product/variant model, business source of truth |
-| Checkout | Not implemented | provider-neutral flow design | catalog/pricing, cart, auth choice, payment decisions |
-| Fulfillment | Not implemented | provider abstraction design | order ledger, provider decisions, webhook processing |
-| Custom Shop | Informational pages | workflow/state design | identity policy, data model, secure object storage |
-| Media | Informational pages | content schema and templates | rights policy, publishing model, admin authorization |
-| Community | Informational pages | moderation/recognition policy | member identity, privacy, authorization, moderation |
-| Operations/Admin | Not implemented | module/permission specification | authentication, role model, every managed domain |
+Development and staging templates list names only and contain placeholders. Placeholder validation prevents false readiness. Preview/local environments must never inherit production database or WorkOS values. No migration should run until the target is positively identified as isolated, owned, and disposable/recoverable.
 
-## Server and client boundaries
+## Highest-value next queue
 
-Keep database and credentials in server-only modules. Server Components should load public data through repositories and pass narrow serializable DTOs to client islands. Client code must never import Prisma, payment credentials, private account records, fulfillment records, or raw administrative entities.
+1. Provision an isolated non-production PostgreSQL database; review and apply V1, test rebuild/restore, constraints, transactions, and repository behavior with synthetic fixtures.
+2. Configure a WorkOS development environment; verify registration, email verification, callback error/replay behavior, recovery, sign-out, session expiry, and suspended member handling.
+3. Add abuse/rate controls and database-backed security regression tests before opening member access.
+4. Approve or revise the V2 audit/operator proposal; implement persistent grants/events before any privileged portal.
+5. Approve the FAFO World V2 consent/moderation/data model; run static/database shadow parity before switching.
+6. Select a licensed map archive/style and geographic/zoom budget; complete local visual/byte-range measurement before object-storage/CDN approval.
+7. Complete manual accessibility, CSP/monitoring/recovery, deletion/export, retention, and independent security/privacy review before production activation.
 
-FAFO World should remain a client rendering island, but its data should move from module constants to a sanitized server DTO. Header and LoadingScreen remain client components for interaction. Most public pages should remain Server Components and statically generated or revalidated where appropriate.
-
-## Environments and delivery
-
-The only repository environment reference is `DATABASE_URL`; no application feature currently consumes it. Before dynamic work, define separate local, preview, and production data ownership and migration procedures. Preview builds must not automatically point at production data. CI's placeholder database URL supports Prisma generation only and does not establish a database service.
-
-## Implementation gates
-
-1. Keep the approved decisions in `docs/owner-decision-register.md` encoded in testable domain policy.
-2. Select and approve the managed authentication provider and testing dependencies.
-3. Review and approve the proposed data model before creating the first migration.
-4. Add server-only repository/service boundaries and automated tests.
-5. Implement one vertical slice in a non-production environment.
-6. Add authorization, audit, rate-limit, and operational failure handling before administrative or transactional release.
-7. Complete privacy, security, accessibility, and recovery review before public activation.
-
-## Explicitly out of scope at this baseline
-
-No recommendation in this document authorizes schema changes, migrations, database connections, vendor selection, credentials, authentication, payments, uploads, production configuration, or deployment.
+Commerce, payments, fulfillment, uploads, DNS, deployment, and production service activation remain outside this foundation.

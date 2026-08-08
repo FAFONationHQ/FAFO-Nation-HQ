@@ -1,11 +1,13 @@
 # Dependency Security Triage
 
 Date: 2026-08-08  
-Status: read-only investigation; no dependency or lockfile changes
+Status: remediated and verified during Shift #4; historical starting-state triage retained below
 
 ## Result
 
-`npm audit` reports **9 high, 0 critical, 0 moderate, 0 low** vulnerability entries. The count remains the same as the prior shift, but the advisory set is current as of this audit. `npm ls --all` completed and confirmed the installed tree. No `npm audit fix`, install, update, or lockfile mutation was run.
+Current result: `npm audit` and `npm audit --omit=dev` both report **0 vulnerabilities**. Next/eslint-config-next moved to 16.3.0, Prisma/client to 6.19.3, and patched lint-tool transitive versions were narrowly overridden. No forced or blind audit remediation was used. The table below records the pre-remediation nine-high starting state and is no longer the current dependency status.
+
+## Starting-state triage (historical)
 
 | Package/family | Relationship | Current exposure in this repository | Reported fix path |
 | --- | --- | --- | --- |
@@ -21,7 +23,7 @@ Status: read-only investigation; no dependency or lockfile changes
 
 The numerical “high” rating should not be dismissed, but it is not equivalent to nine independently reachable production exploits. The current site is statically generated, has no Server Actions, auth, uploads, payment handlers, database calls, custom server, or request-controlled CSS. That materially reduces several advisory paths. The direct Next finding and its Sharp/PostCSS dependency chain still warrant prompt controlled remediation before deployment or dynamic work.
 
-## Recommended remediation package for approval
+## Original remediation package (completed)
 
 1. Approve a dedicated dependency-only branch/checkpoint.
 2. Update Next and `eslint-config-next` together from 16.2.9 to the first patched stable release confirmed by the advisory (audit currently proposes 16.3.0).

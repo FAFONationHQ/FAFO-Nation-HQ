@@ -1,6 +1,6 @@
 # Authentication and Member System V1 Decision Package
 
-This is a proposed architecture only. Accounts, registration, sessions, and member profiles are not implemented.
+Status after Shift #4: WorkOS AuthKit is selected and installed. Sign-in, sign-up, callback, sign-out, verified-email association, sealed 18+ attestation, protected account pages, private profiles, consent controls, and allowlisted public profiles are implemented behind configuration gates. No credentials are committed and no provider environment or database is active, so live registration remains unavailable. The design rationale below is retained for policy context; future-tense statements should be read against this current status.
 
 ## Architecture categories
 
@@ -14,7 +14,7 @@ A self-managed library and database can provide greater control and portability.
 
 ### Recommended default
 
-The owner approved a managed identity boundary. Keep FAFO profile, consent, role, and public-presence data in the application database so identity vendors remain replaceable. Provider selection remains open; this document does not authorize provider installation or credentials.
+The owner approved a managed identity boundary. WorkOS is the selected V1 provider. FAFO profile, consent, role, and public-presence data remain application-owned. Runtime credentials, provider-console configuration, MFA/recovery policy, and production activation remain separately gated.
 
 ## Session and authorization model
 
