@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { APPLICATION_CONFIG } from "@/lib/config/application";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./globals.css";
 
@@ -14,9 +15,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(APPLICATION_CONFIG.canonicalOrigin),
+  applicationName: APPLICATION_CONFIG.name,
   title: {
-    default: "FAFO Nation HQ",
-    template: "%s | FAFO Nation HQ",
+    default: APPLICATION_CONFIG.name,
+    template: `%s | ${APPLICATION_CONFIG.name}`,
   },
   description:
     "FAFO Nation is a community built around accountability, resilience, loyalty, and action.",
