@@ -16,8 +16,8 @@ This document is an implementation-order map, not a description of live function
 ## Recommended dependency order
 
 ```text
-Owner policy decisions
-  -> authentication/authorization design
+Approved owner policy decisions
+  -> provider selection + authentication implementation
   -> data classification + V1 schema design
   -> migrations and server repository boundary
      -> member accounts + privacy controls
@@ -61,9 +61,9 @@ The only repository environment reference is `DATABASE_URL`; no application feat
 
 ## Implementation gates
 
-1. Approve owner decisions in `docs/owner-decision-register.md`.
-2. Approve authentication, role, privacy, retention, and public-location policies.
-3. Review and revise the proposed data model before creating the first migration.
+1. Keep the approved decisions in `docs/owner-decision-register.md` encoded in testable domain policy.
+2. Select and approve the managed authentication provider and testing dependencies.
+3. Review and approve the proposed data model before creating the first migration.
 4. Add server-only repository/service boundaries and automated tests.
 5. Implement one vertical slice in a non-production environment.
 6. Add authorization, audit, rate-limit, and operational failure handling before administrative or transactional release.

@@ -143,13 +143,12 @@ Define retention for drafts, withdrawn/declined projects, quotes, production ass
 
 Modules should provide an intake queue, assignment, requirements/version history, quote creation/approval, asset scan status, transition controls, production exceptions, customer-safe updates, gallery review, and audit trail. Least-privilege roles should separate intake/creative, quoting, production, publishing, and financial actions.
 
-## Custom Shop owner decisions
+## Approved Custom Shop policy
 
-- account-required versus guest intake
-- accepted project categories and prohibited content
-- required information, response-time claims, and quoting policy
-- supported file types/sizes/count, storage region, scan vendor, and retention
-- intellectual-property warranties and content moderation
-- deposits/full payment, expiry, revisions, cancellation, and refund policy
-- customer communication channel and record retention
-- gallery consent, attribution, revocation, and reuse terms
+- Initial inquiry is guest-first; an account is not mandatory. Optional member association may be added later.
+- Quotes are versioned and approvals reference the exact accepted version.
+- Gallery/publication consent is separate, purpose-specific, revocable, and opt-in.
+- Secure private/quarantined uploads remain a future dependency and are not part of initial inquiry.
+- No provider, storage, payment, or communication integration is authorized by this policy.
+
+Accepted project categories, prohibited content, intake fields, service claims, intellectual-property terms, quote/payment/cancellation terms, communication procedures, upload limits, retention schedules, and gallery reuse wording remain pre-launch policy gates.

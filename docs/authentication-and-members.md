@@ -14,7 +14,7 @@ A self-managed library and database can provide greater control and portability.
 
 ### Recommended default
 
-Prefer a managed, standards-based identity boundary unless owner requirements establish a reason to self-manage credentials. Keep FAFO profile, consent, role, and public-presence data in the application database so identity vendors remain replaceable. No vendor commitment is made here.
+The owner approved a managed identity boundary. Keep FAFO profile, consent, role, and public-presence data in the application database so identity vendors remain replaceable. Provider selection remains open; this document does not authorize provider installation or credentials.
 
 ## Session and authorization model
 
@@ -108,15 +108,15 @@ Order and Custom Shop modules should appear only after their own authorized impl
 
 Choose an identity architecture that can add passkeys or standards-based MFA without changing application identity keys. Require step-up authentication for role management and other high-risk administrative actions before those modules launch.
 
-## OWNER DECISIONS REQUIRED
+## Approved owner policy
 
-1. Managed identity or self-managed credentials?
-2. Which first-release methods: email link/code, email/password, and/or specific OAuth providers?
-3. Is verified email mandatory before any member-facing capability?
-4. What MFA or step-up standard is required for operators and administrators?
-5. Which roles exist at V1, and who can grant or revoke them?
-6. What callsign rules, moderation process, and rename limits apply?
-7. Is every public profile and map appearance explicit opt-in by default? Recommended: yes.
-8. What coarse location granularity may be published?
-9. What deletion, export, retention, suspension, and appeal policies apply?
-10. What age eligibility and consent requirements apply to accounts and community features?
+- Managed authentication; FAFO owns profiles, preferences, consent, and authorization data.
+- Verified email/password is the V1 target. OAuth can follow later.
+- Privileged accounts require MFA at production implementation; high-risk actions require recent/step-up authentication.
+- Authorization is least-privilege and auditable, with financial, publishing, moderation, and administrative authority separated.
+- Callsigns are normalized and unique, with reserved terms and audited rename/moderation workflows. Display name is separate and optional.
+- Accounts are private by default. Public profile, public city-level location, and member-linked deployment are independent, revocable opt-ins.
+- V1 accounts are limited to adults aged 18 and older.
+- Export/deletion/retention architecture is required. Retention periods remain policy-driven and configurable.
+
+Provider selection, precise retention schedules, recovery procedures, and moderation operating details remain implementation or pre-launch policy decisions.
