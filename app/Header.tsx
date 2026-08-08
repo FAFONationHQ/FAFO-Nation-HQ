@@ -128,7 +128,7 @@ export default function Header() {
     <>
       <span
         className={item.cares ? "fafo-nav-cares" : "fafo-nav-red"}
-        style={item.cares ? undefined : { color: "#DC2626" }}
+        style={item.cares ? undefined : { color: "#F87171" }}
       >
         {item.label}
       </span>
@@ -147,7 +147,7 @@ export default function Header() {
   const color = (item: NavItem) =>
     item.cares
       ? "fafo-nav-cares text-white"
-      : "fafo-nav-red text-[#DC2626] hover:text-red-500";
+      : "fafo-nav-red text-[#F87171] hover:text-red-400";
 
   return (
     <>
@@ -224,7 +224,7 @@ export default function Header() {
                   onClick={closeNavigation}
                   className={
                     item.highlight
-                      ? "mx-2 animate-[pulse_1.8s_ease-in-out_infinite] border border-red-600 px-3 py-2 text-[9px] font-black uppercase tracking-[0.08em] text-[#D4AF37] shadow-[0_0_10px_rgba(220,38,38,0.65)] transition hover:bg-red-700/30 xl:text-[10px] 2xl:mx-3 2xl:px-4 2xl:text-xs"
+                      ? "mx-2 border border-red-500 px-3 py-2 text-[9px] font-black uppercase tracking-[0.08em] text-[#F1D36A] shadow-[0_0_10px_rgba(220,38,38,0.65)] transition hover:bg-red-700/30 xl:text-[10px] 2xl:mx-3 2xl:px-4 2xl:text-xs"
                       : `px-2 text-[9px] font-black uppercase tracking-[0.08em] transition xl:px-3 xl:text-[10px] 2xl:px-4 2xl:text-xs ${color(item)}`
                   }
                 >
@@ -337,7 +337,7 @@ export default function Header() {
                     onClick={closeNavigation}
                     className={
                       item.highlight
-                        ? "my-4 flex w-full items-center justify-center border border-red-600 px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-[#D4AF37] shadow-[0_0_10px_rgba(220,38,38,0.65)]"
+                        ? "my-4 flex w-full items-center justify-center border border-red-500 px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-[#F1D36A] shadow-[0_0_10px_rgba(220,38,38,0.65)]"
                         : `block border-b border-white/10 py-4 text-xs font-black uppercase tracking-[0.14em] ${color(item)}`
                     }
                   >
@@ -353,14 +353,14 @@ export default function Header() {
 
       <style jsx global>{`
         .fafo-nav-red {
-          color: #dc2626 !important;
-          -webkit-text-fill-color: #dc2626 !important;
+          color: #f87171 !important;
+          -webkit-text-fill-color: #f87171 !important;
         
           forced-color-adjust: none !important;}
 
         .fafo-nav-custom {
-          color: #dc2626 !important;
-          -webkit-text-fill-color: #dc2626 !important;
+          color: #f87171 !important;
+          -webkit-text-fill-color: #f87171 !important;
         
           forced-color-adjust: none !important;}
 

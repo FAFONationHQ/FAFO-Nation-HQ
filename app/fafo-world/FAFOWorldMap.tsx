@@ -25,8 +25,9 @@ function createMarkerElement(
   const marker = document.createElement("button");
   marker.type = "button";
   marker.setAttribute("aria-label", "Open map marker details");
-  marker.style.width = kind === "gold-star" ? "34px" : "28px";
-  marker.style.height = kind === "gold-star" ? "34px" : "28px";
+  marker.dataset.axeMapMarker = "true";
+  marker.style.width = "44px";
+  marker.style.height = "44px";
   marker.style.display = "grid";
   marker.style.placeItems = "center";
   marker.style.cursor = "pointer";
@@ -35,7 +36,7 @@ function createMarkerElement(
   marker.style.color = "#D4AF37";
   marker.style.boxShadow = "0 0 14px rgba(212,175,55,0.55)";
   marker.style.fontWeight = "900";
-  marker.style.fontSize = kind === "gold-star" ? "20px" : "14px";
+  marker.style.fontSize = kind === "gold-star" ? "22px" : "18px";
   marker.style.lineHeight = "1";
 
   if (kind === "standard") {
@@ -233,7 +234,8 @@ export default function FAFOWorldMap() {
   }, []);
 
   return (
-    <div className="relative overflow-hidden border border-[#D4AF37]/35 bg-black shadow-[0_0_30px_rgba(212,175,55,0.12)]">
+    <>
+      <div className="relative overflow-hidden border border-[#D4AF37]/35 bg-black shadow-[0_0_30px_rgba(212,175,55,0.12)]">
       <div
         ref={mapContainerRef}
         aria-label="Interactive FAFO World map"
@@ -263,6 +265,30 @@ export default function FAFOWorldMap() {
           ◆ FAFO Member Location
         </div>
       </div>
-    </div>
+      </div>
+
+      <section aria-labelledby="public-map-locations" className="mt-6 border border-white/15 bg-white/[0.02] p-5 sm:p-7">
+        <h3 id="public-map-locations" className="text-sm font-black uppercase tracking-[0.18em] text-[#F1D36A]">
+          Public map locations
+        </h3>
+        <p className="mt-3 max-w-3xl text-sm leading-7 text-white/65">
+          This text index provides the same city-level details as the overlapping map markers.
+        </p>
+        <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {GEAR_DEPLOYMENTS.map((deployment) => (
+            <li key={deployment.id} className="border border-white/10 px-4 py-3 text-sm leading-6 text-white/75">
+              <strong className="block text-white">{deployment.publicLabel}</strong>
+              {deployment.city}, {deployment.region}, {deployment.country}
+            </li>
+          ))}
+          {MEMBER_LOCATIONS.map((member) => (
+            <li key={member.id} className="border border-white/10 px-4 py-3 text-sm leading-6 text-white/75">
+              <strong className="block text-white">{member.publicLabel}</strong>
+              {member.city}, {member.region}, {member.country}
+            </li>
+          ))}
+        </ul>
+      </section>
+    </>
   );
 }

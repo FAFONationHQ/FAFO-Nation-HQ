@@ -29,3 +29,9 @@ jobs:
 
       - name: Verify project
         run: npm run verify
+
+      - name: Install browser for route and accessibility tests
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify public routes and accessibility
+        run: npm run test:e2e

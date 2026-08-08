@@ -10,9 +10,11 @@
     "lint": "eslint",
     "prisma:generate": "prisma generate",
     "check:routes": "node scripts/check-routes.mjs",
-    "check:invariants": "node scripts/check-domain-invariants.mjs",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "test:a11y": "playwright test tests/e2e/accessibility.spec.ts",
     "typecheck": "tsc --noEmit",
-    "verify": "npm run prisma:generate && npm run lint && npm run check:routes && npm run check:invariants && npm run typecheck && npm run build"
+    "verify": "npm run prisma:generate && npm run lint && npm run check:routes && npm run test:unit && npm run typecheck && npm run build"
   },
   "dependencies": {
     "@prisma/client": "6.19.3",
@@ -22,6 +24,8 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.12.1",
+    "@playwright/test": "1.62.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -30,6 +34,7 @@
     "eslint-config-next": "16.3.0",
     "prisma": "6.19.3",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "4.1.10"
   }
 }

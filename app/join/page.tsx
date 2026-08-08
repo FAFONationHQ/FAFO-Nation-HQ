@@ -119,7 +119,7 @@ export default function JoinPage() {
               className="mt-5 text-4xl font-black uppercase leading-[0.95] tracking-[-0.04em] text-white sm:text-6xl lg:text-7xl"
             >
               What It Means
-              <span className="block text-white/35">to Join</span>
+              <span className="block text-white/60">to Join</span>
             </h2>
           </div>
 
@@ -191,7 +191,7 @@ export default function JoinPage() {
               className="mt-5 text-4xl font-black uppercase leading-[0.95] tracking-[-0.04em] text-white sm:text-6xl lg:text-7xl"
             >
               A Foundation for
-              <span className="block text-white/35">Future Participation</span>
+              <span className="block text-white/60">Future Participation</span>
             </h2>
             <p className="mt-8 max-w-3xl text-base leading-8 text-white/65 sm:text-lg sm:leading-9">
               Future FAFO Nation member accounts are intended to provide a
