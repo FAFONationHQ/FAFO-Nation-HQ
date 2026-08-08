@@ -1,6 +1,10 @@
-import { describe, expect, test } from "vitest";
+import type { PrismaClient } from "@prisma/client";
+import { describe, expect, test, vi } from "vitest";
+
+vi.mock("server-only", () => ({}));
 
 import { projectPublicMemberProfile } from "../../lib/domain/public-member.ts";
+import { PrismaMemberIdentityRepository } from "../../lib/domain/persistence/prisma-member-repositories.server.ts";
 import { PersistenceConflictError } from "../../lib/domain/persistence/member-repositories.ts";
 import { InMemoryMemberRepositories } from "../doubles/in-memory-member-repositories.ts";
 
@@ -11,6 +15,34 @@ const verifiedIdentity = {
 };
 
 describe("member repository contract double", () => {
+  test("Prisma identity lookup passes only compound unique selector fields", async () => {
+    const findUnique = vi.fn().mockResolvedValue({
+      member: {
+        id: "member_01",
+        status: "ACTIVE",
+        ageEligibilityAttestedAt: null,
+        eligibilityPolicyVersion: null,
+        createdAt: new Date("2026-08-08T18:00:00.000Z"),
+        updatedAt: new Date("2026-08-08T18:00:00.000Z"),
+      },
+    });
+    const repositories = new PrismaMemberIdentityRepository({
+      authIdentity: { findUnique },
+    } as unknown as PrismaClient);
+
+    await repositories.ensureMemberForVerifiedIdentity(verifiedIdentity);
+
+    expect(findUnique).toHaveBeenCalledWith({
+      where: {
+        provider_providerSubject: {
+          provider: "workos",
+          providerSubject: "user_01",
+        },
+      },
+      select: { member: true },
+    });
+  });
+
   test("verified identity association is idempotent and stores no credentials", async () => {
     const repositories = new InMemoryMemberRepositories();
     const first = await repositories.ensureMemberForVerifiedIdentity(verifiedIdentity);

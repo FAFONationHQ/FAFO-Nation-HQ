@@ -94,7 +94,12 @@ export class PrismaMemberIdentityRepository implements MemberIdentityRepository 
 
   async findMemberByIdentity(identity: Pick<VerifiedIdentityInput, "provider" | "providerSubject">) {
     const match = await this.client.authIdentity.findUnique({
-      where: { provider_providerSubject: identity },
+      where: {
+        provider_providerSubject: {
+          provider: identity.provider,
+          providerSubject: identity.providerSubject,
+        },
+      },
       select: { member: true },
     });
     return match ? memberRecord(match.member) : null;
