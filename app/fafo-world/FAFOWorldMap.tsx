@@ -6,15 +6,14 @@ import maplibregl, {
   Marker,
   Popup,
 } from "maplibre-gl";
+import { Protocol } from "pmtiles";
+import { resolveFafoWorldMapConfiguration } from "@/lib/fafo-world/map-config";
 import {
   GEAR_DEPLOYMENTS,
   MEMBER_LOCATIONS,
   type GearDeployment,
   type MemberLocation,
 } from "./deployments";
-
-const MAP_STYLE =
-  "https://demotiles.maplibre.org/style.json";
 
 const INITIAL_CENTER: [number, number] = [-103, 49];
 const INITIAL_ZOOM = 2.7;
@@ -170,18 +169,30 @@ export default function FAFOWorldMap() {
       return;
     }
 
+    const mapConfiguration = resolveFafoWorldMapConfiguration(
+      process.env.NEXT_PUBLIC_FAFO_PMTILES_URL,
+      window.location.origin,
+    );
     let map: MapLibreMap;
+    let pmtilesProtocolRegistered = false;
+
+    if (mapConfiguration.mode === "local-pmtiles") {
+      const protocol = new Protocol();
+      maplibregl.addProtocol("pmtiles", protocol.tile);
+      pmtilesProtocolRegistered = true;
+    }
 
     try {
       map = new maplibregl.Map({
         container: mapContainerRef.current,
-        style: MAP_STYLE,
+        style: mapConfiguration.style,
         center: INITIAL_CENTER,
         zoom: INITIAL_ZOOM,
         minZoom: 1.5,
         maxZoom: 16,
       });
     } catch {
+      if (pmtilesProtocolRegistered) maplibregl.removeProtocol("pmtiles");
       queueMicrotask(() => setMapUnavailable(true));
       return;
     }
@@ -229,6 +240,7 @@ export default function FAFOWorldMap() {
       map.off("error", handleMapError);
       map.off("load", handleMapLoad);
       map.remove();
+      if (pmtilesProtocolRegistered) maplibregl.removeProtocol("pmtiles");
       mapRef.current = null;
     };
   }, []);

@@ -25,6 +25,7 @@
     "@workos-inc/node": "10.9.0",
     "maplibre-gl": "^5.6.1",
     "next": "16.3.0",
+    "pmtiles": "4.4.1",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "server-only": "0.0.1"
@@ -42,5 +43,16 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "4.1.10"
+  },
+  "overrides": {
+    "@eslint/eslintrc": {
+      "js-yaml": "4.3.1"
+    },
+    "minimatch@3.1.5": {
+      "brace-expansion": "1.1.18"
+    },
+    "minimatch@10.2.5": {
+      "brace-expansion": "5.0.9"
+    }
   }
 }
