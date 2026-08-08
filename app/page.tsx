@@ -47,6 +47,7 @@ export default function Home() {
     <>
       <LoadingScreen />
       <main className="min-h-screen text-white">
+        <h1 className="sr-only">FAFO Nation HQ</h1>
         <section aria-label="Recently Deployed activity" className="relative z-50 flex h-10 w-full overflow-hidden border-b border-red-600/40 sm:h-11">
           <div className="relative z-20 flex shrink-0 items-center border-r border-red-600/50 px-3 sm:px-5">
             <span aria-hidden="true" className="mr-2 h-2 w-2 shrink-0 rounded-full bg-red-600" />
