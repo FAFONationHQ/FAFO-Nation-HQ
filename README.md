@@ -65,6 +65,11 @@ npm run verify
 
 The route check confirms that every header destination is either implemented or listed as an intentional content blocker. The GitHub Actions verification workflow runs the same combined checks for pushes and pull requests. It does not deploy the application.
 
+## Documentation
+
+- [`docs/architecture.md`](docs/architecture.md) - current application structure and dynamic-system boundaries
+- [`docs/website-visual-asset-queue.md`](docs/website-visual-asset-queue.md) - owner/creative handoff for future website imagery
+
 ## Architecture
 
 - `app/` contains App Router pages, the shared header, loading experience, and global styles.
