@@ -4,6 +4,9 @@ import { defineConfig } from "vitest/config";
 const localTestEnvironment = loadEnv("test", process.cwd(), "");
 
 export default defineConfig({
+  ssr: {
+    noExternal: ["@workos-inc/authkit-nextjs"],
+  },
   test: {
     include: ["tests/integration/**/*.test.ts"],
     fileParallelism: false,
