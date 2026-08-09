@@ -32,6 +32,7 @@ export type OperatorAuthorizationDecision =
       permission: Permission;
       reason:
         | "UNAUTHENTICATED"
+        | "INVALID_SESSION"
         | "NO_OPERATOR_ROLE"
         | "MISSING_PERMISSION"
         | "MFA_REQUIRED"
@@ -49,7 +50,16 @@ export function authorizeOperatorBoundary(
     return { allowed: false, permission: policy.permission, reason: "UNAUTHENTICATED" };
   }
 
-  const roles = session.fafoRoles.filter(isRoleName);
+  const authenticatedAtMs = session.authenticatedAt.getTime();
+  if (
+    !session.memberId.trim() ||
+    session.memberId !== session.memberId.trim() ||
+    !Number.isFinite(authenticatedAtMs)
+  ) {
+    return { allowed: false, permission: policy.permission, reason: "INVALID_SESSION" };
+  }
+
+  const roles = [...new Set(session.fafoRoles.filter(isRoleName))];
   if (roles.length === 0) {
     return { allowed: false, permission: policy.permission, reason: "NO_OPERATOR_ROLE" };
   }
@@ -67,13 +77,13 @@ export function authorizeOperatorBoundary(
   }
 
   const nowMs = now.getTime();
-  const authenticatedAtMs = session.authenticatedAt.getTime();
   const authenticationAge = nowMs - authenticatedAtMs;
   const invalidTimestamp =
     !Number.isFinite(authenticationAge) || authenticationAge < -MAX_CLOCK_SKEW_MS;
   if (
     invalidTimestamp ||
     authenticationAge > policy.maximumAuthenticationAgeMs ||
+    !Number.isFinite(policy.maximumAuthenticationAgeMs) ||
     policy.maximumAuthenticationAgeMs < 0
   ) {
     return { allowed: false, permission: policy.permission, reason: "STEP_UP_REQUIRED" };
@@ -81,7 +91,14 @@ export function authorizeOperatorBoundary(
 
   if (policy.requireMfa) {
     const mfaAge = nowMs - session.mfaVerifiedAt!.getTime();
-    if (!Number.isFinite(mfaAge) || mfaAge < -MAX_CLOCK_SKEW_MS || mfaAge > policy.maximumAuthenticationAgeMs) {
+    const mfaPredatesAuthentication =
+      session.mfaVerifiedAt!.getTime() + MAX_CLOCK_SKEW_MS < authenticatedAtMs;
+    if (
+      !Number.isFinite(mfaAge) ||
+      mfaAge < -MAX_CLOCK_SKEW_MS ||
+      mfaAge > policy.maximumAuthenticationAgeMs ||
+      mfaPredatesAuthentication
+    ) {
       return { allowed: false, permission: policy.permission, reason: "STEP_UP_REQUIRED" };
     }
   }

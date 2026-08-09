@@ -96,4 +96,41 @@ describe("operator authorization boundary", () => {
       auditRequired: true,
     });
   });
+
+  test("rejects malformed sessions and non-finite policy windows", () => {
+    const session = {
+      memberId: "operator-1",
+      fafoRoles: ["DEPLOYMENT_PUBLISHER"],
+      authenticatedAt: now,
+      mfaVerifiedAt: now,
+    };
+    expect(authorizeOperatorBoundary({ ...session, memberId: " " }, policy, now))
+      .toMatchObject({ allowed: false, reason: "INVALID_SESSION" });
+    expect(authorizeOperatorBoundary(session, {
+      ...policy,
+      maximumAuthenticationAgeMs: Number.NaN,
+    }, now)).toMatchObject({ allowed: false, reason: "STEP_UP_REQUIRED" });
+    expect(authorizeOperatorBoundary({
+      ...session,
+      authenticatedAt: new Date("invalid"),
+    }, policy, now)).toMatchObject({ allowed: false, reason: "INVALID_SESSION" });
+  });
+
+  test("deduplicates roles and rejects MFA evidence from an older authentication", () => {
+    expect(authorizeOperatorBoundary({
+      memberId: "operator-1",
+      fafoRoles: ["DEPLOYMENT_PUBLISHER", "DEPLOYMENT_PUBLISHER"],
+      authenticatedAt: now,
+      mfaVerifiedAt: now,
+    }, policy, now)).toMatchObject({
+      allowed: true,
+      roles: ["DEPLOYMENT_PUBLISHER"],
+    });
+    expect(authorizeOperatorBoundary({
+      memberId: "operator-1",
+      fafoRoles: ["DEPLOYMENT_PUBLISHER"],
+      authenticatedAt: now,
+      mfaVerifiedAt: new Date("2026-08-08T19:58:00.000Z"),
+    }, policy, now)).toMatchObject({ allowed: false, reason: "STEP_UP_REQUIRED" });
+  });
 });

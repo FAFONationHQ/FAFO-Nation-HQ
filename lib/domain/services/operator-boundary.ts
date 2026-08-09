@@ -1,5 +1,5 @@
 import type {
-  AuditEventRepository,
+  AuditEventAppender,
 } from "../persistence/audit-repository.ts";
 import { appendAuditEvent } from "../persistence/audit-repository.ts";
 import {
@@ -25,7 +25,7 @@ export async function authorizeOperatorOperation(
   session: OperatorSession | null | undefined,
   policy: OperatorBoundaryPolicy,
   auditContext: OperatorBoundaryAuditContext,
-  auditRepository: AuditEventRepository,
+  auditRepository: AuditEventAppender,
   now = new Date(),
 ): Promise<OperatorAuthorizationDecision> {
   const decision = authorizeOperatorBoundary(session, policy, now);

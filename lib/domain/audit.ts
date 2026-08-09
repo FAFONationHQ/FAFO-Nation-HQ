@@ -14,6 +14,17 @@ export const AUDIT_ACTIONS = [
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
 export type AuditOutcome = "SUCCEEDED" | "DENIED" | "FAILED";
 
+const AUDIT_OUTCOMES = ["SUCCEEDED", "DENIED", "FAILED"] as const;
+const AUDIT_ACTOR_KINDS = ["MEMBER", "OPERATOR", "SYSTEM"] as const;
+const AUDIT_TARGET_TYPES = [
+  "MEMBER",
+  "DEPLOYMENT",
+  "CONTENT",
+  "ORDER",
+  "PERMISSION",
+  "SYSTEM",
+] as const;
+
 export type AuditActor =
   | { kind: "MEMBER" | "OPERATOR"; actorId: string }
   | { kind: "SYSTEM"; actorId: "SYSTEM" };
@@ -64,17 +75,31 @@ export class AuditValidationError extends Error {
 }
 
 function safeIdentifier(value: string, maximumLength = 200): boolean {
-  return value.trim().length > 0 && value.length <= maximumLength && !/\p{Cc}/u.test(value);
+  return value.length > 0 &&
+    value === value.trim() &&
+    value.length <= maximumLength &&
+    !/\p{Cc}/u.test(value);
+}
+
+function includesRuntimeValue(values: readonly string[], value: unknown): value is string {
+  return typeof value === "string" && values.includes(value);
 }
 
 export function createAuditEvent(input: CreateAuditEventInput): AuditEvent {
+  const occurredAt = new Date(input.occurredAt);
   if (
+    !includesRuntimeValue(AUDIT_ACTIONS, input.action) ||
+    !includesRuntimeValue(AUDIT_OUTCOMES, input.outcome) ||
+    !includesRuntimeValue(AUDIT_ACTOR_KINDS, input.actor.kind) ||
+    !includesRuntimeValue(AUDIT_TARGET_TYPES, input.target.type) ||
     !safeIdentifier(input.eventId) ||
     !safeIdentifier(input.actor.actorId) ||
-    !safeIdentifier(input.target.type, 50) ||
     !safeIdentifier(input.target.targetId) ||
     !safeIdentifier(input.requestId) ||
-    Number.isNaN(new Date(input.occurredAt).getTime())
+    Number.isNaN(occurredAt.getTime()) ||
+    occurredAt.toISOString() !== input.occurredAt ||
+    (input.actor.kind === "SYSTEM" && input.actor.actorId !== "SYSTEM") ||
+    (input.actor.kind !== "SYSTEM" && input.actor.actorId === "SYSTEM")
   ) throw new AuditValidationError();
 
   const allowedKeys = new Set<string>(ALLOWED_METADATA_KEYS[input.action]);
@@ -84,7 +109,10 @@ export function createAuditEvent(input: CreateAuditEventInput): AuditEvent {
     if (!allowedKeys.has(key) || FORBIDDEN_METADATA_KEY.test(key)) continue;
     if (typeof value === "number" && !Number.isFinite(value)) continue;
     if (value === null || ["string", "number", "boolean"].includes(typeof value)) {
-      if (typeof value === "string" && FORBIDDEN_METADATA_VALUE.test(value)) continue;
+      if (typeof value === "string" && (
+        FORBIDDEN_METADATA_VALUE.test(value) ||
+        /\p{Cc}/u.test(value)
+      )) continue;
       metadata[key] = typeof value === "string" ? value.slice(0, 200) : value as number | boolean | null;
     }
   }
