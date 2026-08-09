@@ -24,6 +24,14 @@ export default defineConfig({
   webServer: {
     command: `npm run dev -- --hostname 127.0.0.1 --port ${port}`,
     url: `http://127.0.0.1:${port}`,
+    env: {
+      ...process.env,
+      WORKOS_CLIENT_ID: "",
+      WORKOS_API_KEY: "",
+      WORKOS_COOKIE_PASSWORD: "",
+      NEXT_PUBLIC_WORKOS_REDIRECT_URI: "",
+      DATABASE_URL: "",
+    },
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },

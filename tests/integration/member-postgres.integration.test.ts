@@ -1,8 +1,14 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { afterAll, beforeAll, describe, expect, test, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
+import {
+  associateVerifiedWorkOsUser,
+  MissingEligibilityAttestationError,
+  UnverifiedWorkOsEmailError,
+} from "../../lib/auth/associate-workos-user.ts";
+import { createMemberSignUpState } from "../../lib/auth/member-signup-state.ts";
 import {
   createPrismaMemberRepositorySet,
   PrismaMemberRepositoryUnitOfWork,
@@ -15,12 +21,15 @@ const fixturePrefix = `shift5-synthetic-${Date.now()}-${process.pid}`;
 class ExpectedRollback extends Error {}
 
 async function runRollbackFixture(
-  operation: (repositories: ReturnType<typeof createPrismaMemberRepositorySet>) => Promise<void>,
+  operation: (
+    repositories: ReturnType<typeof createPrismaMemberRepositorySet>,
+    transaction: Prisma.TransactionClient,
+  ) => Promise<void>,
 ) {
   let operationCompleted = false;
   try {
     await client.$transaction(async (transaction) => {
-      await operation(createPrismaMemberRepositorySet(transaction));
+      await operation(createPrismaMemberRepositorySet(transaction), transaction);
       operationCompleted = true;
       throw new ExpectedRollback();
     });
@@ -83,6 +92,59 @@ describe("isolated local PostgreSQL member persistence", () => {
         memberId: second.id,
         callsign: "SHIFT-FIVE",
       })).rejects.toBeInstanceOf(PersistenceConflictError);
+    });
+  });
+
+  test("persists a verified WorkOS callback once with private and consent-free defaults", async () => {
+    await runRollbackFixture(async ({ identities, profiles, consents }, transaction) => {
+      const providerSubject = `${fixturePrefix}-callback`;
+      const callback = {
+        id: providerSubject,
+        emailVerified: true,
+      };
+      const state = createMemberSignUpState();
+      const first = await associateVerifiedWorkOsUser(callback, identities, {
+        observedAt: new Date("2026-08-08T23:02:00.000Z"),
+        state,
+      });
+      const repeated = await associateVerifiedWorkOsUser(callback, identities, {
+        observedAt: new Date("2026-08-08T23:02:01.000Z"),
+        state,
+      });
+
+      expect(repeated.id).toBe(first.id);
+      expect(first).toMatchObject({
+        status: "ACTIVE",
+        eligibilityPolicyVersion: "member-eligibility-v1",
+      });
+      expect(await profiles.findPrivateProfileByMemberId(first.id)).toBeNull();
+      expect(await consents.listForMember(first.id)).toEqual([]);
+      expect(await transaction.member.count({ where: { id: first.id } })).toBe(1);
+      expect(await transaction.authIdentity.count({
+        where: { provider: "workos", providerSubject },
+      })).toBe(1);
+      expect(await transaction.memberProfile.count({ where: { memberId: first.id } })).toBe(0);
+      expect(await transaction.consentDecision.count({ where: { memberId: first.id } })).toBe(0);
+    });
+  });
+
+  test("rejects unverified or unattested callbacks without database writes", async () => {
+    await runRollbackFixture(async ({ identities }, transaction) => {
+      const unverifiedSubject = `${fixturePrefix}-unverified`;
+      const unattestedSubject = `${fixturePrefix}-unattested`;
+      await expect(associateVerifiedWorkOsUser({
+        id: unverifiedSubject,
+        emailVerified: false,
+      }, identities, { state: createMemberSignUpState() })).rejects.toBeInstanceOf(
+        UnverifiedWorkOsEmailError,
+      );
+      await expect(associateVerifiedWorkOsUser({
+        id: unattestedSubject,
+        emailVerified: true,
+      }, identities)).rejects.toBeInstanceOf(MissingEligibilityAttestationError);
+      expect(await transaction.authIdentity.count({
+        where: { providerSubject: { in: [unverifiedSubject, unattestedSubject] } },
+      })).toBe(0);
     });
   });
 
