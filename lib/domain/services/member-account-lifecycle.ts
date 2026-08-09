@@ -1,4 +1,4 @@
-import { hasActiveConsent } from "../consent.ts";
+import { CONSENT_PURPOSES, hasActiveConsent } from "../consent.ts";
 import {
   createAccountDeletionPreview,
   createMemberAccountExport,
@@ -58,16 +58,19 @@ export async function requestOwnAccountDeletion(
   unitOfWork: MemberRepositoryUnitOfWork,
 ) {
   assertSelfServiceTarget(input.authenticatedMemberId, input.requestedMemberId);
+  const requestedAt = input.requestedAt ?? new Date();
+  if (Number.isNaN(requestedAt.getTime())) throw new MemberSelfServiceAccessError();
   return unitOfWork.execute(async ({ identities, profiles, consents }) => {
     const member = await identities.findMemberById(input.authenticatedMemberId);
     if (!member) throw new MemberSelfServiceAccessError();
+    if (member.status === "DELETION_REQUESTED") return member;
     const profile = await profiles.findPrivateProfileByMemberId(member.id);
     const history = await consents.listForMember(member.id);
 
     if (profile?.visibility === "PUBLIC") {
       await profiles.savePrivateProfile({ ...profile, visibility: "PRIVATE" });
     }
-    for (const purpose of ["PUBLIC_MEMBER_PROFILE", "PUBLIC_MEMBER_LOCATION"] as const) {
+    for (const purpose of CONSENT_PURPOSES) {
       if (hasActiveConsent(history, purpose)) {
         await consents.append({
           memberId: member.id,
@@ -75,10 +78,10 @@ export async function requestOwnAccountDeletion(
           status: "REVOKED",
           policyVersion: "member-privacy-v1",
           source: "PROFILE_SETTINGS",
-          decidedAt: input.requestedAt,
+          decidedAt: requestedAt,
         });
       }
     }
-    return identities.requestDeletion(member.id, input.requestedAt);
+    return identities.requestDeletion(member.id, requestedAt);
   });
 }

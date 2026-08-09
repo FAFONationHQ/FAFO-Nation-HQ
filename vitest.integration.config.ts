@@ -9,7 +9,8 @@ export default defineConfig({
     fileParallelism: false,
     maxWorkers: 1,
     env: {
-      DATABASE_URL: localTestEnvironment.DATABASE_URL ?? "",
+      DATABASE_URL: process.env.DATABASE_URL ?? localTestEnvironment.DATABASE_URL ?? "",
+      FAFO_INTEGRATION_CI: process.env.FAFO_INTEGRATION_CI ?? "",
     },
   },
 });

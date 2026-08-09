@@ -31,7 +31,7 @@ export type RateLimitDecision =
   | { allowed: false; remaining: 0; resetAt: number; retryAfterMs: number };
 
 export interface RateLimitStore {
-  consume(key: string, policy: RateLimitPolicy, nowMs: number): RateLimitDecision;
+  consume(key: string, policy: RateLimitPolicy, nowMs: number): Promise<RateLimitDecision>;
 }
 
 type WindowState = { count: number; resetAt: number };
@@ -44,9 +44,12 @@ type WindowState = { count: number; resetAt: number };
 export class InMemoryFixedWindowRateLimitStore implements RateLimitStore {
   private readonly windows = new Map<string, WindowState>();
 
-  consume(key: string, policy: RateLimitPolicy, nowMs: number): RateLimitDecision {
+  async consume(key: string, policy: RateLimitPolicy, nowMs: number): Promise<RateLimitDecision> {
     if (!key || !Number.isFinite(nowMs) || policy.limit < 1 || policy.windowMs < 1) {
       return { allowed: false, remaining: 0, resetAt: nowMs, retryAfterMs: policy.windowMs };
+    }
+    for (const [candidateKey, candidate] of this.windows) {
+      if (candidate.resetAt <= nowMs) this.windows.delete(candidateKey);
     }
     const existing = this.windows.get(key);
     const state = !existing || existing.resetAt <= nowMs
@@ -70,14 +73,59 @@ export class InMemoryFixedWindowRateLimitStore implements RateLimitStore {
   }
 }
 
-export function evaluateRateLimit(
+function deniedDecision(nowMs: number, policy?: RateLimitPolicy): RateLimitDecision {
+  const retryAfterMs = policy?.windowMs ?? 0;
+  return {
+    allowed: false,
+    remaining: 0,
+    resetAt: nowMs + retryAfterMs,
+    retryAfterMs,
+  };
+}
+
+function validStoreDecision(
+  decision: RateLimitDecision,
+  policy: RateLimitPolicy,
+  nowMs: number,
+): boolean {
+  if (
+    !Number.isFinite(decision.resetAt) ||
+    decision.resetAt < nowMs ||
+    !Number.isInteger(decision.remaining) ||
+    decision.remaining < 0 ||
+    decision.remaining >= policy.limit
+  ) return false;
+  if (decision.allowed) return true;
+  return decision.remaining === 0 &&
+    Number.isFinite(decision.retryAfterMs) &&
+    decision.retryAfterMs >= 0;
+}
+
+export async function evaluateRateLimit(
   store: RateLimitStore,
   operation: RateLimitOperation,
   opaqueSubjectKey: string,
   now = new Date(),
-): RateLimitDecision {
-  if (!opaqueSubjectKey || opaqueSubjectKey.length > 200 || /\p{Cc}/u.test(opaqueSubjectKey)) {
-    return { allowed: false, remaining: 0, resetAt: now.getTime(), retryAfterMs: 0 };
+): Promise<RateLimitDecision> {
+  const nowMs = now.getTime();
+  const operationIsValid = (RATE_LIMIT_OPERATIONS as readonly string[]).includes(operation);
+  const policy = operationIsValid ? RATE_LIMIT_POLICIES[operation] : undefined;
+  if (
+    !policy ||
+    !Number.isFinite(nowMs) ||
+    !opaqueSubjectKey ||
+    opaqueSubjectKey !== opaqueSubjectKey.trim() ||
+    opaqueSubjectKey.length > 200 ||
+    /\p{Cc}/u.test(opaqueSubjectKey)
+  ) {
+    return deniedDecision(Number.isFinite(nowMs) ? nowMs : 0, policy);
   }
-  return store.consume(`${operation}:${opaqueSubjectKey}`, RATE_LIMIT_POLICIES[operation], now.getTime());
+  try {
+    const decision = await store.consume(`${operation}:${opaqueSubjectKey}`, policy, nowMs);
+    return validStoreDecision(decision, policy, nowMs)
+      ? decision
+      : deniedDecision(nowMs, policy);
+  } catch {
+    return deniedDecision(nowMs, policy);
+  }
 }

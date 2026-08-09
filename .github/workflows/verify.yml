@@ -12,7 +12,26 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      DATABASE_URL: postgresql://ci:ci@localhost:5432/fafo_ci
+      DATABASE_URL: postgresql://fafo_test_owner@127.0.0.1:5432/fafo_test
+      FAFO_CI_ADMIN_DATABASE_URL: postgresql://postgres@127.0.0.1:5432/fafo_test
+      FAFO_CI_OWNER_DATABASE_URL: postgresql://fafo_test_owner@127.0.0.1:5432/fafo_test
+      FAFO_CI_APP_DATABASE_URL: postgresql://fafo_test_app@127.0.0.1:5432/fafo_test
+      FAFO_CI_EPHEMERAL_POSTGRES: "true"
+
+    services:
+      postgres:
+        image: postgres:18.4
+        env:
+          POSTGRES_DB: fafo_test
+          POSTGRES_USER: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d fafo_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
 
     steps:
       - name: Check out repository
@@ -27,11 +46,29 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Provision isolated PostgreSQL roles
+        run: node scripts/ci-postgres.mjs bootstrap
+
+      - name: Apply reviewed migration history as owner
+        run: npx prisma migrate deploy
+
+      - name: Apply least-privilege application grants
+        run: node scripts/ci-postgres.mjs grants
+
       - name: Verify project
         run: npm run verify
+
+      - name: Verify real PostgreSQL integration
+        env:
+          DATABASE_URL: ${{ env.FAFO_CI_APP_DATABASE_URL }}
+          FAFO_INTEGRATION_CI: "true"
+        run: npm run test:integration
 
       - name: Install browser for route and accessibility tests
         run: npx playwright install --with-deps chromium
 
       - name: Verify public routes and accessibility
         run: npm run test:e2e
+
+      - name: Verify dependency audit
+        run: npm audit --audit-level=high

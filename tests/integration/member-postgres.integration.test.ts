@@ -9,6 +9,8 @@ import {
   UnverifiedWorkOsEmailError,
 } from "../../lib/auth/associate-workos-user.ts";
 import { createMemberSignUpState } from "../../lib/auth/member-signup-state.ts";
+import { CONSENT_PURPOSES } from "../../lib/domain/consent.ts";
+import { requestOwnAccountDeletion } from "../../lib/domain/services/member-account-lifecycle.ts";
 import {
   createPrismaMemberRepositorySet,
   PrismaMemberRepositoryUnitOfWork,
@@ -39,8 +41,29 @@ async function runRollbackFixture(
   expect(operationCompleted).toBe(true);
 }
 
+async function expectDatabaseOperationDenied(
+  operation: (transaction: Prisma.TransactionClient) => Promise<unknown>,
+) {
+  let denied = false;
+  try {
+    await client.$transaction(async (transaction) => {
+      try {
+        await operation(transaction);
+      } catch {
+        denied = true;
+      }
+      throw new ExpectedRollback();
+    });
+  } catch (error) {
+    if (!(error instanceof ExpectedRollback)) throw error;
+  }
+  expect(denied).toBe(true);
+}
+
 describe("isolated local PostgreSQL member persistence", () => {
   beforeAll(async () => {
+    const configuredUrl = new URL(process.env.DATABASE_URL ?? "");
+    expect(["127.0.0.1", "localhost"]).toContain(configuredUrl.hostname);
     const [identity] = await client.$queryRaw<
       Array<{
         version: string;
@@ -55,17 +78,24 @@ describe("isolated local PostgreSQL member persistence", () => {
              host(inet_server_addr()) AS host,
              current_database() AS database,
              current_user AS role,
-             has_database_privilege(current_user, 'fafo_dev', 'CONNECT') AS "devConnect",
+             COALESCE((
+               SELECT has_database_privilege(current_user, oid, 'CONNECT')
+               FROM pg_database WHERE datname = 'fafo_dev'
+             ), false) AS "devConnect",
              has_schema_privilege(current_user, 'public', 'CREATE') AS "schemaCreate"
     `;
-    expect(identity).toEqual({
+    expect(identity).toMatchObject({
       version: "18.4",
-      host: "127.0.0.1",
       database: "fafo_test",
       role: "fafo_test_app",
       devConnect: false,
       schemaCreate: false,
     });
+    if (process.env.FAFO_INTEGRATION_CI === "true") {
+      expect(identity.host).toMatch(/^(?:127\.0\.0\.1|10\.|172\.(?:1[6-9]|2\d|3[01])\.|192\.168\.)/);
+    } else {
+      expect(identity.host).toBe("127.0.0.1");
+    }
   });
 
   afterAll(async () => {
@@ -148,6 +178,17 @@ describe("isolated local PostgreSQL member persistence", () => {
     });
   });
 
+  test("denies migration metadata, DDL, and role management to the application role", async () => {
+    await expectDatabaseOperationDenied((transaction) =>
+      transaction.$queryRawUnsafe('SELECT id FROM "_prisma_migrations" LIMIT 1'));
+    await expectDatabaseOperationDenied((transaction) =>
+      transaction.$executeRawUnsafe('CREATE TABLE "forbidden_app_table" (id TEXT)'));
+    await expectDatabaseOperationDenied((transaction) =>
+      transaction.$executeRawUnsafe('CREATE SCHEMA "forbidden_app_schema"'));
+    await expectDatabaseOperationDenied((transaction) =>
+      transaction.$executeRawUnsafe('CREATE ROLE forbidden_app_role'));
+  });
+
   test("rolls back repository writes when a transaction operation fails", async () => {
     const providerSubject = `${fixturePrefix}-rollback`;
     const unitOfWork = new PrismaMemberRepositoryUnitOfWork(client);
@@ -165,17 +206,43 @@ describe("isolated local PostgreSQL member persistence", () => {
     })).toBeNull();
   });
 
-  test("applies account deletion state without leaving synthetic fixtures", async () => {
-    await runRollbackFixture(async ({ identities }) => {
+  test("atomically closes every V1 public consent during account deletion", async () => {
+    await runRollbackFixture(async (repositories) => {
+      const { identities, profiles, consents } = repositories;
       const member = await identities.ensureMemberForVerifiedIdentity({
         provider: "workos",
         providerSubject: `${fixturePrefix}-deletion`,
         verifiedAt: new Date("2026-08-08T23:10:00.000Z"),
       });
-      expect((await identities.requestDeletion(
-        member.id,
-        new Date("2026-08-08T23:11:00.000Z"),
-      )).status).toBe("DELETION_REQUESTED");
+      await profiles.savePrivateProfile({
+        memberId: member.id,
+        callsign: "deletion-member",
+        visibility: "PUBLIC",
+      });
+      for (const purpose of CONSENT_PURPOSES) {
+        await consents.append({
+          memberId: member.id,
+          purpose,
+          status: "GRANTED",
+          policyVersion: "member-privacy-v1",
+          source: "PROFILE_SETTINGS",
+          decidedAt: new Date("2026-08-08T23:10:30.000Z"),
+        });
+      }
+      const unitOfWork = { execute: async <T>(
+        operation: (scoped: typeof repositories) => Promise<T>,
+      ) => operation(repositories) };
+      expect((await requestOwnAccountDeletion({
+        authenticatedMemberId: member.id,
+        requestedMemberId: member.id,
+        requestedAt: new Date("2026-08-08T23:11:00.000Z"),
+      }, unitOfWork)).status).toBe("DELETION_REQUESTED");
+      expect((await profiles.findPrivateProfileByMemberId(member.id))?.visibility).toBe("PRIVATE");
+      const history = await consents.listForMember(member.id);
+      for (const purpose of CONSENT_PURPOSES) {
+        expect(history.filter((decision) => decision.purpose === purpose).map(({ status }) => status))
+          .toEqual(["GRANTED", "REVOKED"]);
+      }
     });
   });
 });

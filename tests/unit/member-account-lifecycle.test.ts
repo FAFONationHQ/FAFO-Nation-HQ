@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { createAccountAnonymizationPlan } from "../../lib/domain/account-lifecycle.ts";
+import { CONSENT_PURPOSES } from "../../lib/domain/consent.ts";
 import {
   exportOwnMemberAccount,
   MemberSelfServiceAccessError,
@@ -67,6 +68,16 @@ describe("member account lifecycle foundation", () => {
 
   test("deletion request closes publication, appends revocation, and marks status", async () => {
     const { repositories, member } = await memberFixture();
+    for (const purpose of CONSENT_PURPOSES.filter((candidate) => candidate !== "PUBLIC_MEMBER_PROFILE")) {
+      await repositories.append({
+        memberId: member.id,
+        purpose,
+        status: "GRANTED",
+        policyVersion: "member-privacy-v1",
+        source: "PROFILE_SETTINGS",
+        decidedAt: new Date("2026-08-08T22:02:00.000Z"),
+      });
+    }
     const unitOfWork: MemberRepositoryUnitOfWork = {
       execute: async (operation) =>
         operation({ identities: repositories, profiles: repositories, consents: repositories }),
@@ -79,10 +90,35 @@ describe("member account lifecycle foundation", () => {
 
     expect(updated.status).toBe("DELETION_REQUESTED");
     expect((await repositories.findPrivateProfileByMemberId(member.id))?.visibility).toBe("PRIVATE");
-    expect((await repositories.listForMember(member.id)).map(({ status }) => status)).toEqual([
-      "GRANTED",
-      "REVOKED",
-    ]);
+    const history = await repositories.listForMember(member.id);
+    for (const purpose of CONSENT_PURPOSES) {
+      expect(history.filter((decision) => decision.purpose === purpose).map(({ status }) => status))
+        .toEqual(["GRANTED", "REVOKED"]);
+    }
+
+    const repeated = await requestOwnAccountDeletion({
+      authenticatedMemberId: member.id,
+      requestedMemberId: member.id,
+      requestedAt: new Date("2026-08-08T22:20:00.000Z"),
+    }, unitOfWork);
+    expect(repeated.updatedAt.toISOString()).toBe("2026-08-08T22:10:00.000Z");
+    expect(await repositories.listForMember(member.id)).toHaveLength(CONSENT_PURPOSES.length * 2);
+  });
+
+  test("rejects an invalid deletion timestamp before any privacy mutation", async () => {
+    const { repositories, member } = await memberFixture();
+    const unitOfWork: MemberRepositoryUnitOfWork = {
+      execute: async (operation) =>
+        operation({ identities: repositories, profiles: repositories, consents: repositories }),
+    };
+    await expect(requestOwnAccountDeletion({
+      authenticatedMemberId: member.id,
+      requestedMemberId: member.id,
+      requestedAt: new Date("invalid"),
+    }, unitOfWork)).rejects.toBeInstanceOf(MemberSelfServiceAccessError);
+    expect((await repositories.findPrivateProfileByMemberId(member.id))?.visibility).toBe("PUBLIC");
+    expect(await repositories.listForMember(member.id)).toHaveLength(1);
+    expect((await repositories.findMemberById(member.id))?.status).toBe("ACTIVE");
   });
 
   test("deletion preview and anonymization plan avoid invented retention periods", async () => {
