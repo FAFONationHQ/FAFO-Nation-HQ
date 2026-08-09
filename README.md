@@ -70,7 +70,7 @@ Automated axe checks supplement rather than replace keyboard, screen-reader, zoo
 
 ## Important limitations
 
-- Local WorkOS Staging and isolated database configuration exist outside Git. A synthetic signup/email/callback/private-profile lifecycle and session invalidation have been proven. The Staging application still needs `http://localhost:3000/` as its default sign-out redirect; recovery and session-expiry lifecycle checks follow.
+- Local WorkOS Staging and isolated database configuration exist outside Git. A synthetic signup/email/callback/private-profile lifecycle, repeat sign-in without duplication, provider logout/home return, and post-logout protection have been proven. Recovery and session-expiry lifecycle checks remain.
 - No production auth activation, operator portal, roles table, audit table, deployment table, database-backed map switch, or PMTiles archive exists.
 - Commerce, payments, fulfillment, arbitrary uploads, native administration, and operational FAFO Cares routes remain unavailable.
 - Ten sensitive FAFO Cares destinations remain intentional blockers pending approved content and operations.
