@@ -10,22 +10,22 @@ Date: 2026-08-08
 - Authentication does not imply authorization. Operator decisions require FAFO-owned roles, explicit permission, MFA policy, recent authentication, and auditability.
 - Profile, consent, member, deployment, and audit boundaries use explicit inputs/outputs. Public projections omit provider identifiers, email, precise/private location, fulfillment, payment, and secret metadata.
 - Consent is default deny, purpose-specific, append-only, and revocable. Public access fails closed after revocation.
-- Auth redirects are application-selected; callback failures return a safe join status. No user-controlled open redirect was added.
+- Auth redirects are application-selected; callback failures return a safe join status and expire any partially created session cookie. No user-controlled open redirect was added.
 - Map popup text is created with `textContent`; PMTiles configuration accepts only a same-origin `.pmtiles` path.
 - Response headers deny framing and sensitive browser capabilities, disable MIME sniffing/DNS prefetch, set a strict referrer policy, and remove `X-Powered-By`.
 
-Remaining production gates include rate limiting and abuse controls, CSP design compatible with Next/MapLibre/WorkOS, persistent operator/audit enforcement, database integration testing, secret scanning, monitoring/alerting, recovery/deletion/export implementation, and independent security/privacy review.
+Remaining production gates include a production-grade shared rate-limit store and abuse controls, CSP design compatible with Next/MapLibre/WorkOS, persistent operator/audit enforcement, secret scanning, monitoring/alerting, recovery/export completion, backup/restore operations, and independent security/privacy review. The local V1 database integration is proven; the prepared disposable PostgreSQL CI path still needs its first approved GitHub Actions execution.
 
 ## Automated testing
 
-- Unit/integration: 10 Vitest files, 43 tests passed.
-- Domain invariants: 14 policy/state tests included in the Vitest total.
-- Browser E2E: 62 Playwright Chromium tests passed across all implemented public routes, auth-unavailable behavior, primary navigation, and headers.
-- Accessibility: eight representative WCAG A/AA axe scans passed. Manual keyboard, screen-reader, reflow/zoom, reduced-motion, media-alternative, and visual review remain required.
+- Unit: 84 Vitest tests passed.
+- Integration: 8 tests passed: 6 against isolated local PostgreSQL and 2 against the installed AuthKit package with synthetic no-network provider responses.
+- Browser E2E: 72 Playwright Chromium tests passed across implemented public routes, auth-unavailable behavior, primary navigation, responsive layouts, and headers.
+- Accessibility: 12 representative WCAG A/AA axe scans passed. Manual keyboard, screen-reader, reflow/zoom, reduced-motion, media-alternative, and visual review remain required.
 - Route gate: 52 declared public patterns, 55 page implementations, four handlers, three protected routes, ten intentional blockers, 51 sitemap routes, and 63 static links verified.
 - Production build: 59 static pages generated; protected/auth/member paths remained dynamic as designed.
 
-CI uses Node 22.11, runs the deterministic verification gate, installs Playwright Chromium, and runs browser tests. It has read-only repository permission and no deployment step.
+CI uses Node 22.11, runs the deterministic verification gate, installs Playwright Chromium, runs browser tests, and defines a guarded disposable PostgreSQL 18.4 integration job with synthetic local-only credentials and least-privilege roles. It has read-only repository permission and no deployment step. The database job has been statically and locally guard-checked but cannot be runtime-proven until an approved GitHub Actions run.
 
 ## Accessibility corrections
 

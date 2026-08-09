@@ -39,7 +39,7 @@ npm run prisma:generate
 npm run dev
 ```
 
-The app is available at `http://localhost:3000` by default. Without valid WorkOS and database configuration, `/join` truthfully reports that member access is unavailable; auth endpoints do not fabricate a session.
+The app is available at `http://localhost:3000` by default. Without valid WorkOS and database configuration, `/join` truthfully reports that member access is unavailable; auth endpoints do not fabricate a session. Real local values belong only in ignored environment files.
 
 ## Verification
 
@@ -57,8 +57,8 @@ Automated axe checks supplement rather than replace keyboard, screen-reader, zoo
 - 51 public sitemap routes, three protected account pages, four auth route handlers, and one dynamic public member-profile route.
 - WorkOS sign-in, sign-up, callback, and sign-out foundations with verified-email association, sealed 18+ attestation state, safe configuration gating, and no home-grown passwords.
 - Private member profile editing, normalized unique callsigns, separate profile/location consent, append-only consent history, exact public preview, and allowlisted public projection.
-- Prisma V1 `Member`, `AuthIdentity`, `MemberProfile`, and `ConsentDecision` schema plus a first SQL migration artifact. The migration has not been applied because no isolated database was available.
-- Server-only Prisma repositories and in-memory contract doubles. Public/protected behavior stays inert without credentials and a database.
+- Prisma V1 `Member`, `AuthIdentity`, `MemberProfile`, and `ConsentDecision` schema plus reviewed SQL migration history. It is applied only to isolated local `fafo_dev` and `fafo_test`; the test database has passed destructive rebuild proof.
+- Server-only Prisma repositories and in-memory contract doubles. Real local PostgreSQL integration tests exercise identity/member persistence, consent, privacy defaults, and negative least-privilege operations.
 - Fail-closed operator authorization contracts, MFA/recent-auth requirements, and an append-only audit repository boundary. Their proposed V2 tables are not in the V1 schema.
 - Static FAFO World remains the active source. A tested asynchronous database-projection adapter and migration proposal are ready for a separately approved V2.
 - Optional local raster PMTiles protocol integration; the default remains the current demonstration style and no map archive is committed or deployed.
@@ -66,11 +66,11 @@ Automated axe checks supplement rather than replace keyboard, screen-reader, zoo
 
 ## Database and migration status
 
-`prisma/migrations/20260808113000_member_privacy_v1/migration.sql` is an artifact for review. No database was provisioned, connected, migrated, rebuilt, restored, or seeded during Shift #4. Before applying it, identify an isolated disposable non-production PostgreSQL instance, confirm ownership and contents, review the SQL, and validate forward migration and recovery. Never point local tests or CI at production.
+`prisma/migrations/20260808113000_member_privacy_v1/migration.sql` is the reviewed V1 migration. It has been applied by dedicated owner roles to isolated local PostgreSQL 18.4 databases `fafo_dev` and `fafo_test`. Least-privilege application grants, repository behavior with synthetic fixtures, and a destructive rebuild of `fafo_test` from migration history have been verified. The guarded CI workflow provisions a separate disposable runner database; it has not yet been executed on GitHub. Never point local tests or CI at production.
 
 ## Important limitations
 
-- WorkOS credentials, a WorkOS development/staging environment, and an isolated database are still required for live account flows.
+- Local WorkOS Staging and isolated database configuration exist outside Git. One owner-controlled synthetic signup/email verification is still required to prove the real browser lifecycle; recovery and session-expiry lifecycle checks follow.
 - No production auth activation, operator portal, roles table, audit table, deployment table, database-backed map switch, or PMTiles archive exists.
 - Commerce, payments, fulfillment, arbitrary uploads, native administration, and operational FAFO Cares routes remain unavailable.
 - Ten sensitive FAFO Cares destinations remain intentional blockers pending approved content and operations.

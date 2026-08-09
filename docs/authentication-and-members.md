@@ -1,6 +1,6 @@
 # Authentication and Member System V1 Decision Package
 
-Status after Shift #4: WorkOS AuthKit is selected and installed. Sign-in, sign-up, callback, sign-out, verified-email association, sealed 18+ attestation, protected account pages, private profiles, consent controls, and allowlisted public profiles are implemented behind configuration gates. No credentials are committed and no provider environment or database is active, so live registration remains unavailable. The design rationale below is retained for policy context; future-tense statements should be read against this current status.
+Status after Shift #6: WorkOS AuthKit is selected and installed. Sign-in, sign-up, callback, sign-out, verified-email association, sealed 18+ attestation, protected account pages, private profiles, consent controls, and allowlisted public profiles are implemented. Ignored local configuration targets WorkOS Staging and isolated local PostgreSQL only; no credentials are committed. Non-interactive Staging preflight, installed-package PKCE/session tests, and real PostgreSQL identity/member persistence tests pass. Live registration remains gated on one owner-controlled synthetic browser signup and email verification. The design rationale below is retained for policy context; future-tense statements should be read against this current status.
 
 ## Architecture categories
 
