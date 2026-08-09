@@ -120,7 +120,11 @@ const deploymentRecord = {
   verificationState: "VERIFIED",
   publicationState: "PUBLISHED",
   publicDeploymentConsent: "GRANTED",
-  timeline: { createdAt: null, updatedAt: null, publishedAt: null },
+  timeline: {
+    createdAt: "2026-08-08T20:00:00.000Z",
+    updatedAt: "2026-08-08T20:00:00.000Z",
+    publishedAt: "2026-08-08T20:00:00.000Z",
+  },
   privateFulfillment: {
     customerName: "Private Person",
     email: "private@example.invalid",

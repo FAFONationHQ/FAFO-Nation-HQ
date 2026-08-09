@@ -9,6 +9,16 @@ export type DeploymentVerificationState = "PENDING" | "VERIFIED" | "REJECTED";
 export type DeploymentPublicationState = "DRAFT" | "PUBLISHED" | "UNPUBLISHED";
 export type DeploymentConsentState = "NOT_GRANTED" | "GRANTED" | "REVOKED";
 
+const DEPLOYMENT_VERIFICATION_STATES = ["PENDING", "VERIFIED", "REJECTED"] as const;
+const DEPLOYMENT_PUBLICATION_STATES = ["DRAFT", "PUBLISHED", "UNPUBLISHED"] as const;
+const DEPLOYMENT_CONSENT_STATES = ["NOT_GRANTED", "GRANTED", "REVOKED"] as const;
+const DEPLOYMENT_PROVENANCE_SOURCES = [
+  "MANUAL_REVIEW",
+  "FULFILLMENT_EVENT",
+  "MEMBER_SUBMISSION",
+  "STATIC_IMPORT",
+] as const;
+
 export type DeploymentProvenance = {
   source: "MANUAL_REVIEW" | "FULFILLMENT_EVENT" | "MEMBER_SUBMISSION" | "STATIC_IMPORT";
   sourceReference: string;
@@ -86,28 +96,83 @@ function locationIsPublicSafe(location: DeploymentLocation): boolean {
     location.longitude >= -180 &&
     location.longitude <= 180 &&
     [location.city, location.region, location.country].every(
-      (value) => value.trim().length > 0 && value.length <= 100 && !/\p{Cc}/u.test(value),
+      (value) => value.length > 0 &&
+        value === value.trim() &&
+        value.length <= 100 &&
+        !/\p{Cc}/u.test(value),
     )
   );
 }
 
 function validOptionalTimestamp(value: string | null): boolean {
-  return value === null || !Number.isNaN(new Date(value).getTime());
+  if (value === null) return true;
+  const parsed = new Date(value);
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString() === value;
+}
+
+function runtimeValue(values: readonly string[], value: unknown): boolean {
+  return typeof value === "string" && values.includes(value);
+}
+
+function safeOptionalPublicText(value: string | undefined, maximumLength: number): boolean {
+  return value === undefined || (
+    value.length > 0 &&
+    value === value.trim() &&
+    value.length <= maximumLength &&
+    !/\p{Cc}/u.test(value)
+  );
+}
+
+function timelineIsCoherent(record: PrivateDeploymentRecord): boolean {
+  const { createdAt, updatedAt, publishedAt } = record.timeline;
+  if (![createdAt, updatedAt, publishedAt].every(validOptionalTimestamp)) return false;
+  if (createdAt && updatedAt && createdAt > updatedAt) return false;
+  if (createdAt && publishedAt && createdAt > publishedAt) return false;
+  if (publishedAt && updatedAt && publishedAt > updatedAt) return false;
+  return record.publicationState !== "PUBLISHED" || publishedAt !== null;
+}
+
+function memberAssociationIsPublicSafe(record: PrivateDeploymentRecord): boolean {
+  const association = record.memberAssociation;
+  if (!association) return record.category !== "MEMBER_LOCATION";
+  return runtimeValue(DEPLOYMENT_CONSENT_STATES, association.consent) &&
+    safeOptionalPublicText(association.publicRole, 80) &&
+    (association.publicCallsign === undefined || (
+      association.publicCallsign.length >= 3 &&
+      association.publicCallsign.length <= 24 &&
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(association.publicCallsign)
+    ));
 }
 
 export function validateDeploymentRecord(record: PrivateDeploymentRecord): DeploymentValidationResult {
   const reasons: string[] = [];
-  if (!record.id.trim() || record.id.length > 200 || /\p{Cc}/u.test(record.id)) reasons.push("INVALID_ID");
-  if (!record.publicLabel.trim() || record.publicLabel.length > 120 || /\p{Cc}/u.test(record.publicLabel)) {
+  if (!record.id || record.id !== record.id.trim() || record.id.length > 200 || /\p{Cc}/u.test(record.id)) {
+    reasons.push("INVALID_ID");
+  }
+  if (
+    !record.publicLabel ||
+    record.publicLabel !== record.publicLabel.trim() ||
+    record.publicLabel.length > 120 ||
+    /\p{Cc}/u.test(record.publicLabel)
+  ) {
     reasons.push("INVALID_PUBLIC_LABEL");
   }
+  if (
+    !runtimeValue(DEPLOYMENT_CATEGORIES, record.category) ||
+    !runtimeValue(DEPLOYMENT_VERIFICATION_STATES, record.verificationState) ||
+    !runtimeValue(DEPLOYMENT_PUBLICATION_STATES, record.publicationState) ||
+    !runtimeValue(DEPLOYMENT_CONSENT_STATES, record.publicDeploymentConsent)
+  ) reasons.push("INVALID_WORKFLOW_STATE");
   if (!locationIsPublicSafe(record.location)) reasons.push("INVALID_PUBLIC_LOCATION");
-  if (!Object.values(record.timeline).every(validOptionalTimestamp)) reasons.push("INVALID_TIMELINE");
+  if (!timelineIsCoherent(record)) reasons.push("INVALID_TIMELINE");
   if (record.provenance && (
-    !record.provenance.sourceReference.trim() ||
+    !runtimeValue(DEPLOYMENT_PROVENANCE_SOURCES, record.provenance.source) ||
+    !record.provenance.sourceReference ||
+    record.provenance.sourceReference !== record.provenance.sourceReference.trim() ||
     record.provenance.sourceReference.length > 200 ||
-    Number.isNaN(new Date(record.provenance.recordedAt).getTime())
+    !validOptionalTimestamp(record.provenance.recordedAt)
   )) reasons.push("INVALID_PROVENANCE");
+  if (!memberAssociationIsPublicSafe(record)) reasons.push("INVALID_MEMBER_ASSOCIATION");
   return reasons.length === 0 ? { valid: true } : { valid: false, reasons };
 }
 

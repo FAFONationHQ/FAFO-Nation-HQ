@@ -13,7 +13,8 @@ export class DeploymentWorkflowError extends Error {
     | "PUBLISH_PERMISSION_REQUIRED"
     | "VERIFICATION_REQUIRED"
     | "PUBLICATION_CONSENT_REQUIRED"
-    | "MEMBER_ASSOCIATION_CONSENT_REQUIRED") {
+    | "MEMBER_ASSOCIATION_CONSENT_REQUIRED"
+    | "NON_MONOTONIC_TIMESTAMP") {
     super("Deployment workflow transition denied.");
     this.name = "DeploymentWorkflowError";
   }
@@ -24,6 +25,14 @@ function validTimestamp(value: Date): string {
   return value.toISOString();
 }
 
+function transitionTimestamp(record: PrivateDeploymentRecord, value: Date): string {
+  const timestamp = validTimestamp(value);
+  if (record.timeline.updatedAt && timestamp < record.timeline.updatedAt) {
+    throw new DeploymentWorkflowError("NON_MONOTONIC_TIMESTAMP");
+  }
+  return timestamp;
+}
+
 export function reviewDeployment(
   record: PrivateDeploymentRecord,
   decision: DeploymentReviewDecision,
@@ -31,10 +40,13 @@ export function reviewDeployment(
   reviewedAt = new Date(),
 ): PrivateDeploymentRecord {
   if (!validateDeploymentRecord(record).valid) throw new DeploymentWorkflowError("INVALID_RECORD");
+  if (decision !== "APPROVE" && decision !== "REJECT") {
+    throw new DeploymentWorkflowError("INVALID_RECORD");
+  }
   if (!authorization.allowed || authorization.permission !== "deployment.review") {
     throw new DeploymentWorkflowError("REVIEW_PERMISSION_REQUIRED");
   }
-  const timestamp = validTimestamp(reviewedAt);
+  const timestamp = transitionTimestamp(record, reviewedAt);
   return {
     ...record,
     verificationState: decision === "APPROVE" ? "VERIFIED" : "REJECTED",
@@ -67,7 +79,7 @@ export function publishDeployment(
   if (record.category === "MEMBER_LOCATION" && record.memberAssociation?.consent !== "GRANTED") {
     throw new DeploymentWorkflowError("MEMBER_ASSOCIATION_CONSENT_REQUIRED");
   }
-  const timestamp = validTimestamp(publishedAt);
+  const timestamp = transitionTimestamp(record, publishedAt);
   return {
     ...record,
     publicationState: "PUBLISHED",
@@ -79,7 +91,8 @@ export function closeDeploymentPublication(
   record: PrivateDeploymentRecord,
   changedAt = new Date(),
 ): PrivateDeploymentRecord {
-  const timestamp = validTimestamp(changedAt);
+  if (!validateDeploymentRecord(record).valid) throw new DeploymentWorkflowError("INVALID_RECORD");
+  const timestamp = transitionTimestamp(record, changedAt);
   return {
     ...record,
     publicationState: "UNPUBLISHED",
