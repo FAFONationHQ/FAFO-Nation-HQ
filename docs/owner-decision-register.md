@@ -114,6 +114,46 @@ All 25 decisions from the platform-readiness review were resolved by the owner b
 
 **Status: APPROVED WITH CONDITIONS.** Monitoring, alerts, backups, tested restoration, incident response, auditability, and key rotation are production-readiness requirements. Recovery objectives, ownership, retention, and service-specific procedures remain deferred implementation details and pre-launch gates.
 
-## Current implementation boundary
+## Historical Day Shift #3 implementation boundary
 
-These decisions authorize pure domain contracts, safe local verification, static SEO, and implementation-ready proposals. They do not authorize real authentication, database connections or migrations, payment/fulfillment integrations, uploads, production map infrastructure, external provider calls, deployment, secrets, `.env` changes, dependency changes, or FAFO Cares content.
+The original 25 decisions authorized pure domain contracts, safe local verification, static SEO, and implementation-ready proposals. They did not by themselves authorize real authentication, database connections or migrations, payment/fulfillment integrations, uploads, production map infrastructure, external provider calls, deployment, secrets, `.env` changes, dependency changes, or FAFO Cares content. Later owner gates below supersede that historical boundary only where they are explicit.
+
+## Shift #7 overnight approvals
+
+Date: 2026-08-09
+
+### V2 migration authorization
+
+**Status: APPROVED WITH HARD BOUNDARIES.** Implement two staged local migrations: V2A for operator grants and immutable audit events, followed by V2B for FAFO World persistence. Work is restricted to PostgreSQL 18.4 at `127.0.0.1:5432`, databases `fafo_dev` and `fafo_test`, and their corresponding migration-owner roles. Back up `fafo_dev` before mutation. Destructive rebuild proof is authorized only for positively identified `fafo_test`. Use synthetic data only. No remote/production database, static-data cutover, deployment, push, or merge is authorized.
+
+### Operator and audit policy
+
+**Status: APPROVED.** Persist the existing operator-role vocabulary except ordinary `MEMBER`. Initial real grant paths are limited to `DEPLOYMENT_REVIEWER`, `DEPLOYMENT_PUBLISHER`, and `SYSTEM_OPERATOR`. `SYSTEM_OPERATOR` may manage ordinary grants but cannot create another system operator; system-operator bootstrap remains migration-owner-only. No self-grant, persisted `OWNER_OPERATOR` grant, or break-glass workflow is approved for V2.
+
+Audit persistence is append/read only. Runtime roles receive no `UPDATE`, `DELETE`, or `TRUNCATE`; PostgreSQL must reject update/delete attempts at the database boundary. Migration-owner-only restoration and maintenance must be documented and tested against `fafo_test`. Synthetic dev/test audit records remain until isolated-database rebuild. Production/legal retention remains a later gate and must not be hard-coded into V2.
+
+### FAFO World V2 policy and schema
+
+**Status: APPROVED.** The V2 persistence boundary includes `Deployment`, `DeploymentConsentDecision`, `MemberDeploymentAssociation`, and `DeploymentReview`. PostgreSQL may become the future source of truth for new deployments, but the current seven static records remain the active public source and rollback fallback. Tonight is synthetic shadow/parity work only; no real-data backfill or source switch is approved.
+
+Purchase or fulfillment never implies publication consent. Member-associated publication requires independent active consent. Store only approved city-centroid coordinates rounded to four decimal places; never persist fulfillment-derived precise coordinates in the deployment model. The initial review/correction reason codes are `VERIFIED_EVIDENCE`, `INSUFFICIENT_EVIDENCE`, `INVALID_LOCATION`, `CONSENT_MISSING`, `CONSENT_REVOKED`, `DUPLICATE`, `CORRECTION_REQUESTED`, and `POLICY_VIOLATION`. Preserve append-only dev/test consent/review history, separate review/publish permissions, and fail-closed public projection.
+
+### Northern Response Digital Creations reuse boundary
+
+**Status: APPROVED.** NRDC means Northern Response Digital Creations. FAFO Nation is the reference implementation of a larger modular platform. Treat major backend/platform capabilities as potentially reusable while keeping FAFO branding, terminology, content, and configuration at the application edge. For Shift #7, reusable boundaries remain internal modules in this repository. Do not create a separate repository or published package. Prefer proven interfaces over premature abstraction; extraction/versioning is a later decision.
+
+### Self-hosted mapping proof
+
+**Status: APPROVED FOR LOCAL PROOF ONLY.** Vector PMTiles is the target direction. A local proof may install/use Java 21 and a pinned Planetiler/Protomaps toolchain plus required open map/style assets. Begin with a small named geographic area and measure download, generation, archive, memory, and rendering behavior before expansion. Docker must not be installed solely for this work. No CDN, object storage, production map switch, or deployment is authorized.
+
+### Authentication, member lifecycle, and rate limits
+
+**Status: APPROVED WITH SCOPE LIMITS.** WorkOS recovery, expiry, MFA, and step-up coverage uses mocks/synthetic evidence tonight; no further owner-controlled WorkOS interaction is required. Account export and deletion-request entry points may be implemented. A deletion request must immediately deny member authorization and close public visibility. Final WorkOS deletion, hard deletion, and irreversible anonymization are not authorized. Rate limiting remains provider-neutral through internal ports, adapters, contracts, and tests; no hosted service signup is authorized.
+
+### GitHub and external systems
+
+**Status: DEFERRED.** Do not push, create a pull request, merge, deploy, or run remote GitHub Actions. No production, payment, fulfillment, DNS, Vercel, remote database, object-storage/CDN, or other external-service activation is authorized by the overnight approvals.
+
+## Current overnight implementation boundary
+
+Shift #7 may implement, migrate, test, rebuild, and document the explicitly approved local V2A/V2B, NRDC-internal boundaries, vector-PMTiles local proof, synthetic WorkOS lifecycle coverage, account export/deletion-request scope, provider-neutral rate limiting, and repository verification. All operations must remain local/non-production, secret-safe, synthetic where data is required, and checkpointed in local commits only.
