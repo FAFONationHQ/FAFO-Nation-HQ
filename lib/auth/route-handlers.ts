@@ -10,6 +10,11 @@ type RouteConfiguration = {
   redirectUrl(pathname: string): URL;
 };
 
+type SessionCookieConfiguration = {
+  name: string;
+  domain?: string;
+};
+
 type CallbackOptions = {
   returnPathname: string;
   onSuccess(context: { user: WorkOsIdentityCandidate; state?: string }): Promise<void>;
@@ -23,6 +28,7 @@ export type AuthCallbackAdapter = (
 export function createAuthCallbackRoute(dependencies: RouteConfiguration & {
   handleAuth: AuthCallbackAdapter;
   repository: MemberIdentityRepository;
+  sessionCookie?: SessionCookieConfiguration;
 }) {
   return async function authCallback(request: NextRequest): Promise<Response> {
     if (!dependencies.readiness.enabled) {
@@ -37,8 +43,23 @@ export function createAuthCallbackRoute(dependencies: RouteConfiguration & {
       onSuccess: async ({ user, state }) => {
         await associateVerifiedWorkOsUser(user, dependencies.repository, { state });
       },
-      onError: async () =>
-        NextResponse.redirect(dependencies.redirectUrl("/join?auth=callback-error")),
+      onError: async () => {
+        const response = NextResponse.redirect(
+          dependencies.redirectUrl("/join?auth=callback-error"),
+        );
+        const sessionCookie = dependencies.sessionCookie ?? { name: "wos-session" };
+        response.cookies.set({
+          name: sessionCookie.name,
+          value: "",
+          path: "/",
+          expires: new Date(0),
+          maxAge: 0,
+          httpOnly: true,
+          sameSite: "lax",
+          ...(sessionCookie.domain ? { domain: sessionCookie.domain } : {}),
+        });
+        return response;
+      },
     })(request);
   };
 }

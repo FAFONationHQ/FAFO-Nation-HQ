@@ -100,6 +100,9 @@ describe("authentication route handlers", () => {
 
       expect(response.status).toBe(307);
       expect(response.headers.get("location")).toBe("http://localhost:3000/join?auth=callback-error");
+      expect(response.headers.get("set-cookie")).toMatch(
+        /^wos-session=;.*(?:Expires=Thu, 01 Jan 1970|Max-Age=0)/i,
+      );
       expect(await repositories.findMemberByIdentity({
         provider: "workos",
         providerSubject: context.user.id,

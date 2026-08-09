@@ -20,6 +20,20 @@ export const MEMBER_ACCESS_REDIRECT_ORIGIN = resolveMemberAccessRedirectOrigin(
   APPLICATION_CONFIG.canonicalOrigin,
 );
 
+const configuredCookieName = process.env.WORKOS_COOKIE_NAME?.trim();
+const configuredCookieDomain = process.env.WORKOS_COOKIE_DOMAIN?.trim();
+
+export const MEMBER_SESSION_COOKIE = Object.freeze({
+  name: configuredCookieName && /^[A-Za-z0-9_-]{1,100}$/.test(configuredCookieName)
+    ? configuredCookieName
+    : "wos-session",
+  ...(configuredCookieDomain &&
+    configuredCookieDomain.length <= 253 &&
+    !/\p{Cc}/u.test(configuredCookieDomain)
+    ? { domain: configuredCookieDomain }
+    : {}),
+});
+
 export function memberAccessRedirectUrl(pathname: string): URL {
   return new URL(pathname, MEMBER_ACCESS_REDIRECT_ORIGIN);
 }
