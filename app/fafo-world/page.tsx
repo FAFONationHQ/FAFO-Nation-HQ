@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import Header from "../Header";
 import FAFOWorldMap from "./FAFOWorldMap";
 import { FAFO_WORLD_STATS } from "./deployments";
+
+export const metadata: Metadata = {
+  title: "FAFO World",
+  description:
+    "Explore the public map of verified FAFO Nation gear deployments and voluntary city-level member locations.",
+};
 
 const STAT_CARDS = [
   {

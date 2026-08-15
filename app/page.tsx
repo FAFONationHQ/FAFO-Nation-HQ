@@ -47,10 +47,11 @@ export default function Home() {
     <>
       <LoadingScreen />
       <main className="min-h-screen text-white">
+        <h1 className="sr-only">FAFO Nation HQ</h1>
         <section aria-label="Recently Deployed activity" className="relative z-50 flex h-10 w-full overflow-hidden border-b border-red-600/40 sm:h-11">
           <div className="relative z-20 flex shrink-0 items-center border-r border-red-600/50 px-3 sm:px-5">
             <span aria-hidden="true" className="mr-2 h-2 w-2 shrink-0 rounded-full bg-red-600" />
-            <span className="whitespace-nowrap text-[10px] font-black uppercase tracking-[0.18em] text-[#DC2626] sm:text-xs">
+            <span className="whitespace-nowrap text-[10px] font-black uppercase tracking-[0.18em] text-[#F87171] sm:text-xs">
               Recently Deployed
             </span>
           </div>
@@ -146,8 +147,8 @@ export default function Home() {
           forced-color-adjust: none !important;
         }
         .fafo-ticker-red {
-          color: #DC2626 !important;
-          -webkit-text-fill-color: #DC2626 !important;
+          color: #F87171 !important;
+          -webkit-text-fill-color: #F87171 !important;
           forced-color-adjust: none !important;
         }
         .fafo-ticker-leaf-gold {

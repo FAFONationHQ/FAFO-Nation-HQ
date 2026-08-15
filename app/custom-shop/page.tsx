@@ -1,0 +1,15 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import Header from "../Header";
+
+export const metadata: Metadata = { title: "Custom Shop", description: "Learn about the intended FAFO Custom Shop experience and its current availability." };
+
+const AREAS = [
+  { title: "Project Ideas", detail: "The planned starting point for ideas, references, sketches, and project requirements." },
+  { title: "Approved Listings", detail: "A future area for approved custom items that are ready to be presented publicly." },
+  { title: "Completed Work", detail: "A future gallery intended to share approved completed projects and inspiration." },
+];
+
+export default function CustomShopPage() {
+  return <main className="min-h-screen bg-black text-white"><Header /><section className="relative overflow-hidden border-b border-white/10 px-5 py-20 sm:px-10 sm:py-24 lg:px-16 lg:py-32"><div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-0 h-[560px] w-[920px] max-w-full -translate-x-1/2 bg-[radial-gradient(circle,rgba(220,38,38,0.17)_0%,rgba(212,175,55,0.07)_38%,rgba(0,0,0,0)_70%)]" /><div className="relative z-10 mx-auto w-full max-w-7xl"><p className="text-xs font-black uppercase tracking-[0.32em] text-red-600">Built to Be Different</p><h1 className="mt-5 text-5xl font-black uppercase leading-[0.9] tracking-[-0.05em] sm:text-7xl lg:text-9xl">Custom <span className="block text-[#D4AF37]">Shop</span></h1><div className="mt-8 h-px w-24 bg-red-600" /><p className="mt-8 max-w-3xl text-base font-medium leading-8 text-white/65 sm:text-lg sm:leading-9">The FAFO Custom Shop is intended to turn approved ideas, references, and project requirements into custom gear with a clear path from concept to deployment.</p></div></section><section className="px-5 py-20 sm:px-10 sm:py-24 lg:px-16 lg:py-32"><div className="mx-auto w-full max-w-7xl"><div className="grid gap-px border border-white/15 bg-white/15 lg:grid-cols-3">{AREAS.map((area) => <article key={area.title} className="bg-black p-7 sm:p-9"><h2 className="text-2xl font-black uppercase text-[#D4AF37]">{area.title}</h2><p className="mt-5 text-sm leading-7 text-white/55 sm:text-base">{area.detail}</p></article>)}</div><aside className="mt-8 border border-red-600/40 bg-red-950/10 p-7 sm:p-9"><p className="text-xs font-black uppercase tracking-[0.22em] text-red-600">Current Status</p><p className="mt-4 max-w-4xl text-sm leading-7 text-white/60 sm:text-base">The website does not currently accept project requests, files, quotes, orders, payments, or status lookups. No pricing, turnaround time, approval criteria, or fulfillment promise is published.</p></aside><Link href="/custom-shop/how-it-works" className="mt-10 inline-flex min-h-12 items-center border border-red-600/70 px-7 py-3 text-xs font-black uppercase tracking-[0.18em] text-[#D4AF37] transition hover:bg-red-700/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-600">How Custom Gear Works</Link></div></section></main>;
+}

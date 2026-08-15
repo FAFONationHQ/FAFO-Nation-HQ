@@ -1,0 +1,4 @@
+import type { Metadata } from "next";
+import PublicStatusPage from "../../components/PublicStatusPage";
+export const metadata: Metadata = { title: "Veteran Stories", description: "Current status of the planned voluntary FAFO Nation veteran-stories area." };
+export default function VeteranStoriesPage() { return <PublicStatusPage eyebrow="Media & Content" title="Veteran" accentTitle="Stories" introduction="Veteran Stories is intended to provide a respectful future space for approved stories shared voluntarily through FAFO Nation." statusLabel="Stories — Coming Later" statusText="No names, service records, biographies, interviews, verification claims, or personal stories are currently published. Future participation requires informed consent and approved content." backHref="/media" backLabel="Return to Media" />; }

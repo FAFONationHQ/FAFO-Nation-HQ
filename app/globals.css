@@ -56,6 +56,12 @@ body {
   text-transform: uppercase;
 }
 
+/* Small uppercase brand labels need the lighter red to meet WCAG AA on black. */
+.text-red-600,
+.fafo-nav-red {
+  color: #ef4444 !important;
+}
+
 .loading-screen {
   position: fixed;
   inset: 0;
