@@ -352,3 +352,5 @@ body {
     pointer-events: none;
   }
 }
+
+.velvet-witch-display { letter-spacing: 0.035em; text-shadow: 1px 0 rgba(255,255,255,.16), -1px 1px rgba(0,0,0,.75), 2px 2px rgba(0,0,0,.45); transform: skewX(-1deg); }
