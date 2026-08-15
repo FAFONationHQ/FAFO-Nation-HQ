@@ -3,7 +3,7 @@ import Image, { type StaticImageData } from "next/image";
 import Header from "../../Header";
 import { secretSolver } from "./_lib/fonts";
 import banner from "../../../assets/velvet-witch/velvet-witch-banner.png";
-import footerMaster from "../../../assets/velvet-witch/velvet-witch-footer-master.png.png";
+import footerMaster from "../../../assets/velvet-witch/velvet-witch-footer-master.png";
 import bloodRush from "../../../assets/velvet-witch/blood-rush.jpg";
 import findOut from "../../../assets/velvet-witch/find-out.jpg";
 import rockRange from "../../../assets/velvet-witch/rock-range-showcase.jpg";
