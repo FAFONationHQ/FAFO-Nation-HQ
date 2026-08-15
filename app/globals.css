@@ -13,6 +13,14 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Another Danger";
+  src: url("/fonts/Another-Danger-Demo.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --background: #000000;
   --foreground: #ededed;
@@ -353,4 +361,4 @@ body {
   }
 }
 
-.velvet-witch-display { letter-spacing: 0.035em; text-shadow: 1px 0 rgba(255,255,255,.16), -1px 1px rgba(0,0,0,.75), 2px 2px rgba(0,0,0,.45); transform: skewX(-1deg); }
+.velvet-witch-display { font-family: "Another Danger", "FAFO Nation Display", "Arial Black", Impact, sans-serif; letter-spacing: 0.035em; text-shadow: 1px 0 rgba(255,255,255,.16), -1px 1px rgba(0,0,0,.75), 2px 2px rgba(0,0,0,.45); transform: skewX(-1deg); }
