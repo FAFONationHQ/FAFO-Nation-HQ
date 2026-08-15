@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Image, { type StaticImageData } from "next/image";
 import Header from "../../Header";
 import { secretSolver } from "./_lib/fonts";
-import ContextualRightsFooter from "../../_components/ContextualRightsFooter";
 import banner from "../../../assets/velvet-witch/velvet-witch-banner.png";
 import bloodRush from "../../../assets/velvet-witch/blood-rush.jpg";
 import findOut from "../../../assets/velvet-witch/find-out.jpg";
@@ -24,5 +23,13 @@ export default function FeaturedArtistPage() {
     <section className="border-y border-[#b55a83]/25 bg-[#160a14] px-5 py-14 sm:px-10 sm:py-[5.25rem] lg:px-16" aria-labelledby="find-out-heading"><div className="mx-auto grid w-full max-w-7xl gap-9 lg:grid-cols-[0.8fr_1.2fr] lg:items-center"><Artwork src={findOut} alt="Find Out by Velvet Witch" /><div><p className="text-xs font-bold uppercase tracking-[0.28em] text-[#B72089]">The FAFO connection</p><h2 id="find-out-heading" className={`${secretSolver.className} mt-[0.875rem] velvet-witch-display text-4xl font-black uppercase tracking-[-0.04em] text-[#D4AF37] sm:text-6xl`}>Find Out.</h2><p className="mt-[1.3125rem] text-lg leading-8 text-red-600">{fafoConnection}</p><div className="mt-7"><ExternalLink href="https://youtu.be/EJx1gqex2Uw?si=gsjI-B7oiAAybRcY">Watch Find Out</ExternalLink></div></div></div></section>
     <section className="px-5 py-14 sm:px-10 sm:py-[5.25rem] lg:px-16" aria-labelledby="artist-heading"><div className="mx-auto grid w-full max-w-7xl gap-9 lg:grid-cols-[0.7fr_1.3fr]"><div><p className="text-xs font-bold uppercase tracking-[0.28em] text-[#B72089]">Artist / creative world</p><h2 id="artist-heading" className={`${secretSolver.className} mt-[0.875rem] velvet-witch-display text-4xl font-black uppercase tracking-[-0.04em] text-[#D4AF37] sm:text-6xl`}>Every Word Is Hers</h2></div><div className="max-w-2xl space-y-[1.3125rem] text-base leading-8 text-red-600 sm:text-lg">{artistStatement.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div></div></section>
     <section className="border-y border-white/10 bg-[#0d080d] px-5 py-14 sm:px-10 sm:py-[5.25rem] lg:px-16" aria-labelledby="support-heading"><div className="mx-auto grid w-full max-w-7xl gap-9 lg:grid-cols-2"><div><p className="text-xs font-bold uppercase tracking-[0.28em] text-[#B72089]">Own / support the music</p><h2 id="support-heading" className={`${secretSolver.className} mt-[0.875rem] velvet-witch-display text-4xl font-black uppercase tracking-[-0.04em] text-[#D4AF37] sm:text-6xl`}>Take the Story With You</h2><p className="mt-[1.125rem] max-w-xl text-base leading-8 text-red-600">Support the writing directly through official music downloads or wearing a piece of the universe through the live Velvet Witch storefront.</p></div><div className="flex flex-wrap content-center gap-3"><ExternalLink href={destinations.payhip}>Music downloads</ExternalLink><ExternalLink href={destinations.fourthwall}>Wear the universe</ExternalLink><ExternalLink href={destinations.youtube}>New releases</ExternalLink></div></div></section>
-    <ContextualRightsFooter brand="Velvet Witch"><span>Images, Audio, Video and other Velvet Witch creative material featured on this page belong to Velvet Witch and their respective rights holders. Fan artwork by NRDC.</span></ContextualRightsFooter></main>;
+    <footer className="w-full overflow-x-clip">
+      <img
+        src={banner.src}
+        width={banner.width}
+        height={banner.height}
+        alt="The Velvet Witch Universe footer artwork"
+        className="block h-auto w-full max-w-none"
+      />
+    </footer></main>;
 }
