@@ -53,7 +53,7 @@ const NAV_ITEMS: NavItem[] = [
     { label: "Live Streams", href: "/media/live", description: "Find weekly themed streams and FAFO Nation live content." },
     { label: "Livestream Countdown", href: "/media/countdown", description: "See countdowns and details for upcoming livestreams." },
     { label: "Community Game Nights", href: "/media/game-nights", description: "Find scheduled community gaming events." },
-    { label: "FAFO Featured Artist", href: "/media/featured-artist", description: "Discover artists featured by FAFO Nation." },
+    { label: "Velvet Witch", href: "/media/featured-artist", description: "Enter the Velvet Witch Universe." },
     { label: "Interview Series", href: "/media/interviews", description: "Watch FAFO Nation interviews and conversations." },
     { label: "Veteran Stories", href: "/media/veteran-stories", description: "Explore veteran stories shared through FAFO Nation." },
     { label: "Behind the Scenes", href: "/media/behind-the-scenes", description: "See the work and people behind FAFO Nation." },
