@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
 import Header from "./Header";
+import { InteractiveLink } from "./components/InteractiveLink";
 import LoadingScreen from "./LoadingScreen";
 import heroBanner from "../assets/hero/hero-banner.jpg";
 
@@ -87,9 +88,7 @@ export default function Home() {
                   <span className="fafo-force-gold bg-transparent" style={{ textShadow: "0 2px 8px rgba(0,0,0,0.75)" }}>A WARNING</span>
                 </p>
               </div>
-              <button type="button" onClick={handleWelcome} disabled={welcomeActive} className="fafo-welcome-cta mt-8 inline-flex min-h-14 items-center justify-center border border-red-600/65 px-7 py-4 text-xs font-black uppercase tracking-[0.16em] shadow-[0_0_14px_rgba(220,38,38,0.85)] backdrop-blur-sm transition hover:border-red-500 hover:bg-red-700/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-600 disabled:cursor-default disabled:opacity-80 sm:px-9 sm:text-sm sm:tracking-[0.18em]">
-                <span className="fafo-force-gold">Welcome to FAFO, Friend</span>
-              </button>
+              <InteractiveLink className="mt-8" variant="fafo" size="hero" onClick={handleWelcome} disabled={welcomeActive}>Welcome to FAFO, Friend</InteractiveLink>
             </div>
           </div>
 
@@ -161,24 +160,13 @@ export default function Home() {
           from { transform: translateX(0); }
           to { transform: translateX(-50%); }
         }
-        @keyframes fafo-red-cta-pulse {
-          0%, 100% {
-            border-color: rgba(220, 38, 38, 0.8);
-            box-shadow: 0 0 8px rgba(220, 38, 38, 0.55), 0 0 16px rgba(220, 38, 38, 0.25);
-          }
-          50% {
-            border-color: rgba(239, 68, 68, 1);
-            box-shadow: 0 0 16px rgba(220, 38, 38, 1), 0 0 30px rgba(220, 38, 38, 0.55);
-          }
-        }
         .fafo-deployment-marquee {
           animation: fafo-deployment-scroll 32s linear infinite;
           will-change: transform;
         }
         .fafo-deployment-marquee:hover { animation-play-state: paused; }
-        .fafo-welcome-cta { animation: fafo-red-cta-pulse 1.8s ease-in-out infinite; }
         @media (prefers-reduced-motion: reduce) {
-          .fafo-deployment-marquee, .fafo-welcome-cta { animation: none; }
+          .fafo-deployment-marquee { animation: none; }
           .fafo-deployment-marquee { transform: none; }
         }
       `}</style>
