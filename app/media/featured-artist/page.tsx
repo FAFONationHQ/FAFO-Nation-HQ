@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image, { type StaticImageData } from "next/image";
 import Header from "../../Header";
+import { InteractiveLink } from "../../components/InteractiveLink";
 import { secretSolver } from "./_lib/fonts";
 import banner from "../../../assets/velvet-witch/velvet-witch-banner.png";
 import footerMaster from "../../../assets/velvet-witch/velvet-witch-footer-master.png";
@@ -11,8 +12,7 @@ import wiresLoose from "../../../assets/velvet-witch/wires-first.jpg";
 import { velvetWitchContent } from "./_lib/velvetWitchContent";
 
 export const metadata: Metadata = { title: "The Velvet Witch Universe", description: "Velvet Witch turns real life, emotional honesty and independent creative control into music." };
-const externalLinkClass = "inline-flex min-h-11 items-center justify-center border border-[#d682a8]/70 px-5 text-xs font-bold uppercase tracking-[0.16em] text-[#D4AF37] transition hover:border-[#f7c4d8] hover:bg-[#b55a83]/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#f7c4d8]";
-function ExternalLink({ href, children }: Readonly<{ href: string; children: React.ReactNode }>) { return <a href={href} target="_blank" rel="noopener noreferrer" className={externalLinkClass}>{children}<span aria-hidden="true">&nbsp;↗</span></a>; }
+function ExternalLink({ href, children }: Readonly<{ href: string; children: React.ReactNode }>) { return <InteractiveLink href={href} variant="velvet" external>{children}</InteractiveLink>; }
 function Artwork({ src, alt, priority = false }: Readonly<{ src: StaticImageData; alt: string; priority?: boolean }>) { return <Image src={src} alt={alt} priority={priority} className="h-auto w-full" sizes="(min-width: 1280px) 1200px, (min-width: 768px) 90vw, 100vw" />; }
 
 export default function FeaturedArtistPage() {
