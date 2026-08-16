@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import Header from "./Header";
 import { InteractiveLink } from "./components/InteractiveLink";
 import LoadingScreen from "./LoadingScreen";
-import heroBanner from "../assets/hero/hero-banner.jpg";
+import heroBanner from "../assets/hero/hero-banner.png";
 
 const WELCOME_AUDIO =
   "/assets/audio/fafo-nation-welcome-friend.mp3";

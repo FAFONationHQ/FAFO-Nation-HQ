@@ -29,7 +29,7 @@ Text should not be baked into new imagery unless a later brand-specific request 
 - Focal subject: existing FAFO hero subject and visual identity
 - Negative space: left or upper-left, depending on approved layout
 - Baked-in text: no
-- Existing candidate: `assets/hero/hero-banner.jpg` (1920×1080)
+- Existing candidate: `assets/hero/hero-banner.png` (1672×941)
 - Remastering suitability: yes; current file is correctly shaped but only 1920×1080 and 2.76 MB
 - Alt purpose: decorative background; empty alt is correct in current implementation
 - Performance: produce AVIF/WebP delivery variants and a dedicated mobile crop without modifying the source master
