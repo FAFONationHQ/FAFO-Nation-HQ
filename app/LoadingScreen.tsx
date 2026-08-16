@@ -6,7 +6,6 @@ import { useEffect, useRef, useState } from "react";
 const IMPACT_TIME_MS = 1430;
 const SCREEN_REMOVE_TIME_MS = 5000;
 const ENTRY_EXIT_TIME_MS = 180;
-const PASSIVE_DISMISS_TIME_MS = 1500;
 
 export default function LoadingScreen() {
   const [started, setStarted] = useState(false);
@@ -18,16 +17,12 @@ export default function LoadingScreen() {
   const entryTimerRef = useRef<number | null>(null);
   const impactTimerRef = useRef<number | null>(null);
   const removeTimerRef = useRef<number | null>(null);
-  const passiveDismissTimerRef = useRef<number | null>(null);
   const startedRef = useRef(false);
 
   const startSequence = () => {
     if (startedRef.current) return;
 
     startedRef.current = true;
-    if (passiveDismissTimerRef.current !== null) {
-      window.clearTimeout(passiveDismissTimerRef.current);
-    }
     setEntryLeaving(true);
 
     const audio = audioRef.current;
@@ -71,17 +66,10 @@ export default function LoadingScreen() {
   useEffect(() => {
     const audio = audioRef.current;
 
-    passiveDismissTimerRef.current = window.setTimeout(() => {
-      setVisible(false);
-    }, PASSIVE_DISMISS_TIME_MS);
-
     return () => {
       if (entryTimerRef.current !== null) window.clearTimeout(entryTimerRef.current);
       if (impactTimerRef.current !== null) window.clearTimeout(impactTimerRef.current);
       if (removeTimerRef.current !== null) window.clearTimeout(removeTimerRef.current);
-      if (passiveDismissTimerRef.current !== null) {
-        window.clearTimeout(passiveDismissTimerRef.current);
-      }
 
       if (audio) {
         audio.pause();
