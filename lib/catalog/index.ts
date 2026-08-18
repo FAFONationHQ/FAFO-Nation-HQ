@@ -3,7 +3,9 @@ export type CatalogClassification = "STORE_V1" | "WITHHOLD" | "CUSTOM_GALLERY" |
 export type CatalogCollectionSlug = "apparel" | "drinkware" | "accessories" | "headwear" | "fafo-k9-gear" | "reserved-custom-orders" | "fafo-trades";
 export type CatalogImage = { src: string; alt: string };
 export type ExternalPurchaseDestination = { label: "Purchase on Printify"; url: string };
-export type CatalogProduct = { slug: string; title: string; description?: string; priceCad: string; collection: CatalogCollectionSlug; classification: CatalogClassification; publicationState: PublicationState; image: CatalogImage; purchase: ExternalPurchaseDestination };
+export type ProductServiceTier = "DEFAULT" | "PERSONALIZATION" | "CUSTOM_BUILD";
+export type ProductCapability = Readonly<{ tier: ProductServiceTier; available: boolean; notice?: string }>;
+export type CatalogProduct = { slug: string; title: string; description?: string; priceCad: string; collection: CatalogCollectionSlug; classification: CatalogClassification; publicationState: PublicationState; image: CatalogImage; purchase: ExternalPurchaseDestination; capabilities: readonly ProductCapability[] };
 export type CatalogCollection = { slug: CatalogCollectionSlug; name: string; description: string; publicationState: PublicationState };
 
 export const catalogCollections: CatalogCollection[] = [
@@ -16,7 +18,8 @@ export const catalogCollections: CatalogCollection[] = [
   { slug: "fafo-trades", name: "FAFO Trades", description: "Future collection capability. No products are published in this collection yet.", publicationState: "future" },
 ];
 
-const listing = (slug: string, title: string, priceCad: string, collection: CatalogCollectionSlug, id: string, imagePath: string, query: string, listingPath: string): CatalogProduct => ({ slug, title, priceCad, collection, classification: "STORE_V1", publicationState: "published", image: { src: `https://images-api.printify.com/mockup/${id}/${imagePath}?${query}`, alt: title }, purchase: { label: "Purchase on Printify", url: `https://fafo-nation-hq.printify.me/product/${listingPath}` } });
+const capabilities: readonly ProductCapability[] = [{ tier: "DEFAULT", available: true }, { tier: "PERSONALIZATION", available: false, notice: "Personalization options for this product have not been configured yet." }, { tier: "CUSTOM_BUILD", available: false, notice: "Custom Build availability for this product is being reviewed." }];
+const listing = (slug: string, title: string, priceCad: string, collection: CatalogCollectionSlug, id: string, imagePath: string, query: string, listingPath: string): CatalogProduct => ({ slug, title, priceCad, collection, classification: "STORE_V1", publicationState: "published", image: { src: `https://images-api.printify.com/mockup/${id}/${imagePath}?${query}`, alt: title }, purchase: { label: "Purchase on Printify", url: `https://fafo-nation-hq.printify.me/product/${listingPath}` }, capabilities });
 
 export const catalogProducts: CatalogProduct[] = [
   listing("becca-got-your-6", "FAFO Cares Becca Beating Cancer Got your 6 Remastered T Shirt", "CA$41.61", "apparel", "6a46b7244144d0b569037155", "83516/51812/fafo-cares-becca-beating-cancer-got-your-6-remastered-t-shirt.jpg", "camera_label=front&revision=1786454374005", "29716703/fafo-cares-becca-beating-cancer-got-your-6-remastered-t-shirt"),
@@ -33,3 +36,4 @@ export const catalogProducts: CatalogProduct[] = [
 export const publishedProducts = catalogProducts.filter((product) => product.publicationState === "published");
 export const getProduct = (slug: string) => publishedProducts.find((product) => product.slug === slug);
 export const getCollection = (slug: string) => catalogCollections.find((collection) => collection.slug === slug);
+export const productCapability = (product: CatalogProduct, tier: ProductServiceTier) => product.capabilities.find((capability) => capability.tier === tier);
