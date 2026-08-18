@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "vitest";
 import { buildHasUploadConsent, galleryAssetCanBeApplied, galleryAssetCanInspire } from "../../lib/store/build.ts";
+import { getProduct, productCapability } from "../../lib/catalog/index.ts";
 
 test("gallery asset rights keep reusable selection distinct from inspiration", () => {
   const reusable = { id: "asset-1", title: "FAFO mark", rights: "REUSABLE_FAFO_ASSET", compatibleProductSlugs: ["product-a"], tags: [] };
@@ -14,4 +15,12 @@ test("gallery asset rights keep reusable selection distinct from inspiration", (
 test("custom upload contracts require the customer's rights acknowledgement", () => {
   assert.equal(buildHasUploadConsent({ buildId: "guest-1", productSlug: "product-a", tier: "CUSTOM_BUILD", upload: { status: "PENDING_INFRASTRUCTURE", consentAcknowledged: true } }), true);
   assert.equal(buildHasUploadConsent({ buildId: "guest-2", productSlug: "product-a", tier: "CUSTOM_BUILD", upload: { status: "PENDING_INFRASTRUCTURE", consentAcknowledged: false } }), false);
+});
+
+test("only explicitly configured products expose Custom Build", () => {
+  const apparel = getProduct("becca-got-your-6");
+  const drinkware = getProduct("dont-be-the-cattle-mug");
+  assert.equal(productCapability(apparel, "CUSTOM_BUILD")?.available, true);
+  assert.equal(productCapability(drinkware, "CUSTOM_BUILD")?.available, false);
+  assert.equal(productCapability(apparel, "PERSONALIZATION")?.status, "REVIEW_REQUIRED");
 });
