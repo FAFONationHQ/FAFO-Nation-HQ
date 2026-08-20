@@ -52,7 +52,7 @@ const implementedRoutes = new Set(
   pageFiles.map((pageFile) => {
     const relative = path.relative(appDirectory, path.dirname(pageFile));
     return relative === "" ? "/" : `/${relative.split(path.sep).join("/")}`;
-  }),
+  }).filter((route) => !route.includes("[")),
 );
 
 const sourceFiles = await findFiles(
