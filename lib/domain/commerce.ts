@@ -1,43 +1,16 @@
-import type {
-  LaunchCountry,
-  SupportedCurrency,
-} from "../config/application.ts";
+import {
+  addMoney,
+  createMoney,
+  moneyIsValid,
+  type Money,
+} from "../foundation/money.ts";
 
-export const ORDER_LEDGER_AUTHORITY = "FAFO_INTERNAL_LEDGER" as const;
+export const ORDER_LEDGER_AUTHORITY = "APPLICATION_ORDER_LEDGER" as const;
 
-declare const moneyBrand: unique symbol;
+export { addMoney, createMoney, moneyIsValid, type Money };
 
-export type Money = Readonly<{
-  minorUnits: number;
-  currency: SupportedCurrency;
-  [moneyBrand]: true;
-}>;
-
-export function moneyIsValid(value: Pick<Money, "minorUnits" | "currency">): boolean {
-  return (
-    Number.isSafeInteger(value.minorUnits) &&
-    value.minorUnits >= 0 &&
-    (value.currency === "CAD" || value.currency === "USD")
-  );
-}
-
-export function createMoney(
-  minorUnits: number,
-  currency: SupportedCurrency,
-): Money | null {
-  return moneyIsValid({ minorUnits, currency } as Money)
-    ? Object.freeze({ minorUnits, currency }) as Money
-    : null;
-}
-
-export function addMoney(left: Money, right: Money): Money | null {
-  if (!moneyIsValid(left) || !moneyIsValid(right) || left.currency !== right.currency) return null;
-  return createMoney(left.minorUnits + right.minorUnits, left.currency);
-}
-
-export type CommerceMarket = LaunchCountry;
-export type PaymentProvider = "STRIPE" | "PAYPAL";
-export type FulfillmentProvider = "PRINTIFY" | "PRINTFUL";
+export type CommerceMarket = string;
+export type ProviderId = string;
 
 export type ProviderReference<TProvider extends string> = Readonly<{
   provider: TProvider;
@@ -166,20 +139,20 @@ export type OrderEventType =
   | "ORDER_CANCELLED"
   | "ORDER_COMPLETED";
 
-export interface PaymentProviderAdapter {
-  readonly provider: PaymentProvider;
+export interface PaymentProviderAdapter<TProvider extends ProviderId = ProviderId> {
+  readonly provider: TProvider;
   createPayment(input: {
     orderId: string;
     amount: Money;
     idempotencyKey: string;
-  }): Promise<ProviderReference<PaymentProvider>>;
+  }): Promise<ProviderReference<TProvider>>;
 }
 
-export interface FulfillmentProviderAdapter {
-  readonly provider: FulfillmentProvider;
+export interface FulfillmentProviderAdapter<TProvider extends ProviderId = ProviderId> {
+  readonly provider: TProvider;
   submitFulfillment(input: {
     orderId: string;
     market: CommerceMarket;
     idempotencyKey: string;
-  }): Promise<ProviderReference<FulfillmentProvider>>;
+  }): Promise<ProviderReference<TProvider>>;
 }

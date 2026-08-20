@@ -9,7 +9,6 @@ export type GalleryRecord = Readonly<{ id: GalleryAssetId; title: string; catego
 export const galleryRecords: readonly GalleryRecord[] = [];
 export type GuestBuildState = Readonly<{ buildId: string; productSlug: string; tier: Exclude<ProductServiceTier, "DEFAULT">; selectedAssetId?: string; personalization?: Record<string, string>; notes?: string; upload?: { status: "PENDING_INFRASTRUCTURE"; consentAcknowledged: boolean } }>;
 export type NativeCheckoutRequest = Readonly<{ productSlug: string; tier: ProductServiceTier; buildId?: string; quantity: number }>;
-export type PrintifyFulfillmentRequest = Readonly<{ orderId: string; idempotencyKey: string }>;
 
 export const galleryAssetCanBeApplied = (asset: GalleryAsset, productSlug: string) => asset.rights === "REUSABLE_FAFO_ASSET" && asset.compatibleProductSlugs.includes(productSlug);
 export const galleryAssetCanInspire = (asset: GalleryAsset) => asset.rights !== "REUSABLE_FAFO_ASSET";
