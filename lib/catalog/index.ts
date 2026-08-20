@@ -57,6 +57,7 @@ export const catalogProducts: CatalogProduct[] = [
   listing("double-sided-flag", "FAFO Nation Double Sided Remastered Flag", "CA$70.68", "accessories", "6a342d4f255464e7c30c5bc7", "113604/110317/fafo-nation-double-sided-remastered-flag.jpg", "camera_label=front&revision=1786903455427", "29387787"),
   listing("lest-we-forget-tumbler", "FAFO Nation Lest We Forget 20oz Tumbler", "CA$36.02", "drinkware", "6a342d4e255464e7c30c5bc6", "148422/120189/fafo-nation-lest-we-forget-20oz-tumbler.jpg", "camera_label=front&revision=1781814803222", "29387756"),
   listing("vagabond-tumbler", "FAFO Nation Vagabond 20oz Tumbler", "CA$36.02", "drinkware", "6a342d510b10f1abad04d724", "148422/120189/fafo-nation-vagabond-20oz-tumbler.jpg", "camera_label=front&revision=1781814513485", "29387666"),
+  listing("no-refunds-basic-clean-red", "FAFO Nation No Refunds Basic Remastered T w/ Clean Red logo", "CA$37.41", "apparel", "6a25dd7966e4e2dd3909c41a", "18542/102044/fafo-nation-no-refunds-basic-remastered-t-w-clean-red-logo.jpg", "camera_label=front-2&revision=1786862177602", "29149691"),
 ];
 export const reconciledNonPublishedInventory: readonly CatalogInventoryRecord[] = [
   { printifyProductId: "31060371", title: "FAFO No Refunds on Consequences Remastered Hoodie", url: "https://fafo-nation-hq.printify.me/product/31060371", publicationState: "withhold-hoodie", classification: "WITHHOLD" },
@@ -68,6 +69,7 @@ export const reconciledNonPublishedInventory: readonly CatalogInventoryRecord[] 
   { printifyProductId: "29386228", title: "FAFO Nation Glowing Grunt Clean Up Cap", url: "https://fafo-nation-hq.printify.me/product/29386228", publicationState: "withhold-hat", classification: "WITHHOLD" },
   { printifyProductId: "29388672", title: "FAFO Nation Hunters Poppy Stone® Washed Duck Cloth Vest (Embroidered)", url: "https://fafo-nation-hq.printify.me/product/29388672", publicationState: "review-required", classification: "CUSTOM_REVIEW_REQUIRED" },
   { printifyProductId: "29152084", title: "FAFO Nation Hunters Poppy Stone® Washed Duck Cloth Vest (Embroidered)", url: "https://fafo-nation-hq.printify.me/product/29152084", publicationState: "review-required", classification: "CUSTOM_REVIEW_REQUIRED" },
+  { printifyProductId: "29151676", title: "FAFO Nation Consequence Meter Remastered Hoodie", url: "https://fafo-nation-hq.printify.me/product/29151676", publicationState: "withhold-hoodie", classification: "WITHHOLD" },
 ];
 export const publishedProducts = catalogProducts.filter((product) => product.publicationState === "published");
 export const getProduct = (slug: string) => publishedProducts.find((product) => product.slug === slug);
