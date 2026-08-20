@@ -161,6 +161,10 @@ body {
   animation-delay: 4.2s;
 }
 
+.loading-screen-waiting {
+  animation: fafo-screen-passive-dismiss 0.18s ease 1.5s forwards;
+}
+
 .loading-crest-stage {
   position: relative;
   z-index: 3;
@@ -350,6 +354,14 @@ body {
   to {
     opacity: 0;
     pointer-events: none;
+  }
+}
+
+@keyframes fafo-screen-passive-dismiss {
+  to {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
   }
 }
 
