@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { PrismaClient } from "@prisma/client";
 import { test, afterAll, beforeAll } from "vitest";
 import { PrismaCommerceAdapter } from "../../lib/commerce-prisma-adapter.ts";
+import { projectCustomerStatus } from "../../lib/foundation/commerce/core.ts";
 import { PersistenceConflictError } from "../../lib/foundation/commerce/persistence.ts";
 
 const prisma = new PrismaClient();
@@ -41,5 +42,5 @@ test("PostgreSQL fake-payment/fake-fulfillment recovery is idempotent, chronolog
   await restarted.executeOperation(fulfillment); await restarted.reconcileOperation(fulfillment.idempotencyKey, "ACCEPTED", "RECONCILED_AFTER_RESTART");
   for (const [sequence, name, field, state] of [[5, "authorized", "paymentState", "AUTHORIZED"], [6, "captured", "paymentState", "CAPTURED"], [7, "accepted", "fulfillmentState", "ACCEPTED"], [8, "pre-production", "productionState", "PRE_PRODUCTION"], [9, "in-production", "productionState", "IN_PRODUCTION"], [10, "production-complete", "productionState", "COMPLETE"], [11, "preparing", "shipmentState", "PREPARING"], [12, "shipped", "shipmentState", "SHIPPED"], [13, "transit", "shipmentState", "IN_TRANSIT"], [14, "out", "shipmentState", "OUT_FOR_DELIVERY"], [15, "delivered", "shipmentState", "DELIVERED"], [16, "complete", "orderState", "COMPLETED"]]) assert.equal(await restarted.applyLifecycleEvent({ ...event(`flow-${name}`, record.id, sequence, field), field, state }), true);
   assert.equal(await restarted.applyLifecycleEvent({ ...event("flow-stale", record.id, 14, "shipmentState"), field: "shipmentState", state: "IN_TRANSIT" }), false);
-  await restarted.saveReview({ id: id("review"), orderId: record.id, reason: "response was lost", operatorActionRequired: true }); const final = await restarted.getOrder(record.id); assert.equal(final.orderState, "COMPLETED"); assert.equal(final.shipmentState, "DELIVERED"); assert.equal(final.productionState, "COMPLETE"); assert.equal((await restarted.events(record.id)).length, 15); assert.equal((await restarted.reviews(record.id))[0].operatorActionRequired, true);
+  await restarted.saveReview({ id: id("review"), orderId: record.id, reason: "response was lost", operatorActionRequired: true }); const final = await restarted.getOrder(record.id); assert.equal(final.orderState, "COMPLETED"); assert.equal(final.shipmentState, "DELIVERED"); assert.equal(final.productionState, "COMPLETE"); assert.equal(projectCustomerStatus({ order: final.orderState, payment: final.paymentState, fulfillment: final.fulfillmentState, production: final.productionState, shipment: final.shipmentState }).completed.includes("SHIPMENT_DELIVERED"), true); assert.equal((await restarted.events(record.id)).length, 15); assert.equal((await restarted.reviews(record.id))[0].operatorActionRequired, true);
 });
