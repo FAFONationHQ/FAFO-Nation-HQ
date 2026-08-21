@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,16 +6,129 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
+  id        String  @id @default(cuid())
+  email     String  @unique
   firstName String?
   lastName  String?
-  callsign  String?  @unique
+  callsign  String? @unique
   phone     String?
 
-  role      String   @default("MEMBER")
+  role String @default("MEMBER")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model CommerceCart {
+  id        String   @id
+  ownerKind String
+  ownerRef  String
+  state     String
+  version   Int
+  snapshot  Json
+  createdAt DateTime
+  updatedAt DateTime
+
+  @@index([ownerKind, ownerRef])
+}
+
+model CommerceCheckoutSession {
+  id             String   @id
+  cartId         String
+  cartVersion    Int
+  state          String
+  idempotencyKey String   @unique
+  readiness      Json
+  expiresAt      DateTime
+  createdAt      DateTime
+  updatedAt      DateTime
+
+  @@index([cartId, cartVersion])
+}
+
+model CommerceOrder {
+  id               String              @id
+  checkoutId       String
+  cartVersion      Int
+  orderState       String
+  paymentState     String
+  fulfillmentState String
+  productionState  String
+  shipmentState    String
+  subtotalMinor    Int
+  currency         String
+  snapshot         Json
+  createdAt        DateTime
+  updatedAt        DateTime
+  items            CommerceOrderItem[]
+
+  @@index([checkoutId])
+  @@index([orderState])
+}
+
+model CommerceOrderItem {
+  id       String        @id
+  orderId  String
+  snapshot Json
+  order    CommerceOrder @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+}
+
+model CommerceOperation {
+  id             String   @id
+  orderId        String
+  kind           String
+  provider       String?
+  providerRef    String?
+  state          String
+  idempotencyKey String   @unique
+  reconciliation String
+  version        Int
+  diagnostic     Json?
+  createdAt      DateTime
+  updatedAt      DateTime
+
+  @@index([orderId, kind])
+}
+
+model CommerceEvent {
+  id            String   @id
+  orderId       String?
+  operationId   String?
+  eventType     String
+  correlationId String?
+  sequence      Int
+  occurredAt    DateTime
+  payload       Json?
+
+  @@unique([operationId, id])
+  @@index([orderId, occurredAt])
+}
+
+model CommerceIdempotency {
+  key         String   @id
+  operation   String
+  fingerprint String
+  result      Json?
+  state       String
+  createdAt   DateTime
+  updatedAt   DateTime
+}
+
+model CommerceManualReview {
+  id                     String   @id
+  orderId                String
+  operationId            String?
+  reason                 String
+  status                 String
+  customerActionRequired Boolean
+  operatorActionRequired Boolean
+  diagnostic             Json?
+  createdAt              DateTime
+  updatedAt              DateTime
+
+  @@index([orderId, status])
 }
