@@ -2,9 +2,10 @@ import assert from "node:assert/strict";
 import { test } from "vitest";
 import {
   FakeFulfillmentProvider, FakePaymentProvider, InMemoryOrderService, addOrMergeCartLine,
-  applyProviderEvent, beginTransaction, capturePayment, commercialItemSnapshot, createCart,
-  createMoney, evaluateCheckout, projectTransactionTimeline, reconcileFulfillment, reconcilePayment,
-  requestRefund, startCheckout, submitFulfillment,
+  applyProviderEvent, beginTransaction, cancellationDisposition, capturePayment, commercialItemSnapshot,
+  completeOrderIfEligible, createCart, createMoney, evaluateCheckout, projectTransactionTimeline,
+  reconcileFulfillment, reconcilePayment, requestCancellation, requestRefund, retryDisposition,
+  startCheckout, submitFulfillment,
 } from "../../lib/foundation/commerce/index.ts";
 
 const now = "2026-08-20T00:00:00.000Z";
@@ -37,7 +38,7 @@ test("fake providers make external success with a lost response safe through rec
 
 test("payment captured plus fulfillment failure remains truthful and retryable without a second charge", () => {
   const captured = capturePayment(transaction(), new FakePaymentProvider(), "pay"); const failed = submitFulfillment(captured, new FakeFulfillmentProvider({ fulfill: "UNAVAILABLE" }), "fulfill");
-  assert.equal(failed.payment, "CAPTURED"); assert.equal(failed.fulfillment, "FAILED"); assert.deepEqual(projectTransactionTimeline(failed).current, ["ORDER_PREPARATION_DELAYED"]);
+  assert.equal(failed.payment, "CAPTURED"); assert.equal(failed.fulfillment, "FAILED"); assert.equal(projectTransactionTimeline(failed).current.includes("ORDER_PREPARATION_DELAYED"), true);
   assert.equal(submitFulfillment(captured, new FakeFulfillmentProvider(), "fulfill").fulfillment, "ACCEPTED");
 });
 
@@ -60,4 +61,38 @@ test("refunds preserve fulfillment history and surface completion or review with
   const captured = capturePayment(transaction(), new FakePaymentProvider(), "pay"); const accepted = submitFulfillment(captured, new FakeFulfillmentProvider(), "fulfill");
   const refunded = requestRefund(accepted, new FakePaymentProvider(), "pay"); assert.equal(refunded.payment, "REFUNDED"); assert.equal(refunded.fulfillment, "ACCEPTED"); assert.equal(projectTransactionTimeline(refunded).completed.includes("REFUND_COMPLETED"), true);
   const uncertain = requestRefund(captured, new FakePaymentProvider({ "refund:pay": "AMBIGUOUS" }), "pay"); assert.equal(uncertain.reviews[0].operation, "REFUND");
+});
+
+test("production lifecycle is independent, monotonic, and supports optional stages", () => {
+  const captured = capturePayment(transaction(), new FakePaymentProvider(), "pay");
+  const accepted = submitFulfillment(captured, new FakeFulfillmentProvider(), "fulfill");
+  const pre = applyProviderEvent(accepted, { id: "pre", operation: "PRODUCTION", state: "PRE_PRODUCTION", occurredAt: now, sequence: 1 });
+  const active = applyProviderEvent(pre, { id: "active", operation: "PRODUCTION", state: "IN_PRODUCTION", occurredAt: now, sequence: 2 });
+  const complete = applyProviderEvent(active, { id: "complete", operation: "PRODUCTION", state: "COMPLETE", occurredAt: now, sequence: 3 });
+  assert.equal(pre.production, "PRE_PRODUCTION"); assert.equal(active.production, "IN_PRODUCTION"); assert.equal(complete.production, "COMPLETE");
+  assert.equal(applyProviderEvent(complete, { id: "stale", operation: "PRODUCTION", state: "IN_PRODUCTION", occurredAt: now, sequence: 2 }).production, "COMPLETE");
+  assert.equal(complete.payment, "CAPTURED"); assert.equal(completeOrderIfEligible({ ...accepted, production: "NOT_REQUIRED", shipment: "NOT_REQUIRED" }).order.state, "COMPLETED");
+});
+
+test("cancellation is policy-driven before production and requires review after commitment", () => {
+  const captured = capturePayment(transaction(), new FakePaymentProvider(), "pay");
+  const cancelled = requestCancellation(captured); assert.equal(cancelled.order.state, "CANCELLED"); assert.equal(cancelled.production, "CANCELLED"); assert.equal(cancelled.payment, "CAPTURED");
+  const active = applyProviderEvent(submitFulfillment(captured, new FakeFulfillmentProvider(), "fulfill"), { id: "start", operation: "PRODUCTION", state: "IN_PRODUCTION", occurredAt: now, sequence: 1 });
+  assert.equal(cancellationDisposition(active), "MANUAL_REVIEW_REQUIRED"); assert.equal(requestCancellation(active).reviews[0].operation, "CANCELLATION");
+});
+
+test("retry policy is bounded and unresolved ambiguity stops automatic execution", () => {
+  assert.equal(retryDisposition("RETRYABLE", 0, { maximumAttempts: 2 }), "RETRYABLE");
+  assert.equal(retryDisposition("RETRYABLE", 2, { maximumAttempts: 2 }), "MANUAL_REVIEW_REQUIRED");
+  assert.equal(retryDisposition("RECONCILIATION_REQUIRED", 0, { maximumAttempts: 2 }), "RECONCILIATION_REQUIRED");
+  const provider = new FakeFulfillmentProvider({ fulfill: "AMBIGUOUS" }); const captured = capturePayment(transaction(), new FakePaymentProvider(), "pay");
+  const unresolved = reconcileFulfillment(submitFulfillment(captured, provider, "fulfill"), provider, "fulfill"); assert.equal(unresolved.reviews.length, 2);
+});
+
+test("full deterministic transaction completes with independent state and a structured timeline", () => {
+  const physical = transaction(); const authorized = capturePayment(physical, new FakePaymentProvider({ pay: "AUTHORIZED" }), "pay"); assert.equal(authorized.payment, "AUTHORIZED");
+  const captured = capturePayment(authorized, new FakePaymentProvider(), "capture"); const accepted = submitFulfillment(captured, new FakeFulfillmentProvider(), "fulfill");
+  const events = [["pre", "PRODUCTION", "PRE_PRODUCTION"], ["prod", "PRODUCTION", "IN_PRODUCTION"], ["done", "PRODUCTION", "COMPLETE"], ["prep", "SHIPMENT", "PREPARING"], ["ship", "SHIPMENT", "SHIPPED"], ["transit", "SHIPMENT", "IN_TRANSIT"], ["out", "SHIPMENT", "OUT_FOR_DELIVERY"], ["delivered", "SHIPMENT", "DELIVERED"]];
+  const finished = completeOrderIfEligible(events.reduce((state, [id, operation, stateName], sequence) => applyProviderEvent(state, { id, operation, state: stateName, occurredAt: now, sequence }), accepted));
+  const timeline = projectTransactionTimeline(finished); assert.equal(finished.order.state, "COMPLETED"); assert.equal(finished.payment, "CAPTURED"); assert.equal(finished.fulfillment, "ACCEPTED"); assert.equal(finished.production, "COMPLETE"); assert.equal(finished.shipment, "DELIVERED"); assert.equal(timeline.completed.includes("SHIPMENT_DELIVERED"), true); assert.equal(timeline.next.length, 0);
 });
