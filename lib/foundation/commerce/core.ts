@@ -44,7 +44,7 @@ export type CompletedConfiguration = Readonly<{
 }>;
 export type CommercialItemSnapshot = Readonly<{
   catalogProductId: string; title: string; variantReference?: string; selectedOptions?: Readonly<Record<string, string>>;
-  quantity: number; unitPrice: Money; priceVersion: string; capturedAt: string;
+  quantity: number; unitPrice: Money; priceVersion: string; capturedAt: string; commercialAction?: string;
   configuration?: CompletedConfiguration; fulfillmentReference?: string;
 }>;
 export function commercialItemSnapshot(input: CommercialItemSnapshot): CommercialItemSnapshot {
