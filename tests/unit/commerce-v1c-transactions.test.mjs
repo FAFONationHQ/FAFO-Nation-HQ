@@ -72,6 +72,8 @@ test("production lifecycle is independent, monotonic, and supports optional stag
   assert.equal(pre.production, "PRE_PRODUCTION"); assert.equal(active.production, "IN_PRODUCTION"); assert.equal(complete.production, "COMPLETE");
   assert.equal(applyProviderEvent(complete, { id: "stale", operation: "PRODUCTION", state: "IN_PRODUCTION", occurredAt: now, sequence: 2 }).production, "COMPLETE");
   assert.equal(complete.payment, "CAPTURED"); assert.equal(completeOrderIfEligible({ ...accepted, production: "NOT_REQUIRED", shipment: "NOT_REQUIRED" }).order.state, "COMPLETED");
+  assert.equal(applyProviderEvent(accepted, { id: "blocked", operation: "PRODUCTION", state: "BLOCKED", occurredAt: now, sequence: 1 }).production, "BLOCKED");
+  assert.equal(applyProviderEvent(accepted, { id: "failed", operation: "PRODUCTION", state: "FAILED", occurredAt: now, sequence: 1 }).production, "FAILED");
 });
 
 test("cancellation is policy-driven before production and requires review after commitment", () => {
@@ -79,6 +81,7 @@ test("cancellation is policy-driven before production and requires review after 
   const cancelled = requestCancellation(captured); assert.equal(cancelled.order.state, "CANCELLED"); assert.equal(cancelled.production, "CANCELLED"); assert.equal(cancelled.payment, "CAPTURED");
   const active = applyProviderEvent(submitFulfillment(captured, new FakeFulfillmentProvider(), "fulfill"), { id: "start", operation: "PRODUCTION", state: "IN_PRODUCTION", occurredAt: now, sequence: 1 });
   assert.equal(cancellationDisposition(active), "MANUAL_REVIEW_REQUIRED"); assert.equal(requestCancellation(active).reviews[0].operation, "CANCELLATION");
+  const shipped = applyProviderEvent(captured, { id: "shipped", operation: "SHIPMENT", state: "SHIPPED", occurredAt: now, sequence: 1 }); assert.equal(requestCancellation(shipped).reviews[0].operation, "CANCELLATION");
 });
 
 test("retry policy is bounded and unresolved ambiguity stops automatic execution", () => {
@@ -95,4 +98,10 @@ test("full deterministic transaction completes with independent state and a stru
   const events = [["pre", "PRODUCTION", "PRE_PRODUCTION"], ["prod", "PRODUCTION", "IN_PRODUCTION"], ["done", "PRODUCTION", "COMPLETE"], ["prep", "SHIPMENT", "PREPARING"], ["ship", "SHIPMENT", "SHIPPED"], ["transit", "SHIPMENT", "IN_TRANSIT"], ["out", "SHIPMENT", "OUT_FOR_DELIVERY"], ["delivered", "SHIPMENT", "DELIVERED"]];
   const finished = completeOrderIfEligible(events.reduce((state, [id, operation, stateName], sequence) => applyProviderEvent(state, { id, operation, state: stateName, occurredAt: now, sequence }), accepted));
   const timeline = projectTransactionTimeline(finished); assert.equal(finished.order.state, "COMPLETED"); assert.equal(finished.payment, "CAPTURED"); assert.equal(finished.fulfillment, "ACCEPTED"); assert.equal(finished.production, "COMPLETE"); assert.equal(finished.shipment, "DELIVERED"); assert.equal(timeline.completed.includes("SHIPMENT_DELIVERED"), true); assert.equal(timeline.next.length, 0);
+});
+
+test("refund during active production preserves physical-state truth", () => {
+  const captured = capturePayment(transaction(), new FakePaymentProvider(), "pay"); const accepted = submitFulfillment(captured, new FakeFulfillmentProvider(), "fulfill");
+  const active = applyProviderEvent(accepted, { id: "active-refund", operation: "PRODUCTION", state: "IN_PRODUCTION", occurredAt: now, sequence: 1 }); const refunded = requestRefund(active, new FakePaymentProvider(), "pay");
+  assert.equal(refunded.payment, "REFUNDED"); assert.equal(refunded.fulfillment, "ACCEPTED"); assert.equal(refunded.production, "IN_PRODUCTION");
 });
