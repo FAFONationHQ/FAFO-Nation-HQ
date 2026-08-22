@@ -11,8 +11,22 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: fafo_ci
+          POSTGRES_USER: fafo_ci
+          POSTGRES_PASSWORD: fafo_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U fafo_ci -d fafo_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
-      DATABASE_URL: postgresql://ci:ci@localhost:5432/fafo_ci
+      DATABASE_URL: postgresql://fafo_ci:fafo_ci@localhost:5432/fafo_ci
 
     steps:
       - name: Check out repository
@@ -29,6 +43,13 @@ jobs:
 
       - name: Verify project
         run: npm run verify
+
+      - name: Verify Commerce PostgreSQL integration
+        run: |
+          npx prisma migrate deploy
+          npm run test:commerce:postgres
+        env:
+          DATABASE_URL: postgresql://fafo_ci:fafo_ci@localhost:5432/fafo_ci
 
       - name: Install browser for route and accessibility tests
         run: npx playwright install --with-deps chromium

@@ -37,7 +37,7 @@ test("PostgreSQL order snapshots, order/event/idempotency write, and rollback ar
 test("concurrent PostgreSQL order creation returns one durable logical order", async () => {
   const record = order("concurrent"); const input = { ...record, idempotency: { key: id("concurrent-order-key"), operation: "ORDER_CREATE", fingerprint: "concurrent", state: "COMPLETED" }, event: event("concurrent-order", record.id, 1) };
   const [left, right] = await Promise.all([db.createOrder(input), new PrismaCommerceAdapter(prisma).createOrder({ ...input, id: id("concurrent-retry"), items: [{ id: id("concurrent-retry-item"), snapshot: input.items[0].snapshot }] })]);
-  assert.equal(left.result.orderId, record.id); assert.equal(right.result.orderId, record.id); assert.equal(await prisma.commerceOrder.count({ where: { id: { startsWith: id("concurrent") } } }), 1); assert.equal(await prisma.commerceOrderItem.count({ where: { orderId: record.id } }), 1); assert.equal((await db.events(record.id)).length, 1);
+  assert.equal(left.result.orderId, right.result.orderId); assert.equal(await prisma.commerceOrder.count({ where: { id: { startsWith: id("concurrent") } } }), 1); assert.equal(await prisma.commerceOrderItem.count({ where: { orderId: left.result.orderId } }), 1); assert.equal((await db.events(left.result.orderId)).length, 1);
 });
 
 test("required state and event rollback together, while replay and stale streams cannot regress after restart", async () => {
