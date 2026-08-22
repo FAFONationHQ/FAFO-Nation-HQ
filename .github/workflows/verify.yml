@@ -50,6 +50,7 @@ jobs:
           npm run test:commerce:postgres
         env:
           DATABASE_URL: postgresql://fafo_ci:fafo_ci@localhost:5432/fafo_ci
+          COMMERCE_TEST_DATABASE: fafo_ci
 
       - name: Install browser for route and accessibility tests
         run: npx playwright install --with-deps chromium

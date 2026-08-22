@@ -7,13 +7,14 @@ import { PersistenceConflictError } from "../../lib/foundation/commerce/persiste
 
 const prisma = new PrismaClient();
 const db = new PrismaCommerceAdapter(prisma);
+const expectedDatabase = process.env.COMMERCE_TEST_DATABASE ?? "fafo_foundation_commerce_v1d_test";
 const prefix = `v1d-postgres-${process.pid}`;
 const id = (name) => `${prefix}-${name}`;
 const event = (name, orderId, sequence, type = "ORDER") => ({ id: id(name), transactionId: orderId, sequence, type, payload: { correlationId: id("correlation"), source: "fake-provider" } });
 const cart = (name = "cart") => ({ id: id(name), version: 1, ownerKind: "GUEST", ownerRef: id("guest"), snapshot: { items: [{ title: "Original tee", unitPriceMinor: 2500, currency: "CAD", configuration: { kind: "CUSTOM_BUILD", reference: "build-v1" } }] } });
 const order = (name = "order") => ({ id: id(name), version: 1, checkoutId: id("checkout"), cartVersion: 2, orderState: "SUBMITTED", paymentState: "PENDING", fulfillmentState: "NOT_REQUESTED", productionState: "WAITING", shipmentState: "NOT_SHIPPED", subtotalMinor: 2500, currency: "CAD", snapshot: { title: "Original tee", personalization: { reference: "personal-v1" }, configuration: { kind: "CUSTOM_BUILD", reference: "build-v1" } }, items: [{ id: id(`${name}-item`), snapshot: { title: "Original tee", quantity: 1, unitPriceMinor: 2500, currency: "CAD", configuration: { kind: "CUSTOM_BUILD", reference: "build-v1" } } }] });
 
-beforeAll(async () => { const identity = await prisma.$queryRawUnsafe("SELECT current_database() AS database"); assert.equal(identity[0].database, "fafo_foundation_commerce_v1d_test"); });
+beforeAll(async () => { const identity = await prisma.$queryRawUnsafe("SELECT current_database() AS database"); assert.equal(identity[0].database, expectedDatabase); });
 afterAll(async () => { await prisma.commerceOrderItem.deleteMany({ where: { id: { startsWith: prefix } } }); await prisma.commerceEvent.deleteMany({ where: { id: { startsWith: prefix } } }); await prisma.commerceManualReview.deleteMany({ where: { id: { startsWith: prefix } } }); await prisma.commerceOperation.deleteMany({ where: { id: { startsWith: prefix } } }); await prisma.commerceIdempotency.deleteMany({ where: { key: { startsWith: prefix } } }); await prisma.commerceOrder.deleteMany({ where: { id: { startsWith: prefix } } }); await prisma.commerceCheckoutSession.deleteMany({ where: { id: { startsWith: prefix } } }); await prisma.commerceCart.deleteMany({ where: { id: { startsWith: prefix } } }); await prisma.$disconnect(); });
 
 test("PostgreSQL cart and checkout persist across reconstructed adapters and reject concurrent stale writes", async () => {
