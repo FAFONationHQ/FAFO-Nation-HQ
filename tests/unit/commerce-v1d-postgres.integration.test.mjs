@@ -36,9 +36,10 @@ test("PostgreSQL order snapshots, order/event/idempotency write, and rollback ar
 });
 
 test("concurrent PostgreSQL order creation returns one durable logical order", async () => {
-  const record = order("concurrent"); const input = { ...record, idempotency: { key: id("concurrent-order-key"), operation: "ORDER_CREATE", fingerprint: "concurrent", state: "COMPLETED" }, event: event("concurrent-order", record.id, 1) };
-  const [left, right] = await Promise.all([db.createOrder(input), new PrismaCommerceAdapter(prisma).createOrder({ ...input, id: id("concurrent-retry"), items: [{ id: id("concurrent-retry-item"), snapshot: input.items[0].snapshot }] })]);
-  assert.equal(left.result.orderId, right.result.orderId); assert.equal(await prisma.commerceOrder.count({ where: { id: { startsWith: id("concurrent") } } }), 1); assert.equal(await prisma.commerceOrderItem.count({ where: { orderId: left.result.orderId } }), 1); assert.equal((await db.events(left.result.orderId)).length, 1);
+  const first = order("concurrent-first"); const second = order("concurrent-second"); const idempotency = { key: id("concurrent-order-key"), operation: "ORDER_CREATE", fingerprint: "concurrent", state: "COMPLETED" };
+  const [left, right] = await Promise.all([db.createOrder({ ...first, idempotency, event: event("concurrent-first", first.id, 1) }), new PrismaCommerceAdapter(prisma).createOrder({ ...second, idempotency, event: event("concurrent-second", second.id, 1) })]);
+  const orderId = left.result.orderId; const candidateOrderIds = [first.id, second.id]; const persisted = await new PrismaCommerceAdapter(prisma).getOrder(orderId); const savedIdempotency = await prisma.commerceIdempotency.findUniqueOrThrow({ where: { key: idempotency.key } });
+  assert.equal(left.result.orderId, right.result.orderId); assert.equal(await prisma.commerceOrder.count({ where: { id: { in: candidateOrderIds } } }), 1); assert.equal(persisted?.id, orderId); assert.equal(await prisma.commerceOrderItem.count({ where: { orderId } }), 1); assert.equal(await prisma.commerceEvent.count({ where: { orderId: { in: candidateOrderIds } } }), 1); assert.equal((await db.events(orderId)).length, 1); assert.deepEqual(savedIdempotency.result, { orderId }); assert.equal(await prisma.commerceOperation.count({ where: { orderId } }), 0);
 });
 
 test("required state and event rollback together, while replay and stale streams cannot regress after restart", async () => {
