@@ -34,6 +34,12 @@ test("PostgreSQL order snapshots, order/event/idempotency write, and rollback ar
   const rollbackOrder = order("rollback"); await assert.rejects(() => prisma.$transaction(async (tx) => { await tx.commerceOrder.create({ data: { id: rollbackOrder.id, checkoutId: rollbackOrder.checkoutId, cartVersion: 1, orderState: "SUBMITTED", paymentState: "PENDING", fulfillmentState: "NOT_REQUESTED", productionState: "WAITING", shipmentState: "NOT_SHIPPED", subtotalMinor: 1, currency: "CAD", snapshot: {}, createdAt: new Date(), updatedAt: new Date() } }); throw new Error("injected rollback"); })); assert.equal(await db.getOrder(rollbackOrder.id), null);
 });
 
+test("concurrent PostgreSQL order creation returns one durable logical order", async () => {
+  const record = order("concurrent"); const input = { ...record, idempotency: { key: id("concurrent-order-key"), operation: "ORDER_CREATE", fingerprint: "concurrent", state: "COMPLETED" }, event: event("concurrent-order", record.id, 1) };
+  const [left, right] = await Promise.all([db.createOrder(input), new PrismaCommerceAdapter(prisma).createOrder({ ...input, id: id("concurrent-retry"), items: [{ id: id("concurrent-retry-item"), snapshot: input.items[0].snapshot }] })]);
+  assert.equal(left.result.orderId, record.id); assert.equal(right.result.orderId, record.id); assert.equal(await prisma.commerceOrder.count({ where: { id: { startsWith: id("concurrent") } } }), 1); assert.equal(await prisma.commerceOrderItem.count({ where: { orderId: record.id } }), 1); assert.equal((await db.events(record.id)).length, 1);
+});
+
 test("PostgreSQL fake-payment/fake-fulfillment recovery is idempotent, chronological, and restart safe", async () => {
   const record = order("flow"); await db.createOrder({ ...record, idempotency: { key: id("flow-order"), operation: "ORDER_CREATE", fingerprint: "flow", state: "COMPLETED" }, event: event("flow-order", record.id, 1) });
   const payment = { id: id("payment"), orderId: record.id, kind: "PAYMENT_CAPTURE", provider: "fake-payment", idempotencyKey: id("pay-key"), state: "UNKNOWN", reconciliation: "RESPONSE_LOST", diagnostic: { providerEffect: "CAPTURED" }, event: event("payment-lost", record.id, 2, "PAYMENT") };
