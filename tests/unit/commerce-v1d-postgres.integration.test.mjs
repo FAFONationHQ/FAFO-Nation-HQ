@@ -40,6 +40,18 @@ test("concurrent PostgreSQL order creation returns one durable logical order", a
   assert.equal(left.result.orderId, record.id); assert.equal(right.result.orderId, record.id); assert.equal(await prisma.commerceOrder.count({ where: { id: { startsWith: id("concurrent") } } }), 1); assert.equal(await prisma.commerceOrderItem.count({ where: { orderId: record.id } }), 1); assert.equal((await db.events(record.id)).length, 1);
 });
 
+test("required state and event rollback together, while replay and stale streams cannot regress after restart", async () => {
+  const record = order("atomic"); await db.createOrder({ ...record, idempotency: { key: id("atomic-key"), operation: "ORDER_CREATE", fingerprint: "atomic", state: "COMPLETED" }, event: event("atomic-order", record.id, 1) });
+  await assert.rejects(() => prisma.$transaction(async (tx) => { await tx.commerceOrder.update({ where: { id: record.id }, data: { paymentState: "CAPTURED" } }); throw new Error("required event persistence failed"); }));
+  const restarted = new PrismaCommerceAdapter(prisma); assert.equal((await restarted.getOrder(record.id)).paymentState, "PENDING"); assert.equal((await restarted.events(record.id)).length, 1);
+  const delivered = { ...event("provider-delivered", record.id, 2, "shipmentState"), field: "shipmentState", state: "DELIVERED" }; assert.equal(await restarted.applyLifecycleEvent(delivered), true);
+  const afterReplay = new PrismaCommerceAdapter(prisma); assert.equal(await afterReplay.applyLifecycleEvent(delivered), false); assert.equal((await afterReplay.events(record.id)).filter(({ id: eventId }) => eventId === delivered.id).length, 1);
+  assert.equal(await afterReplay.applyLifecycleEvent({ ...event("shipment-stale", record.id, 1, "shipmentState"), field: "shipmentState", state: "IN_TRANSIT" }), false);
+  assert.equal(await afterReplay.applyLifecycleEvent({ ...event("production-complete", record.id, 3, "productionState"), field: "productionState", state: "COMPLETE" }), true);
+  assert.equal(await new PrismaCommerceAdapter(prisma).applyLifecycleEvent({ ...event("production-stale", record.id, 2, "productionState"), field: "productionState", state: "IN_PRODUCTION" }), false);
+  const final = await new PrismaCommerceAdapter(prisma).getOrder(record.id); assert.equal(final.shipmentState, "DELIVERED"); assert.equal(final.productionState, "COMPLETE"); assert.equal(projectCustomerStatus({ order: final.orderState, payment: final.paymentState, fulfillment: final.fulfillmentState, production: final.productionState, shipment: final.shipmentState }).completed.includes("SHIPMENT_DELIVERED"), true);
+});
+
 test("PostgreSQL fake-payment/fake-fulfillment recovery is idempotent, chronological, and restart safe", async () => {
   const record = order("flow"); await db.createOrder({ ...record, idempotency: { key: id("flow-order"), operation: "ORDER_CREATE", fingerprint: "flow", state: "COMPLETED" }, event: event("flow-order", record.id, 1) });
   const payment = { id: id("payment"), orderId: record.id, kind: "PAYMENT_CAPTURE", provider: "fake-payment", idempotencyKey: id("pay-key"), state: "UNKNOWN", reconciliation: "RESPONSE_LOST", diagnostic: { providerEffect: "CAPTURED" }, event: event("payment-lost", record.id, 2, "PAYMENT") };
