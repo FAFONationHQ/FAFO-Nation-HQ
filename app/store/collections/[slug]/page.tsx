@@ -1,0 +1,5 @@
+import { notFound } from "next/navigation";
+import Header from "../../../Header";
+import { fafoStorefrontCatalog } from "../../../../lib/catalog/fafo-storefront-catalog";
+import { ProductCard } from "../../_components/ProductCard";
+export default async function CollectionPage({ params }: { params: Promise<{ slug: string }> }) { const { slug }=await params; const collection=fafoStorefrontCatalog.getCollection(slug); if(!collection) notFound(); const products=fafoStorefrontCatalog.listPublishedProducts().filter((p)=>p.collectionSlug===collection.slug); return <main className="min-h-screen bg-black text-white"><Header /><section className="mx-auto max-w-7xl px-5 py-16"><h1 className="text-5xl font-black uppercase">{collection.name}</h1><p className="mt-5 text-white/60">{collection.description}</p>{products.length?<div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{products.map((p)=><ProductCard key={p.slug} product={p}/>)}</div>:<p className="mt-10 border border-white/15 p-6 text-white/60">No approved products are published in this collection yet.</p>}</section></main>; }
